@@ -1,11 +1,22 @@
 package Controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import DTO.File_Folder;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class HomePageController {
+   public ArrayList<File_Folder> dArrayList = new ArrayList<>(Arrays.asList(
+        new File_Folder("New folder (2)", "11/02/2024 05:09:21 PM"),
+        new File_Folder("New folder (3)", "12/02/2024 05:09:21 PM"),
+        new File_Folder("New folder", "04/02/2024 05:09:21 PM")
+    ));
+
+
     @FXML
     public ImageView searchIMG;
     public ImageView shareIMG;
