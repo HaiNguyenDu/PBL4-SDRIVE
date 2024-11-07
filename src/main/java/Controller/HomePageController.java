@@ -3,6 +3,9 @@ package Controller;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import BLL.SSHExample;
+import DAL.ConnectWindowServer;
+import DTO.File_Folder;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -16,11 +19,7 @@ import javafx.scene.image.ImageView;
 public class HomePageController {
 
     // Dữ liệu mẫu
-    public ArrayList<fileInfor> dArrayList = new ArrayList<>(Arrays.asList(
-            new fileInfor("New folder (2)", "11/02/2024 05:09:21 PM"),
-            new fileInfor("New folder (3)", "12/02/2024 05:09:21 PM"),
-            new fileInfor("New folder", "04/02/2024 05:09:21 PM")
-    ));
+    public ArrayList<File_Folder> dArrayList ;
 
     // Khai báo các thành phần FXML
     @FXML
@@ -34,10 +33,18 @@ public class HomePageController {
     public ImageView sharedIMG;
     public ImageView bodyShareIMG;
     public TextField searchField;
-    public TableView<fileInfor> tableView;
-
+    public TableView<File_Folder> tableView;
+    void loaddata(){
+        try {
+            this.dArrayList = SSHExample.FindFolder("C:\\Driver\\" +  ConnectWindowServer.user);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
     // Hàm khởi tạo
     public void initialize() {
+        loaddata();
         initImages();
         Filed();
     }
@@ -64,44 +71,44 @@ public class HomePageController {
         bodyShareIMG.setImage(imageShare);
     }
 
-    // Định nghĩa lớp fileInfor
-    public class fileInfor {
-        private String Name;
-        private String LastTimeWrite;
+    // Định nghĩa lớp File_Folder
+    // public class File_Folder {
+    //     private String Name;
+    //     private String LastTimeWrite;
 
-        // Constructor
-        public fileInfor(String name, String LastTW) {
-            this.Name = name;
-            this.LastTimeWrite = LastTW;
-        }
+    //     // Constructor
+    //     public File_Folder(String name, String LastTW) {
+    //         this.Name = name;
+    //         this.LastTimeWrite = LastTW;
+    //     }
 
-        // Getter và Setter
-        public String getName() {
-            return this.Name;
-        }
+    //     // Getter và Setter
+    //     public String getName() {
+    //         return this.Name;
+    //     }
 
-        public void setName(String newName) {
-            this.Name = newName;
-        }
+    //     public void setName(String newName) {
+    //         this.Name = newName;
+    //     }
 
-        public String getLastTimeWrite() {
-            return this.LastTimeWrite;
-        }
+    //     public String getLastTimeWrite() {
+    //         return this.LastTimeWrite;
+    //     }
 
-        public void setLastTimeWrite(String newLWT) {
-            this.LastTimeWrite = newLWT;
-        }
-    }
+    //     public void setLastTimeWrite(String newLWT) {
+    //         this.LastTimeWrite = newLWT;
+    //     }
+    // }
 
     // Thiết lập bảng TableView
     void Filed() {
         // Cấu hình cột cho tên file
-        TableColumn<fileInfor, String> nameColumn = new TableColumn<>("Name");
+        TableColumn<File_Folder, String> nameColumn = new TableColumn<>("Name");
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
         nameColumn.setPrefWidth(450);
 
         // Cấu hình cột cho thời gian chỉnh sửa cuối
-        TableColumn<fileInfor, String> lastWriteTimeColumn = new TableColumn<>("Last Write Time");
+        TableColumn<File_Folder, String> lastWriteTimeColumn = new TableColumn<>("Last Write Time");
         lastWriteTimeColumn.setCellValueFactory(new PropertyValueFactory<>("LastTimeWrite"));
         lastWriteTimeColumn.setPrefWidth(450);
 
@@ -113,7 +120,7 @@ public class HomePageController {
         tableView.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.MULTIPLE);
 
         // Chuyển đổi dArrayList thành ObservableList và đặt làm dữ liệu cho TableView
-        ObservableList<fileInfor> observableFileList = FXCollections.observableArrayList(dArrayList);
+        ObservableList<File_Folder> observableFileList = FXCollections.observableArrayList(dArrayList);
         tableView.setItems(observableFileList);
         tableView.getStylesheets().add(getClass().getResource("/Styles/homepage.css").toExternalForm());
     }

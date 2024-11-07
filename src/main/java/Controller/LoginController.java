@@ -1,5 +1,10 @@
 package Controller;
 
+import java.util.ArrayList;
+
+import BLL.SSHExample;
+import BLL.SceneSwitch;
+import DTO.File_Folder;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
@@ -9,6 +14,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 public class LoginController {
     @FXML
@@ -65,11 +71,19 @@ public class LoginController {
         loginText.setOnMouseExited(event ->   loginButton.setFill(Color.WHITE));
         loginText.setOnMouseClicked(event -> {
             String[] error = validate();
-            if(error[0]!="") errorEmail.setText(error[0]);
-            else if(error[1]!="") errorPassword.setText(error[1]);
-            else {
-
-            }
+                ArrayList<File_Folder> inFolder = new ArrayList<>();
+                String email = emailField.getText().trim();
+                String password = passwordField.getText().trim();
+                if(SSHExample.setAccount("pbl4.dut.vn",email,password));
+                Stage stage = (Stage) emailField.getScene().getWindow();
+                System.out.println(stage);
+                try {
+                    new SceneSwitch().switchToHomePage(stage);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } 
+            
 
         });
         //register

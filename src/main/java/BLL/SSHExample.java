@@ -11,8 +11,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SSHExample {
-    static public void setAccount(String Host, String User, String Password) {
+    static public boolean setAccount(String Host, String User, String Password) {
         ConnectWindowServer.setAccount(Host, User, Password);
+        return ConnectWindowServer.testAccount();
     }
 
      private static ArrayList<File_Folder> parseInputToFileFolderList(String input) {

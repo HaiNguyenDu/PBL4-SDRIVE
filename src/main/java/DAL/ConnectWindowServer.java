@@ -43,6 +43,19 @@ public class ConnectWindowServer {
         user = User;
         password = Password;
     }
+    static public boolean testAccount(){
+        try{
+            Session session = jsch.getSession(user, host, 22);
+            session.setPassword(password);
+            session.setConfig("StrictHostKeyChecking", "no");
+            session.connect();
+            session.disconnect();
+            return true;
+        }
+        catch(Exception ed){
+            return false;
+        }
+    }
 
     static public String FindFolder(String FolderName) throws Exception {
         Session session = jsch.getSession(user, host, 22);
@@ -65,8 +78,8 @@ public class ConnectWindowServer {
         session.disconnect();
         return outputBuilder.toString();
     }
-    
 
+    
     static public String SharedFolder(String folderPath, String username, String access) throws Exception {
         Session session = jsch.getSession(user, host, 22);
         session.setPassword(password);
