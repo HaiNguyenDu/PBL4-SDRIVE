@@ -20,8 +20,9 @@ public class File_Folder {
         return name;
     }
 
-    public LocalDateTime getLastWriteTime() {
-        return lastWriteTime;
+    public String getLastWriteTime() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss a");
+        return lastWriteTime.format(formatter);
     }
     
     @Override

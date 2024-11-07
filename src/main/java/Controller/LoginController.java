@@ -66,7 +66,11 @@ public class LoginController {
         loginText.setOnMouseClicked(event -> {
             String[] error = validate();
             if(error[0]!="") errorEmail.setText(error[0]);
-            if(error[1]!="") errorPassword.setText(error[1]);
+            else if(error[1]!="") errorPassword.setText(error[1]);
+            else {
+
+            }
+
         });
         //register
         registerText.setOnMouseEntered(event ->   registerButton.setFill(Color.web("#4486b3")));
@@ -85,5 +89,7 @@ public class LoginController {
 
         return error;
     }
+
+
 
 }
