@@ -152,13 +152,13 @@
                </VBox.margin>
             </Label>
            <StackPane>
-                <Rectangle arcHeight="20.0" arcWidth="20.0" fill="WHITE" height="600" width="950.0" />
-                <VBox fillWidth="false">
-                    <ListView prefHeight="550" prefWidth="920" style="-fx-border-color: white;">
-                       <VBox.margin>
-                          <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-                       </VBox.margin>
-                    </ListView>
+                <Rectangle arcHeight="20.0" arcWidth="20.0" fill="WHITE" height="600" stroke="WHITE" width="950.0" />
+                <VBox fillWidth="false" style="-fx-background-color: tran;">
+                    <TableView fx:id="tableView" prefHeight="600" prefWidth="900" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+                        <VBox.margin>
+                            <Insets bottom="15.0" left="15" right="15.0" top="15.0" />
+                        </VBox.margin>
+                    </TableView>
                   <StackPane.margin>
                      <Insets />
                   </StackPane.margin>
