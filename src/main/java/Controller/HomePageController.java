@@ -1,6 +1,10 @@
 package Controller;
 
+import BLL.SSHExample;
+import DAL.ConnectWindowServer;
 import com.example.sgroupdrive.HelloApplication;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -14,6 +18,10 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class HomePageController {
 
@@ -32,18 +40,18 @@ public class HomePageController {
     public ImageView sharedIMG;
     public ImageView bodyShareIMG;
     public TextField searchField;
+    public HBox shareButton;
     public TableView<File_Folder> tableView;
     void loaddata(){
-        try {
-            this.dArrayList = SSHExample.FindFolder("C:\\Driver\\" +  ConnectWindowServer.user);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+                 dArrayList = new ArrayList<>(Arrays.asList(
+                new File_Folder("New folder (2)", "11/02/2024 05:09:21 PM"),
+                new File_Folder("New folder (3)", "12/02/2024 05:09:21 PM"),
+                new File_Folder("New folder", "04/02/2024 05:09:21 PM")
+        ));
     }
-    // Hàm khởi tạo
+//     Hàm khởi tạo
 
-    public HBox shareButton;
+
     public void initialize()
     {
         loaddata();
@@ -74,58 +82,61 @@ public class HomePageController {
     }
 
     // Định nghĩa lớp File_Folder
-    // public class File_Folder {
-    //     private String Name;
-    //     private String LastTimeWrite;
+     public class File_Folder {
+         private String Name;
+         private String LastTimeWrite;
 
-    //     // Constructor
-    //     public File_Folder(String name, String LastTW) {
-    //         this.Name = name;
-    //         this.LastTimeWrite = LastTW;
-    //     }
+         // Constructor
+         public File_Folder(String name, String LastTW) {
+             this.Name = name;
+             this.LastTimeWrite = LastTW;
+         }
 
-    //     // Getter và Setter
-    //     public String getName() {
-    //         return this.Name;
-    //     }
+         // Getter và Setter
+         public String getName() {
+             return this.Name;
+         }
 
-    //     public void setName(String newName) {
-    //         this.Name = newName;
-    //     }
+         public void setName(String newName) {
+             this.Name = newName;
+         }
 
-    //     public String getLastTimeWrite() {
-    //         return this.LastTimeWrite;
-    //     }
+         public String getLastTimeWrite() {
+             return this.LastTimeWrite;
+         }
 
-    //     public void setLastTimeWrite(String newLWT) {
-    //         this.LastTimeWrite = newLWT;
-    //     }
-    // }
+         public void setLastTimeWrite(String newLWT) {
+             this.LastTimeWrite = newLWT;
+         }
+     }
 
-    // Thiết lập bảng TableView
-    void Filed() {
-        // Cấu hình cột cho tên file
-        TableColumn<File_Folder, String> nameColumn = new TableColumn<>("Name");
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
-        nameColumn.setPrefWidth(450);
+//     Thiết lập bảng TableView
+void Filed() {
+    // Cấu hình cột cho tên file
+    TableColumn<File_Folder, String> nameColumn = new TableColumn<>("Name");
+    nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
+    nameColumn.setPrefWidth(450);
 
-        // Cấu hình cột cho thời gian chỉnh sửa cuối
-        TableColumn<File_Folder, String> lastWriteTimeColumn = new TableColumn<>("Last Write Time");
-        lastWriteTimeColumn.setCellValueFactory(new PropertyValueFactory<>("LastTimeWrite"));
-        lastWriteTimeColumn.setPrefWidth(450);
+    // Cấu hình cột cho thời gian chỉnh sửa cuối
+    TableColumn<File_Folder, String> lastWriteTimeColumn = new TableColumn<>("Last Write Time");
+    lastWriteTimeColumn.setCellValueFactory(new PropertyValueFactory<>("LastTimeWrite"));
+    lastWriteTimeColumn.setPrefWidth(450);
 
-        // Thêm cột vào bảng TableView
-        tableView.getColumns().addAll(nameColumn, lastWriteTimeColumn);
+    // Thêm cột vào bảng TableView
+    tableView.getColumns().addAll(nameColumn, lastWriteTimeColumn);
 
-        // Đặt chế độ chọn nhiều dòng
-        tableView.getSelectionModel().setCellSelectionEnabled(false);
-        tableView.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.MULTIPLE);
+    // Chuyển đổi dArrayList thành ObservableList và đặt làm dữ liệu cho TableView
+    List<File_Folder> fileList = new ArrayList<>(dArrayList);
+    ObservableList<File_Folder> observableFileList = FXCollections.observableArrayList(fileList);
+    tableView.setItems(observableFileList);
 
-        // Chuyển đổi dArrayList thành ObservableList và đặt làm dữ liệu cho TableView
-        ObservableList<File_Folder> observableFileList = FXCollections.observableArrayList(dArrayList);
-        tableView.setItems(observableFileList);
-        tableView.getStylesheets().add(getClass().getResource("/Styles/homepage.css").toExternalForm());
-    }
+    // Thêm stylesheet
+    tableView.getStylesheets().add(getClass().getResource("/Styles/homepage.css").toExternalForm());
+
+    // RowFactory không cần thiết trong trường hợp chỉ đổi màu khi chọn.
+}
+
+
     void textFiled()
     {
         searchField =new TextField();

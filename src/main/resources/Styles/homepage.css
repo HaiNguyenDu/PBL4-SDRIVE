@@ -7,20 +7,10 @@
 .column-header {
     -fx-border-width: 0 ;
     -fx-background-color: white;
-     -fx-font-size: 14px;
+    -fx-font-size: 14px;
 }
-.table-row-cell {
-    -fx-border-width: 0;
-    -fx-background-color: white;
-    -fx-border-color:white;
-}
-.table-view .table-row-cell:hover {
-    -fx-background-color: #CCCCCC; /* Màu nền của dòng khi hover */
-    -fx-text-fill: white; /* Màu chữ của dòng khi hover */
-}
-.table-column{
-    -fx-border-width: 0;
-        -fx-background-color: white;
-        -fx-border-color:white;
-}
+
+
+
+
 
