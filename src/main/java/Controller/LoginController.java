@@ -74,15 +74,11 @@ public class LoginController {
                 ArrayList<File_Folder> inFolder = new ArrayList<>();
                 String email = emailField.getText().trim();
                 String password = passwordField.getText().trim();
-                if(SSHExample.setAccount("pbl4.dut.vn",email,password));
-                Stage stage = (Stage) emailField.getScene().getWindow();
-                System.out.println(stage);
-                try {
-                    new SceneSwitch().switchToHomePage(stage);
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } 
+                if(SSHExample.setAccount("pbl4.dut.vn",email,password)){
+                    
+                }
+                else System.err.println("fail");
+                
             
 
         });
