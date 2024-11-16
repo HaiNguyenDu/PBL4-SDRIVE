@@ -1,20 +1,19 @@
 package Controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import BLL.SSHExample;
-import DAL.ConnectWindowServer;
-import DTO.File_Folder;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import com.example.sgroupdrive.HelloApplication;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class HomePageController {
 
@@ -43,14 +42,18 @@ public class HomePageController {
         }
     }
     // Hàm khởi tạo
-    public void initialize() {
+
+    public HBox shareButton;
+    public void initialize()
+    {
         loaddata();
         initImages();
+        textFiled();
+        buttonevent();
         Filed();
     }
-
-    // Thiết lập hình ảnh cho ImageView
-    void initImages() {
+    void initImages()
+    {
         Image imageSearch = new Image(getClass().getResourceAsStream("/images/search.png"));
         Image imageDownload = new Image(getClass().getResourceAsStream("/images/download.png"));
         Image imageShare = new Image(getClass().getResourceAsStream("/images/share.png"));
@@ -59,7 +62,6 @@ public class HomePageController {
         Image imageNear = new Image(getClass().getResourceAsStream("/images/near.png"));
         Image imageTrash = new Image(getClass().getResourceAsStream("/images/trash.png"));
         Image imageShared = new Image(getClass().getResourceAsStream("/images/shared.png"));
-
         searchIMG.setImage(imageSearch);
         downloadIMG.setImage(imageDownload);
         shareIMG.setImage(imageShare);
@@ -123,5 +125,21 @@ public class HomePageController {
         ObservableList<File_Folder> observableFileList = FXCollections.observableArrayList(dArrayList);
         tableView.setItems(observableFileList);
         tableView.getStylesheets().add(getClass().getResource("/Styles/homepage.css").toExternalForm());
+    }
+    void buttonevent ()
+    {
+        shareButton.setOnMouseClicked(event ->{
+            try {
+                Stage newStage = new Stage();
+
+                // Nội dung của màn hình mới
+                FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("ShareScreen.fxml"));
+                Scene newScene = new Scene(fxmlLoader.load(), 600, 450);
+                newStage.setScene(newScene);
+                newStage.show();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }
