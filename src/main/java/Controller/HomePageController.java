@@ -126,6 +126,11 @@ public class HomePageController {
         tableView.setItems(observableFileList);
         tableView.getStylesheets().add(getClass().getResource("/Styles/homepage.css").toExternalForm());
     }
+    void textFiled()
+    {
+        searchField =new TextField();
+        searchField.setPromptText("Search");
+    }
     void buttonevent ()
     {
         shareButton.setOnMouseClicked(event ->{
