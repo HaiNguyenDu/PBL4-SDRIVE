@@ -32,6 +32,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javafx.scene.paint.Color;  // Dùng JavaFX Color
 
@@ -60,13 +61,18 @@ public class HomePageController {
 
     void loaddata() {
         try {
-            dArrayList = SSHExample.FindFolder("C:\\DataUser\\" + ConnectWindowServer.user);
+//            dArrayList = SSHExample.FindFolder("C:\\DataUser\\" + ConnectWindowServer.user);
+           dArrayList = new ArrayList<>(Arrays.asList(
+                    new File_Folder("New folder (2)", "11/02/2024 05:09:21 PM"),
+                    new File_Folder("New folder (3)", "12/02/2024 05:09:21 PM"),
+                    new File_Folder("New folder", "04/02/2024 05:09:21 PM")));
+
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
-//     Hàm khởi tạo
+
 
 
     public void initialize()
