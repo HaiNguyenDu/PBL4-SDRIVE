@@ -9,19 +9,31 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
+import javax.swing.plaf.nimbus.State;
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.paint.Color;  // Dùng JavaFX Color
 
 public class HomePageController {
 
@@ -39,8 +51,11 @@ public class HomePageController {
     public ImageView trashIMG;
     public ImageView sharedIMG;
     public ImageView bodyShareIMG;
+    public ImageView upLoadeFileIMG = new ImageView();
+    public ImageView upLoadFolderIMG= new ImageView();
     public TextField searchField;
     public HBox shareButton;
+    public Text addNew ;
     public TableView<File_Folder> tableView;
 
     void loaddata() {
@@ -51,17 +66,20 @@ public class HomePageController {
             e.printStackTrace();
         }
     }
-    // Hàm khởi tạo
+//     Hàm khởi tạo
 
-    public void initialize() {
+
+    public void initialize()
+    {
         loaddata();
         initImages();
         textFiled();
         buttonevent();
         Filed();
+        addEventAddNewButton();
     }
-
-    void initImages() {
+    void initImages()
+    {
         Image imageSearch = new Image(getClass().getResourceAsStream("/images/search.png"));
         Image imageDownload = new Image(getClass().getResourceAsStream("/images/download.png"));
         Image imageShare = new Image(getClass().getResourceAsStream("/images/share.png"));
@@ -70,6 +88,8 @@ public class HomePageController {
         Image imageNear = new Image(getClass().getResourceAsStream("/images/near.png"));
         Image imageTrash = new Image(getClass().getResourceAsStream("/images/trash.png"));
         Image imageShared = new Image(getClass().getResourceAsStream("/images/shared.png"));
+        Image imageUpLoadFile = new Image(getClass().getResourceAsStream("/images/upLoadFile.png"));
+        Image imageUpLoadFolder = new Image(getClass().getResourceAsStream("/images/upLoadFolder.png"));
         searchIMG.setImage(imageSearch);
         downloadIMG.setImage(imageDownload);
         shareIMG.setImage(imageShare);
@@ -79,13 +99,18 @@ public class HomePageController {
         trashIMG.setImage(imageTrash);
         sharedIMG.setImage(imageShared);
         bodyShareIMG.setImage(imageShare);
+        upLoadeFileIMG.setImage(imageUpLoadFile);
+        upLoadFolderIMG.setImage(imageUpLoadFolder);
     }
 
-    void Filed() {
-        // Cấu hình cột cho tên file
-        TableColumn<File_Folder, String> nameColumn = new TableColumn<>("Name");
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
-        nameColumn.setPrefWidth(450);
+    // Định nghĩa lớp File_Folder
+
+//     Thiết lập bảng TableView
+void Filed() {
+    // Cấu hình cột cho tên file
+    TableColumn<File_Folder, String> nameColumn = new TableColumn<>("Name");
+    nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
+    nameColumn.setPrefWidth(450);
 
         // Cấu hình cột cho thời gian chỉnh sửa cuối
         TableColumn<File_Folder, String> lastWriteTimeColumn = new TableColumn<>("Last Write Time");
@@ -110,9 +135,9 @@ public class HomePageController {
         searchField = new TextField();
         searchField.setPromptText("Search");
     }
-
-    void buttonevent() {
-        shareButton.setOnMouseClicked(event -> {
+    void buttonevent ()
+    {
+        shareButton.setOnMouseClicked(event ->{
             try {
                 Stage newStage = new Stage();
 
@@ -128,4 +153,87 @@ public class HomePageController {
             }
         });
     }
+
+    void addEventAddNewButton()
+{
+    Popup popUp = new Popup();
+    VBox popUpSub = new VBox(10);
+    HBox upLoadFile = new HBox(5);
+    HBox upLoadFolder = new HBox(5);
+    Text upLoadFileText = new Text();
+    Text upLoadFolderText = new Text();
+
+
+    upLoadeFileIMG.setFitHeight(15);
+    upLoadeFileIMG.setPreserveRatio(true);
+    upLoadFolderIMG.setFitHeight(15);
+    upLoadFolderIMG.setPreserveRatio(true);
+
+    upLoadFileText.setText("Up Load File");
+    upLoadFolderText.setText("Up Load Folder");
+
+    upLoadFile.getChildren().addAll(upLoadeFileIMG,upLoadFileText);
+    upLoadFolder.getChildren().addAll(upLoadFolderIMG,upLoadFolderText);
+
+    DropShadow dropShadow = new DropShadow();
+    dropShadow.setOffsetX(5);  // Độ lệch bóng theo chiều X
+    dropShadow.setOffsetY(5);  // Độ lệch bóng theo chiều Y
+    dropShadow.setColor(Color.GRAY);  // Màu bóng
+    dropShadow.setRadius(10);
+
+    //popUpsub ne
+    popUpSub.setStyle("-fx-background-color: white; " +     // Màu viền
+            "-fx-border-width: 1; " +         // Độ dày viền
+            "-fx-border-radius: 5; " +        // Bo góc viền
+            "-fx-background-radius: 5;");
+    popUpSub.setPadding(new Insets(10, 10, 20, 10));
+    popUpSub.setEffect(dropShadow);
+    popUpSub.getChildren().addAll(upLoadFile,upLoadFolder);
+
+
+    //Popup
+    popUp.getContent().add(popUpSub);
+
+    //themsukien cho text Add New
+    addNew.setOnMouseClicked(event ->{
+        Stage primaryStage = new Stage();
+        if (!popUp.isShowing()) {
+            double x = addNew.localToScreen(addNew.getLayoutBounds()).getMinX();
+            double y = addNew.localToScreen(addNew.getLayoutBounds()).getMinY();
+            popUp.show(addNew.getScene().getWindow(), x-20, y+ 30 );
+        } else {
+            popUp.hide();
+        }
+    });
+    //themsukien cho uploadFile
+    upLoadFileText.setOnMouseClicked(event->{
+        popUp.hide();
+        FileChooser fileChooser = new FileChooser();
+
+        // Thiết lập kiểu file cho phép chọn
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
+
+        // Mở hộp thoại chọn file và lấy file người dùng chọn
+       File getFile = fileChooser.showOpenDialog(addNew.getScene().getWindow());
+
+        if (getFile != null) {
+            System.out.println("Đã chọn thư mục: " + getFile.getAbsolutePath());
+        }
+    });
+
+    //sukienclickuploadFolder
+    upLoadFolderText.setOnMouseClicked(event->{
+        popUp.hide();
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+
+        File selectedDirectory = directoryChooser.showDialog(addNew.getScene().getWindow());
+
+        if (selectedDirectory != null) {
+            System.out.println("Đã chọn thư mục: " + selectedDirectory.getAbsolutePath());
+        }
+    });
+}
+
+
 }
