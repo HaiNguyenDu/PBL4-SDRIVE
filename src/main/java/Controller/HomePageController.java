@@ -1,9 +1,16 @@
 package Controller;
 
+import com.example.sgroupdrive.HelloApplication;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class HomePageController {
     @FXML
@@ -17,10 +24,12 @@ public class HomePageController {
     public ImageView sharedIMG;
     public ImageView bodyShareIMG;
     public TextField searchField;
+    public HBox shareButton;
     public void initialize()
     {
         initImages();
         textFiled();
+        buttonevent();
     }
     void initImages()
     {
@@ -47,5 +56,21 @@ public class HomePageController {
     {
         searchField =new TextField();
         searchField.setPromptText("Search");
+    }
+    void buttonevent ()
+    {
+        shareButton.setOnMouseClicked(event ->{
+            try {
+                Stage newStage = new Stage();
+
+                // Nội dung của màn hình mới
+                FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("ShareScreen.fxml"));
+                Scene newScene = new Scene(fxmlLoader.load(), 600, 450);
+                newStage.setScene(newScene);
+                newStage.show();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }
