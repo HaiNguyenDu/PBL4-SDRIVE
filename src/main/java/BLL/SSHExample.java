@@ -12,11 +12,10 @@ import java.util.regex.Pattern;
 
 public class SSHExample {
     static public boolean setAccount(String Host, String User, String Password) {
-        ConnectWindowServer.setAccount(Host, User, Password);
-        return ConnectWindowServer.testAccount();
+        return ConnectWindowServer.setAccount(Host, User, Password);
     }
 
-     private static ArrayList<File_Folder> parseInputToFileFolderList(String input) {
+    private static ArrayList<File_Folder> parseInputToFileFolderList(String input) {
         ArrayList<File_Folder> folderList = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yyyy h:mm:ss a");
 
@@ -29,7 +28,8 @@ public class SSHExample {
             if (!lastWriteTimeStr.isEmpty()) {
                 try {
                     LocalDateTime lastWriteTime = LocalDateTime.parse(lastWriteTimeStr, formatter);
-                    folderList.add(new File_Folder(name, lastWriteTime));
+                    folderList.add(new File_Folder(name,
+                            lastWriteTime.format(DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss a"))));
                 } catch (DateTimeParseException e) {
                     System.out.println("Could not parse date: " + lastWriteTimeStr);
                 }
@@ -45,6 +45,7 @@ public class SSHExample {
         System.out.println(information);
         return parseInputToFileFolderList(information);
     }
+
     // Phương thức chia sẻ thư mục với người dùng trong domain với quyền truy cập
     // xác định
     static public void ShareFolder(String folderPath, String username, String access) throws Exception {

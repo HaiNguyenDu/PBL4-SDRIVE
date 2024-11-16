@@ -5,8 +5,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-public class ShareController
-{
+public class ShareController {
     @FXML
     public ImageView iconFolder;
     public ImageView iconAdmin;
@@ -15,14 +14,20 @@ public class ShareController
     public ComboBox comboBox0;
     public ComboBox comboBox1;
 
+    String path;
+
+    public void setPath(String newPath) {
+        path = newPath;
+        System.out.println(this.path);
+    }
+
     public void initialize() {
 
         initImage();
         initComboBox();
     }
 
-    void initImage()
-    {
+    void initImage() {
         Image imageFolder = new Image(getClass().getResourceAsStream("/images/folderyellow.png"));
         Image imageAdmin = new Image(getClass().getResourceAsStream("/images/admin.png"));
         Image imageUser = new Image(getClass().getResourceAsStream("/images/user.png"));
@@ -33,8 +38,7 @@ public class ShareController
         iconShare.setImage(imageShare);
     }
 
-    void initComboBox()
-    {
+    void initComboBox() {
         comboBox0.setStyle("-fx-font-size: 12px;-fx-background-color: transparent;");
         comboBox1.setStyle("-fx-font-size: 12px;-fx-background-color: transparent;");
         comboBox0.getItems().addAll("Read/Write", "Read Only", "No Access");
