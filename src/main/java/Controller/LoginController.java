@@ -1,10 +1,16 @@
 package Controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import com.example.sgroupdrive.HelloApplication;
 
 import BLL.SSHExample;
 import DTO.File_Folder;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Scene;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -12,6 +18,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
 
 public class LoginController {
     @FXML
@@ -80,8 +88,21 @@ public class LoginController {
             String password = passwordField.getText().trim();
             if (SSHExample.setAccount("pbl4.dut.vn", email, password)) {
                 System.err.println("success");
-            } else
+                Stage newStage = new Stage();
+                FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("HomePage.fxml"));
+                try {
+                    Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                    Scene newScene = new Scene(fxmlLoader.load(), screenBounds.getWidth(), screenBounds.getHeight());
+                    newStage.setScene(newScene);
+                    newStage.setTitle("Home Page");
+                    newStage.show();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
                 System.err.println("fail");
+            }
 
         });
         // register

@@ -2,5 +2,5 @@ package DTO;
 
 public class Host {
     static public String host = "pbl4.dut.vn";
-    static public String dnsServer = "192.168.1.25";
+    static public String dnsServer = "10.10.58.25";
 }

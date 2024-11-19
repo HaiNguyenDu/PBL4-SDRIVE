@@ -1,6 +1,5 @@
 package Controller;
 
-import DAL.File_Folder;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -23,16 +22,16 @@ public class ShareController {
 
     public Stage stage;
     public String path;
-    public File_Folder itemSelect;
+    public DTO.File_Folder itemSelect;
 
-    public void setItemSelect(File_Folder itemSelect)
-    {
+    public void setItemSelect(DTO.File_Folder itemSelect) {
         this.itemSelect = itemSelect;
     }
 
-    public void setStage(Stage stage){
-        this.stage=stage;
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
+
     public void setPath(String newPath) {
         path = newPath;
         System.out.println(this.path);
@@ -43,22 +42,22 @@ public class ShareController {
         initImage();
         initComboBox();
     }
-    //sukien cac button
-    public void eventButton(){
-        //su kien button add
-        add.setOnAction(e->{
+
+    // sukien cac button
+    public void eventButton() {
+        // su kien button add
+        add.setOnAction(e -> {
 
         });
-        //buttoncancel
-        cancel.setOnMouseClicked(e->{
+        // buttoncancel
+        cancel.setOnMouseClicked(e -> {
             stage.close();
         });
-        //button share
-        share.setOnMouseClicked(e->{
+        // button share
+        share.setOnMouseClicked(e -> {
 
         });
     }
-
 
     void initImage() {
         Image imageFolder = new Image(getClass().getResourceAsStream("/images/folderyellow.png"));
