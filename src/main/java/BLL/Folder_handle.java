@@ -1,11 +1,26 @@
 package BLL;
 
 import java.io.*;
+import java.nio.file.*;
+import java.nio.file.attribute.FileAttribute;
 
 import DAL.ConnectWindowServer;
 import DTO.Host;
 
 public class Folder_handle {
+
+    // Tạo thư mục mới
+    public static void createNewFolder(String parentDirectory, String folderName) {
+        Path folderPath = Paths.get(parentDirectory, folderName); // Kết hợp đường dẫn thư mục và tên thư mục
+
+        try {
+            // Tạo thư mục (bao gồm tất cả thư mục con nếu cần)
+            Files.createDirectories(folderPath);
+            System.out.println("Folder created: " + folderPath);
+        } catch (IOException e) {
+            System.err.println("Error creating folder: " + e.getMessage());
+        }
+    }
 
     public static void UploadDirectory(String folderPath, String pos) throws IOException {
         String shareName = new File(folderPath).getName();

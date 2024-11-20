@@ -4,10 +4,29 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.*;
+import java.nio.file.attribute.FileAttribute;
 
 import DAL.ConnectWindowServer;
 
 public class File_handle {
+
+    public static void createNewFile(String directoryPath, String fileName) {
+        Path path = Paths.get(directoryPath, fileName); // Kết hợp đường dẫn thư mục và tên file
+
+        try {
+            // Kiểm tra nếu file đã tồn tại
+            if (Files.exists(path)) {
+                System.out.println("File already exists: " + path);
+            } else {
+                // Tạo file mới
+                Files.createFile(path);
+                System.out.println("File created: " + path);
+            }
+        } catch (IOException e) {
+            System.err.println("Error creating file: " + e.getMessage());
+        }
+    }
 
     public static void upLoadFile(String filePath, String destinationDir) {
         String fileName = new File(filePath).getName();
