@@ -17,6 +17,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -26,25 +27,24 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Function;
 
 import javafx.scene.paint.Color; // Dùng JavaFX Color
 
 public class HomePageController {
     // Khai báo các thành phần FXML
     @FXML
+    public Text username;
+    public Text nickName;
     public ImageView searchIMG;
     public ImageView shareIMG;
     public ImageView downloadIMG;
@@ -77,7 +77,7 @@ public class HomePageController {
                         e.printStackTrace();
                     }
                 });
-                Thread.sleep(3000);
+                Thread.sleep(20000);
             } catch (InterruptedException e) {
                 // Luồng bị gián đoạn
                 Thread.currentThread().interrupt(); // Đánh dấu lại trạng thái interrupt
@@ -108,7 +108,6 @@ public class HomePageController {
     }
 
     public void initialize() {
-
         initImages();
         textFiled();
         buttonevent();
@@ -120,6 +119,8 @@ public class HomePageController {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        username.setText(ConnectWindowServer.user);
+        nickName.setText(ConnectWindowServer.user.substring(0, 2).toUpperCase());
     }
 
     void initImages() {
@@ -157,61 +158,30 @@ public class HomePageController {
         reloadPage.start();
     }
 
-    // Hiển thị dialog loading và xử lý logic
-    private void executeInBackground(String message, Runnable task) {
-        // Tạo cửa sổ loading
-        Stage loadingStage = new Stage();
-        loadingStage.setTitle("Loading...");
-        ProgressIndicator progressIndicator = new ProgressIndicator();
-        Label loadingLabel = new Label(message);
-        VBox loadingBox = new VBox(10, progressIndicator, loadingLabel);
-        loadingBox.setPadding(new Insets(20));
-        loadingBox.setStyle("-fx-alignment: center;");
-        Scene loadingScene = new Scene(loadingBox, 200, 100);
-        loadingStage.setScene(loadingScene);
-        loadingStage.setAlwaysOnTop(true);
-        loadingStage.show();
-
-        // Chạy công việc trên một luồng khác
-        Task<Void> backgroundTask = new Task<>() {
-            @Override
-            protected Void call() {
-                task.run(); // Thực hiện công việc nặng
-                return null;
-            }
-
-            @Override
-            protected void succeeded() {
-                // Đóng cửa sổ loading khi hoàn tất
-                loadingStage.close();
-            }
-
-            @Override
-            protected void failed() {
-                // Đóng cửa sổ loading và in lỗi khi thất bại
-                loadingStage.close();
-                Throwable exception = getException();
-                if (exception != null)
-                    exception.printStackTrace();
-            }
-        };
-
-        // Bắt đầu Task
-        Thread taskThread = new Thread(backgroundTask);
-        taskThread.setDaemon(true); // Đảm bảo Thread tắt khi ứng dụng đóng
-        taskThread.start();
-    }
-
     private void createNewFolder(String folderName) {
-        executeInBackground("Creating folder...", () -> {
+        ExecuteBackground.executeInBackground("Creating folder...", () -> {
             Folder_handle.createNewFolder(Path.replace("C:", "\\\\" + Host.dnsServer), folderName);
             Platform.runLater(this::startReloadThread);
         });
     }
 
     private void createNewFile(String fileName) {
-        executeInBackground("Creating file...", () -> {
+        ExecuteBackground.executeInBackground("Creating file...", () -> {
             File_handle.createNewFile(Path.replace("C:", "\\\\" + Host.dnsServer), fileName);
+            Platform.runLater(this::startReloadThread);
+        });
+    }
+
+    private void Rename(String Path, String fileName) {
+        ExecuteBackground.executeInBackground("rename...", () -> {
+            file_folder.rename(Path, fileName);
+            Platform.runLater(this::startReloadThread);
+        });
+    }
+
+    private void Delete(String Path) {
+        ExecuteBackground.executeInBackground("delete...", () -> {
+            file_folder.deletePath(Path);
             Platform.runLater(this::startReloadThread);
         });
     }
@@ -254,21 +224,27 @@ public class HomePageController {
         shareButton.setOnMouseClicked(event -> {
             try {
                 File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
+                stopReloadThread(); // Dừng luồng reload khi mở ShareScreen
+
                 Stage newStage = new Stage();
-                // Nội dung của màn hình mới
                 FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("ShareScreen.fxml"));
                 Scene newScene = new Scene(fxmlLoader.load(), 600, 450);
+
+                // Thiết lập Controller và truyền dữ liệu cần thiết
                 ShareController shareController = fxmlLoader.getController();
-                shareController.setPath(Path + "\\" + selectedItem.getName());
+                shareController.setPath(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
                 shareController.setStage(newStage);
                 shareController.setItemSelect(selectedItem);
+
+                // Gắn lắng nghe sự kiện khi cửa sổ ShareScreen đóng
+                newStage.setOnHidden(e -> startReloadThread()); // Khởi động lại luồng reload
+
                 newStage.setScene(newScene);
                 newStage.show();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
-
     }
 
     void addEventRowTableViewPopUp() {
@@ -336,29 +312,36 @@ public class HomePageController {
                 isReloading = false;
                 // Xử lý việc xóa file hoặc thư mục đã chọn
                 System.out.println("Deleting: " + selectedItem.getName());
-                // Ví dụ: tableView.getItems().remove(selectedItem);
-                file_folder.deletePath(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
-                startReloadThread();
+                Delete(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
             }
         });
     }
 
     // Phương thức để hiển thị dialog nhập liệu
     private void showInputDialog(String title, String selectedItem) {
-        // Tạo TextInputDialog
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle(title); // Tiêu đề của dialog là tên MenuItem
-        dialog.setHeaderText(null); // Không có header
-        if (title.equals("Rename"))
-            dialog.setContentText("Enter new name:");
-        // Xử lý khi người dùng nhấn OK
-        dialog.showAndWait().ifPresent(name -> {
-            if (title.equals("Rename")) {
-                file_folder.rename(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem, name);
+        try {
+            // Tải FXML và Controller
+            FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("New.fxml"));
+            Parent root = loader.load();
+
+            // Lấy controller để truy cập dữ liệu
+            NewController controller = loader.getController();
+
+            // Tạo một Stage mới
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle(title);
+            dialogStage.initModality(Modality.APPLICATION_MODAL); // Chặn tương tác với cửa sổ khác
+            dialogStage.setScene(new Scene(root));
+            dialogStage.showAndWait(); // Hiển thị và chờ người dùng tương tác
+
+            // Lấy kết quả từ controller
+            String name = controller.getResult();
+            if (name != null && title.equals("Rename")) {
+                Rename(selectedItem, name);
             }
-            // Reload dữ liệu sau khi công việc hoàn tất
-            Platform.runLater(this::startReloadThread);
-        });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     // Phương thức để hiển thị dialog nhập liệu
@@ -447,15 +430,9 @@ public class HomePageController {
             File getFile = fileChooser.showOpenDialog(addNew.getScene().getWindow());
 
             if (getFile != null) {
+                isReloading = false;
                 System.out.println("Đã chọn thư mục: " + getFile.getAbsolutePath());
-                File_handle.upLoadFile(getFile.getAbsolutePath(),
-                        Path.replace("C:", "\\\\" + Host.dnsServer));
-                try {
-                    TableView(loaddata());
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                uploadFile(getFile.getAbsolutePath(), Path.replace("C:", "\\\\" + Host.dnsServer));
             }
         });
 
@@ -468,20 +445,28 @@ public class HomePageController {
 
             if (selectedDirectory != null) {
                 System.out.println("Đã chọn thư mục: " + selectedDirectory.getAbsolutePath());
-                try {
-                    Folder_handle.UploadDirectory(selectedDirectory.getAbsolutePath(),
-                            Path.replace("C:", "\\\\" + Host.dnsServer));
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                try {
-                    TableView(loaddata());
-                } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                isReloading = false;
+                uploadFolder(selectedDirectory.getAbsolutePath(), Path.replace("C:", "\\\\" + Host.dnsServer));
             }
+        });
+    }
+
+    private void uploadFile(String Path, String pos) {
+        ExecuteBackground.executeInBackground("Uploading...", () -> {
+            File_handle.upLoadFile(Path, pos);
+            Platform.runLater(this::startReloadThread);
+        });
+    }
+
+    private void uploadFolder(String Path, String pos) {
+        ExecuteBackground.executeInBackground("Uploading...", () -> {
+            try {
+                Folder_handle.UploadDirectory(Path, pos);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            Platform.runLater(this::startReloadThread);
         });
     }
 

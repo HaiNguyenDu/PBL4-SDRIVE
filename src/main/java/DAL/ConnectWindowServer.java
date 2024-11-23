@@ -199,4 +199,35 @@ public class ConnectWindowServer {
         session.disconnect();
         return output.toString();
     }
+
+    public static String listDomainUsersWithFilter(String filter) throws Exception {
+        Session session = jsch.getSession(user, host, 22);
+        session.setPassword(password);
+        session.setConfig("StrictHostKeyChecking", "no");
+        session.connect();
+
+        ChannelExec channel = (ChannelExec) session.openChannel("exec");
+
+        // Tạo lệnh PowerShell với bộ lọc dựa trên chuỗi đầu vào
+        String command = String.format(
+                "powershell -Command \"Get-ADUser -Filter 'SamAccountName -like \\\"*%s*\\\" -or Name -like \\\"*%s*\\\"' | Select-Object SamAccountName, Name\"",
+                filter, filter);
+        channel.setCommand(command);
+        channel.setErrStream(System.err); // Để nhận lỗi từ luồng lỗi chuẩn
+
+        InputStream in = channel.getInputStream();
+        channel.connect();
+
+        byte[] buffer = new byte[1024];
+        StringBuilder output = new StringBuilder();
+        int bytesRead;
+        while ((bytesRead = in.read(buffer)) != -1) {
+            output.append(new String(buffer, 0, bytesRead));
+        }
+
+        channel.disconnect();
+        session.disconnect();
+        return output.toString();
+    }
+
 }

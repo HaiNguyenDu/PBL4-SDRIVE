@@ -264,11 +264,13 @@ public class Folder_handle {
             // printWriter.println("icacls \"" + folderPath + "\" /inheritance:e");
             // Close the PrintWriter
             printWriter.close();
-            // Execute the batch file
-            Process process = Runtime.getRuntime().exec("cmd /c start " + batchFilePath);
-            process.waitFor();
-            System.out.println("Created and executed the batch file to modify permissions for " + username
-                    + " on folder " + folderPath);
+            Process process = Runtime.getRuntime().exec(batchFilePath);
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                System.out.println("Permissions successfully modified for " + username + " on folder " + folderPath);
+            } else {
+                System.err.println("Failed to modify permissions. Exit code: " + exitCode);
+            }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }

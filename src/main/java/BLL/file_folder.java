@@ -79,6 +79,11 @@ public class file_folder {
         }
     }
 
+    public static boolean isFile(String path) {
+        Path inputPath = Paths.get(path);
+        return Files.exists(inputPath) && Files.isRegularFile(inputPath);
+    }
+
     // Phương thức chính để kiểm tra và gọi các phương thức xóa
     public static void deletePath(String path) {
         Path inputPath = Paths.get(path);
