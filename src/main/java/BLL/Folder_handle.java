@@ -1,11 +1,52 @@
 package BLL;
 
 import java.io.*;
+import java.nio.file.*;
+import java.nio.file.attribute.FileAttribute;
 
 import DAL.ConnectWindowServer;
 import DTO.Host;
 
 public class Folder_handle {
+
+    // Tạo thư mục mới
+    public static void createNewFolder(String parentDirectory, String folderName) {
+        Path folderPath = Paths.get(parentDirectory, folderName); // Kết hợp đường dẫn thư mục và tên thư mục
+
+        try {
+            // Tạo thư mục (bao gồm tất cả thư mục con nếu cần)
+            Files.createDirectories(folderPath);
+            System.out.println("Folder created: " + folderPath);
+        } catch (IOException e) {
+            System.err.println("Error creating folder: " + e.getMessage());
+        }
+    }
+
+    public static void UploadDirectory(String folderPath, String pos) throws IOException {
+        String shareName = new File(folderPath).getName();
+        String destinationPath = pos + "\\" + shareName;
+        File sourceDir = new File(folderPath);
+        File destDir = new File(destinationPath);
+        if (!destDir.exists()) {
+            destDir.mkdirs();
+        }
+        for (String file : sourceDir.list()) {
+            File srcFile = new File(sourceDir, file);
+            File destFile = new File(destDir, file);
+
+            // Kiểm tra quyền truy cập trước khi sao chép
+            if (srcFile.canRead()) {
+                if (srcFile.isDirectory()) {
+                    copyDirectory(srcFile, destFile);
+                } else {
+                    java.nio.file.Files.copy(srcFile.toPath(), destFile.toPath());
+                }
+            } else {
+                System.out.println("Không thể đọc tệp: " + srcFile.getAbsolutePath());
+            }
+        }
+    }
+
     public static void listSharedFiles(String remoteServer) {
         try {
             Process process = Runtime.getRuntime().exec("net view \\\\" + remoteServer);
@@ -89,7 +130,7 @@ public class Folder_handle {
             if (process.exitValue() == 0) {
                 System.out.println("Thư mục đã được chia sẻ thành công!");
                 // Define destination path
-                String destinationPath =  pos + "\\" + shareName;
+                String destinationPath = pos + "\\" + shareName;
                 File sourceDir = new File(folderPath);
                 File destDir = new File(destinationPath);
                 // Copy folder
@@ -151,6 +192,7 @@ public class Folder_handle {
             e.printStackTrace();
         }
     }
+
     public static void modifyUserPermissions(String folderPath, String username, String access) {
         try {
             String batchFilePath = "modify_permissions.bat";
@@ -163,33 +205,41 @@ public class Folder_handle {
             // Remove specific permissions for Thanhan to reset
             printWriter.println("icacls \"" + folderPath + "\" /remove \"" + domainUser + "\"");
             printWriter.println("icacls \"" + folderPath + "\" /remove \"" + domainUser + "\" /T");
-//              M: Modify
-//              DC: Delete Child (prevents creating or deleting items)
-//              W: Write (prevents adding or changing files)
-//              RD: Read Data
-//              WD: Write Data
+            // M: Modify
+            // DC: Delete Child (prevents creating or deleting items)
+            // W: Write (prevents adding or changing files)
+            // RD: Read Data
+            // WD: Write Data
             // Grant appropriate permissions for Thanhan
             switch (access) {
                 case "M": // Modify access
-                    printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":(OI)(CI)M"); 
-                    printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + username + ":(OI)(CI)M\" /T");
+                    printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":(OI)(CI)M");
+                    printWriter
+                            .println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + username + ":(OI)(CI)M\" /T");
                     break;
                 case "R": // Read-only access
                     printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":(OI)(CI)R");
                     printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"" + domainUser + "\":(OI)(CI)R /T");
-                    // printWriter.println("icacls \"" + folderPath + "\\*\" /deny \"" + domainUser + "\":M");
-                    // printWriter.println("icacls \"" + folderPath + "\\*\" /deny \"PBL4\\" + username + ":(M)\" /T");
+                    // printWriter.println("icacls \"" + folderPath + "\\*\" /deny \"" + domainUser
+                    // + "\":M");
+                    // printWriter.println("icacls \"" + folderPath + "\\*\" /deny \"PBL4\\" +
+                    // username + ":(M)\" /T");
                     break;
                 // case "R": // Read-only access
-                //     printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":(RX)");
-                //     printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"" + domainUser + ":R\" /T");
-                //     printWriter.println("icacls \"" + folderPath + "\\*\" /deny \"PBL4\\" + username + ":(M)\" /T");
-               //     printWriter.println("icacls \"" + folderPath + "\" /deny \"" + domainUser + "\":(W)");
-                    // break;
+                // printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser +
+                // "\":(RX)");
+                // printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"" + domainUser
+                // + ":R\" /T");
+                // printWriter.println("icacls \"" + folderPath + "\\*\" /deny \"PBL4\\" +
+                // username + ":(M)\" /T");
+                // printWriter.println("icacls \"" + folderPath + "\" /deny \"" + domainUser +
+                // "\":(W)");
+                // break;
                 case "D": // Deny access entirely
                     break;
                 case "RW": // Custom read and write access
-                    printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":R /deny \"" + domainUser + "\":W");
+                    printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":R /deny \""
+                            + domainUser + "\":W");
                     break;
                 default: // Default to read-only
                     printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":R");
@@ -197,22 +247,34 @@ public class Folder_handle {
                     break;
             }
             // Grant XPhuc full control over the folder to maintain access to all contents
-            printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full control for Administrators
-            printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\""); // Full control for specific user
+            printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full
+                                                                                                           // control
+                                                                                                           // for
+                                                                                                           // Administrators
+            printWriter.println(
+                    "icacls \"" + folderPath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\""); // Full
+                                                                                                                  // control
+                                                                                                                  // for
+                                                                                                                  // specific
+                                                                                                                  // user
             printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\Administrator:(OI)(CI)F\" /T");
-            printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\" /T");
+            printWriter.println(
+                    "icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\" /T");
             // Enable inheritance again to ensure new folders inherit permissions
-            //printWriter.println("icacls \"" + folderPath + "\" /inheritance:e");
+            // printWriter.println("icacls \"" + folderPath + "\" /inheritance:e");
             // Close the PrintWriter
             printWriter.close();
-            // Execute the batch file
-            Process process = Runtime.getRuntime().exec("cmd /c start " + batchFilePath);
-            process.waitFor();
-            System.out.println("Created and executed the batch file to modify permissions for " + username + " on folder " + folderPath);
+            Process process = Runtime.getRuntime().exec(batchFilePath);
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                System.out.println("Permissions successfully modified for " + username + " on folder " + folderPath);
+            } else {
+                System.err.println("Failed to modify permissions. Exit code: " + exitCode);
+            }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-    } 
+    }
 
     public static void modifyUserPermissionsFile(String folderPath, String username, String access) {
         try {
@@ -225,51 +287,67 @@ public class Folder_handle {
             printWriter.println("icacls \"" + folderPath + "\" /inheritance:r");
             // Remove specific permissions for Thanhan to reset
             printWriter.println("icacls \"" + folderPath + "\" /remove \"" + domainUser + "\"");
-//              M: Modify
-//              DC: Delete Child (prevents creating or deleting items)
-//              W: Write (prevents adding or changing files)
-//              RD: Read Data
-//              WD: Write Data
+            // M: Modify
+            // DC: Delete Child (prevents creating or deleting items)
+            // W: Write (prevents adding or changing files)
+            // RD: Read Data
+            // WD: Write Data
             // Grant appropriate permissions for Thanhan
             switch (access) {
                 case "M": // Modify access
-                    printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":(OI)(CI)M"); 
+                    printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":(OI)(CI)M");
                     break;
                 case "R": // Read-only access
                     printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":(OI)(CI)R");
-                    // printWriter.println("icacls \"" + folderPath + "\\*\" /deny \"" + domainUser + "\":M");
-                    // printWriter.println("icacls \"" + folderPath + "\\*\" /deny \"PBL4\\" + username + ":(M)\" /T");
+                    // printWriter.println("icacls \"" + folderPath + "\\*\" /deny \"" + domainUser
+                    // + "\":M");
+                    // printWriter.println("icacls \"" + folderPath + "\\*\" /deny \"PBL4\\" +
+                    // username + ":(M)\" /T");
                     break;
                 // case "R": // Read-only access
-                //     printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":(RX)");
-                //     printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"" + domainUser + ":R\" /T");
-                //     printWriter.println("icacls \"" + folderPath + "\\*\" /deny \"PBL4\\" + username + ":(M)\" /T");
-               //     printWriter.println("icacls \"" + folderPath + "\" /deny \"" + domainUser + "\":(W)");
-                    // break;
+                // printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser +
+                // "\":(RX)");
+                // printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"" + domainUser
+                // + ":R\" /T");
+                // printWriter.println("icacls \"" + folderPath + "\\*\" /deny \"PBL4\\" +
+                // username + ":(M)\" /T");
+                // printWriter.println("icacls \"" + folderPath + "\" /deny \"" + domainUser +
+                // "\":(W)");
+                // break;
                 case "D": // Deny access entirely
                     break;
                 case "RW": // Custom read and write access
-                    printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":R /deny \"" + domainUser + "\":W");
+                    printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":R /deny \""
+                            + domainUser + "\":W");
                     break;
                 default: // Default to read-only
                     printWriter.println("icacls \"" + folderPath + "\" /grant \"" + domainUser + "\":R");
                     System.out.println("Unrecognized access type. Defaulting to read-only.");
                     break;
             }
-    
+
             // Grant XPhuc full control over the folder to maintain access to all contents
-            printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full control for Administrators
-            printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\""); // Full control for specific user
+            printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full
+                                                                                                           // control
+                                                                                                           // for
+                                                                                                           // Administrators
+            printWriter.println(
+                    "icacls \"" + folderPath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\""); // Full
+                                                                                                                  // control
+                                                                                                                  // for
+                                                                                                                  // specific
+                                                                                                                  // user
             // Enable inheritance again to ensure new folders inherit permissions
-            //printWriter.println("icacls \"" + folderPath + "\" /inheritance:e");
+            // printWriter.println("icacls \"" + folderPath + "\" /inheritance:e");
             // Close the PrintWriter
             printWriter.close();
             // Execute the batch file
             Process process = Runtime.getRuntime().exec("cmd /c start " + batchFilePath);
             process.waitFor();
-            System.out.println("Created and executed the batch file to modify permissions for " + username + " on folder " + folderPath);
+            System.out.println("Created and executed the batch file to modify permissions for " + username
+                    + " on folder " + folderPath);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-    }   
+    }
 }

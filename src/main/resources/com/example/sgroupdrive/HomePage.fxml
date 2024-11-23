@@ -34,7 +34,7 @@
         </StackPane>
         <StackPane>
             <Circle fill="WHITE" radius="15.0" stroke="BLACK" />
-            <Text text="DH" />
+            <Text fx:id="nickName" text="DH" />
         </StackPane>
          <VBox.margin>
             <Insets left="20.0" top="10.0" />
@@ -75,7 +75,7 @@
                   </opaqueInsets>
                 </HBox>
             </StackPane>
-           <Text text="Nguyễn Duy Hải">
+           <Text fx:id="username">
                <font>
                   <Font name="System Bold" size="13.0" />
                </font>
@@ -177,3 +177,9 @@
     </HBox>
 </VBox>
 </AnchorPane>
+
+
+
+
+
+
