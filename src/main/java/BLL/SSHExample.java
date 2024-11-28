@@ -102,7 +102,9 @@ public class SSHExample {
                     if (parts.length == 2) {
                         String username = parts[0].trim(); // Tên user
                         String permissions = parts[1].trim();
-
+                        boolean isIh = false;
+                        if (line.contains("\\(I\\)"))
+                            isIh = true;
                         // Loại bỏ các ký tự (I)(OI)(CI) và chỉ giữ quyền chính
                         permissions = permissions.replaceAll("\\(I\\)", "")
                                 .replaceAll("\\(OI\\)", "")
@@ -126,9 +128,9 @@ public class SSHExample {
                             // Kiểm tra nếu quyền của Thanhan chưa được thêm
                             if (username.equalsIgnoreCase("PBL4\\Thanhan") && !accessList.stream()
                                     .anyMatch(u -> u.getUsername().equals("PBL4\\Thanhan"))) {
-                                accessList.add(new UserAccess(username, access));
+                                accessList.add(new UserAccess(username, access, isIh));
                             } else if (!username.equalsIgnoreCase("PBL4\\Thanhan")) {
-                                accessList.add(new UserAccess(username, access));
+                                accessList.add(new UserAccess(username, access, isIh));
                             }
                         }
                     }

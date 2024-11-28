@@ -131,7 +131,7 @@
                         <Font name="System Bold" size="13.0" />
                      </font></Text>
                </HBox>
-               <HBox alignment="CENTER" spacing="5.0">
+               <HBox fx:id="downloadButton" alignment="CENTER" spacing="5.0">
                    <ImageView fx:id="downloadIMG" fitHeight="20.0" preserveRatio="true" />
                    <Text text="Dowload">
                      <font>
