@@ -46,7 +46,7 @@ import java.util.List;
 
 import javafx.scene.paint.Color; // Dùng JavaFX Color
 
-public class HomePageController  extends MainController{
+public class HomePageController extends MainController {
     // Khai báo các thành phần FXML
     @FXML
     public Text username;
@@ -75,13 +75,12 @@ public class HomePageController  extends MainController{
     public VBox viewVBox;
     public Text addNew;
     public TableView<File_Folder> tableView;
-    private Thread reloadPage;
-    //khoi tao cac man hinh
+    // khoi tao cac man hinh
     // private tableViewMyFile PageMyFile;
     // private tableViewShared PageShared;
     private GeneralPageController generalPageController;
-    
-    public String nowPage = "";   
+
+    public String nowPage = "";
     public MainController mainController = this;
 
     String Path = "C:\\SDriver\\" + ConnectWindowServer.user;
@@ -89,43 +88,39 @@ public class HomePageController  extends MainController{
     private volatile boolean isReloading = true;
 
     // void LoadPage() {
-    //     while (isReloading) { // Kiểm tra biến cờ
-    //         try {
-    //             Platform.runLater(() -> {
-    //                 try {
-    //                     // PageMyFile.PushDataTableView();
-    //                 } catch (Exception e) {
-    //                     e.printStackTrace();
-    //                 }
-    //             });
-    //             Thread.sleep(5000);
-    //         } catch (InterruptedException e) {
-    //             // Luồng bị gián đoạn
-    //             Thread.currentThread().interrupt(); // Đánh dấu lại trạng thái interrupt
-    //             break; // Thoát khỏi vòng lặp
-    //         } catch (Exception e) {
-    //             e.printStackTrace();
-    //         }
-    //     }
+    // while (isReloading) { // Kiểm tra biến cờ
+    // try {
+    // Platform.runLater(() -> {
+    // try {
+    // // PageMyFile.PushDataTableView();
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // });
+    // Thread.sleep(5000);
+    // } catch (InterruptedException e) {
+    // // Luồng bị gián đoạn
+    // Thread.currentThread().interrupt(); // Đánh dấu lại trạng thái interrupt
+    // break; // Thoát khỏi vòng lặp
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // }
     // }
 
     // void stopReloadThread() {
-    //     isReloading = false; // Đặt cờ để dừng vòng lặp
-    //     if (reloadPage != null) {
-    //         reloadPage.interrupt(); // Ngắt luồng
-    //     }
+    // isReloading = false; // Đặt cờ để dừng vòng lặp
+    // if (reloadPage != null) {
+    // reloadPage.interrupt(); // Ngắt luồng
+    // }
     // }
 
     // void startReloadThread() {
-    //     stopReloadThread(); // Đảm bảo luồng cũ đã dừng
-    //     isReloading = true; // Bật cờ
-    //     reloadPage = new Thread(this::LoadPage);
-    //     reloadPage.start();
+    // stopReloadThread(); // Đảm bảo luồng cũ đã dừng
+    // isReloading = true; // Bật cờ
+    // reloadPage = new Thread(this::LoadPage);
+    // reloadPage.start();
     // }
-
-
-
-
 
     public void initialize() {
         initImages();
@@ -162,55 +157,42 @@ public class HomePageController  extends MainController{
         // reloadPage = new Thread(() -> LoadPage());
         // reloadPage.start();
     }
-    void initTableView()
-    {
+
+    void initTableView() {
         generalPageController = new GeneralPageController(this);
+        currenController = generalPageController;
+        nowPage = "HomePage";
         tableView = generalPageController.getTableView();
         tableView.setPrefSize(950, 600);
         viewVBox.getChildren().clear();
         viewVBox.getChildren().add(tableView);
     }
+
     public ArrayList<File_Folder> loadData() throws Exception {
         ArrayList<File_Folder> dArrayList = SSHExample.FindFolder(Path);
-       return dArrayList;
-   }
+        return dArrayList;
+    }
     // Method to stop the old thread and start a new reload thread
     // // void restartReloadThread() {
-    //     stopReloadThread(); // Stop the old thread if it's running
+    // stopReloadThread(); // Stop the old thread if it's running
 
-    //     // Start a new thread to reload the page
-    //     reloadPage = new Thread(() -> LoadPage());
-    //     reloadPage.start();
+    // // Start a new thread to reload the page
+    // reloadPage = new Thread(() -> LoadPage());
+    // reloadPage.start();
     // }
 
-    
     // Thiết lập bảng TableView
-   
+
     // Them cho su kien cho cac button
     void buttonevent() {
-        downloadButton.setOnMouseClicked(event -> {
-            try {
-                DirectoryChooser directoryChooser = new DirectoryChooser();
-                File selectedDirectory = directoryChooser.showDialog(addNew.getScene().getWindow());
-                File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
-                if (selectedDirectory != null && selectedItem != null) {
-                    // stopReloadThread();
-                    if (file_folder
-                            .isFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName())) {
-                        uploadFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName(),
-                                selectedDirectory.getAbsolutePath());
-                    } else {
-                        uploadFolder(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName(),
-                                selectedDirectory.getAbsolutePath());
-                    }
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
         shareButton.setOnMouseClicked(event -> {
             try {
                 File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
+                if (currenController != null && nowPage == "HomePage") {
+                    GeneralPageController child = (GeneralPageController) currenController;
+                    child.stopReloadThread();
+                    ;
+                }
                 // stopReloadThread(); // Dừng luồng reload khi mở ShareScreen
 
                 Stage newStage = new Stage();
@@ -224,7 +206,12 @@ public class HomePageController  extends MainController{
                 shareController.setItemSelect(selectedItem);
 
                 // Gắn lắng nghe sự kiện khi cửa sổ ShareScreen đóng
-                // newStage.setOnHidden(e -> startReloadThread()); // Khởi động lại luồng reload
+                newStage.setOnHidden(e -> {
+                    if (currenController != null && nowPage == "HomePage") {
+                        GeneralPageController child = (GeneralPageController) currenController;
+                        child.startReloadThread();
+                    }
+                });
 
                 newStage.setScene(newScene);
                 newStage.show();
@@ -239,7 +226,7 @@ public class HomePageController  extends MainController{
         _shareButton.setOnMouseClicked(event -> handleSharePage());
 
         recentButton.setOnMouseClicked(event -> {
-            if(originalContent == null) {
+            if (originalContent == null) {
                 originalContent = new VBox(tableView);
             }
             try {
@@ -257,43 +244,30 @@ public class HomePageController  extends MainController{
                 viewVBox.getChildren().clear();
                 viewVBox.getChildren().add(recentPage);
 
-
-                
-            } catch (IOException e) { 
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         });
-        // recentButton.setOnMouseClicked(event -> {
-        //     try {
-        //         handleRecentPage();
-        //     } catch (Exception e) {
-        //         e.printStackTrace();
-        //     }
-        // });
+
         sharedButton.setOnMouseClicked(event -> handleSharedPage());
         generalButton.setOnMouseClicked(event -> {
-                if (currenController != null) {
-                    currenController.onClose();
-                }
-                currenController = generalPageController;
-                try {
-                    generalPageController.setHomePageController(this);
-        
-                    // Hiển thị trang mới trong viewVBox
-                    viewVBox.getChildren().clear();
-                    viewVBox.getChildren().setAll(tableView);
-        
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            if (currenController != null) {
+                currenController.onClose();
             }
-        );
+            generalPageController = new GeneralPageController(this);
+            ;
+            currenController = generalPageController;
+            try {
+                generalPageController.setHomePageController(this);
+
+                viewVBox.getChildren().clear();
+                viewVBox.getChildren().add(tableView);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
-
-  
-
-   
-   
 
     // them su kien cho button add new
     void addEventAddNewButton() {
@@ -343,58 +317,7 @@ public class HomePageController  extends MainController{
                 popUp.hide();
             }
         });
-        // themsukien cho uploadFile
-        upLoadFileText.setOnMouseClicked(event -> {
-            popUp.hide();
-            FileChooser fileChooser = new FileChooser();
 
-            // // Thiết lập kiểu file cho phép chọn
-            // fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text
-            // Files", "*.txt"));
-            // fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image
-            // Files", "*.png", "*.jpg", "*.gif"));
-
-            // Mở hộp thoại chọn file và lấy file người dùng chọn
-            File getFile = fileChooser.showOpenDialog(addNew.getScene().getWindow());
-
-            if (getFile != null) {
-                isReloading = false;
-                System.out.println("Đã chọn thư mục: " + getFile.getAbsolutePath());
-                uploadFile(getFile.getAbsolutePath(), Path.replace("C:", "\\\\" + Host.dnsServer));
-            }
-        });
-
-        // sukienclickuploadFolder
-        upLoadFolderText.setOnMouseClicked(event -> {
-            popUp.hide();
-            DirectoryChooser directoryChooser = new DirectoryChooser();
-
-            File selectedDirectory = directoryChooser.showDialog(addNew.getScene().getWindow());
-
-            if (selectedDirectory != null) {
-                System.out.println("Đã chọn thư mục: " + selectedDirectory.getAbsolutePath());
-                isReloading = false;
-                uploadFolder(selectedDirectory.getAbsolutePath(), Path.replace("C:", "\\\\" + Host.dnsServer));
-            }
-        });
-    }
-
-    private void uploadFile(String Path, String pos) {
-        ExecuteBackground.executeInBackground("Uploading...", () -> {
-            File_handle.upLoadFile(Path, pos);
-            // Platform.runLater(this::startReloadThread);
-        });
-    }
-
-    private void uploadFolder(String Path, String pos) {
-        ExecuteBackground.executeInBackground("Uploading...", () -> {
-            try {
-                Folder_handle.UploadDirectory(Path, pos);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            // Platform.runLater(this::startReloadThread);
-        });
     }
 
     // thanhTimKiem
@@ -438,37 +361,37 @@ public class HomePageController  extends MainController{
         }
     }
 
-
     // Các sự kiện khi nhấn vào nút trong SideBar
     @FXML
     public void handleSharedPage() {
+        nowPage = "SharedPage";
         switchPage("SharedPage.fxml", new SharedPageController());
     }
 
     @FXML
     public void handleSharePage() {
+        nowPage = "SharePage";
         switchPage("SharePage.fxml", new SharePageController());
     }
 
     @FXML
     public void handleMyItemPage() {
-        switchPage("MyItemPage.fxml", new MyItemController());
+        nowPage = "MyItem";
+        switchPage("MyItemPage.fxml", new SharePageController());
     }
 
     @FXML
-    public void handleRecentPage() throws Exception{
+    public void handleRecentPage() throws Exception {
+        nowPage = "Recent";
         Recent1Controller controller = new Recent1Controller();
         switchPage("Recent1Page.fxml", controller);
         controller.loadData();
     }
 
-    @FXML
-    public void handleGeneralPage() {
-        switchPage("HomePage.fxml", new GeneralPageController(this));
-    }
-
-    
-
-
+    // @FXML
+    // public void handleGeneralPage() {
+    // nowPage = "HomePage";
+    // switchPage("HomePage.fxml", new GeneralPageController(this));
+    // }
 
 }

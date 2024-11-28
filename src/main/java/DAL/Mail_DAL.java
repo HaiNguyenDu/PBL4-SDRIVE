@@ -5,14 +5,13 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-
 public class Mail_DAL {
     public static Connection connectToDatabase() throws Exception {
         // URL, user, và password cần thay đổi theo cơ sở dữ liệu của bạn
-        String url = "jdbc:mysql://localhost:3306/PBL4?useSSL=false&allowPublicKeyRetrieval=true";
-        String user = "root";
-        String password = "";
-        
+        String url = "jdbc:mysql://192.168.10.40:3306/PBL4?useSSL=false&allowPublicKeyRetrieval=true";
+        String user = "pbl4_user";
+        String password = "12345";
+
         // Tạo kết nối
         return DriverManager.getConnection(url, user, password);
     }
