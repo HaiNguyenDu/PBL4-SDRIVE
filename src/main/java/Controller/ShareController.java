@@ -32,6 +32,7 @@ public class ShareController {
     private Button add;
     @FXML
     private TextField userSearchField;
+    @FXML
     private Text cancel;
     @FXML
     private ComboBox<String> userComboBox;
@@ -251,7 +252,11 @@ public class ShareController {
             // So sánh cả username và access
             if (oldAccess.getUsername().equals(access.getUsername()) &&
                     oldAccess.getAccess().equals(access.getAccess())) {
-                return true; // Trùng cả username và access
+                if (!oldAccess.isIh()) {
+                    return false;
+                } else
+                    return true;
+                // Trùng cả username và access
             }
         }
         return false; // Không trùng
@@ -273,7 +278,7 @@ public class ShareController {
                 List<UserAccess> tempList = new ArrayList<>();
                 for (UserAccess i : newList) {
                     // Nếu không trùng với phần tử nào trong oldList thì giữ lại
-                    if (!check(i)) {
+                    if (!check(i) && !i.getAccess().equals("Fullcontrol")) {
                         System.out.println("Giữ lại: " + i.getUsername() + " " + i.getAccess());
                         tempList.add(i);
                     } else {

@@ -9,7 +9,10 @@ public class file_folder {
     public static void rename(String path, String newName) {
         Path oldPath = Paths.get(path); // Đường dẫn hiện tại
         Path newPath = oldPath.resolveSibling(newName); // Tạo đường dẫn mới với tên mới
-
+        System.out.println(oldPath + " " + newPath);
+        if (oldPath.equals(newPath)) {
+            return;
+        }
         try {
             // Kiểm tra xem đường dẫn cũ có tồn tại hay không
             if (Files.exists(oldPath)) {

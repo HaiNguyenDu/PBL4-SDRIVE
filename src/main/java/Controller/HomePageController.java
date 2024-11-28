@@ -60,6 +60,7 @@ public class HomePageController {
     public ImageView upLoadFolderIMG = new ImageView();
     public TextField searchField;
     public HBox shareButton;
+    public HBox downloadButton;
     public Text addNew;
     @FXML
     private TableView<File_Folder> tableView;
@@ -80,7 +81,7 @@ public class HomePageController {
                         e.printStackTrace();
                     }
                 });
-                Thread.sleep(20000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 // Luồng bị gián đoạn
                 Thread.currentThread().interrupt(); // Đánh dấu lại trạng thái interrupt
@@ -225,6 +226,26 @@ public class HomePageController {
 
     // them cho su kien cho cac button
     void buttonevent() {
+        downloadButton.setOnMouseClicked(event -> {
+            try {
+                DirectoryChooser directoryChooser = new DirectoryChooser();
+                File selectedDirectory = directoryChooser.showDialog(addNew.getScene().getWindow());
+                File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
+                if (selectedDirectory != null && selectedItem != null) {
+                    stopReloadThread();
+                    if (file_folder
+                            .isFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName())) {
+                        uploadFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName(),
+                                selectedDirectory.getAbsolutePath());
+                    } else {
+                        uploadFolder(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName(),
+                                selectedDirectory.getAbsolutePath());
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
         shareButton.setOnMouseClicked(event -> {
             try {
                 File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
@@ -304,6 +325,17 @@ public class HomePageController {
                     } else {
                         // Click chuột phải vào dòng có dữ liệu, hiển thị menu cho Rename và Delete
                         rowMenu.show(row, event.getScreenX(), event.getScreenY());
+                    }
+                }
+                if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
+                    File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
+                    if (file_folder
+                            .isFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName())) {
+
+                    } else {
+                        stopReloadThread();
+                        Path = Path + "\\" + selectedItem.getName();
+                        Platform.runLater(this::startReloadThread);
                     }
                 }
             });
@@ -495,7 +527,6 @@ public class HomePageController {
             try {
                 Folder_handle.UploadDirectory(Path, pos);
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             Platform.runLater(this::startReloadThread);

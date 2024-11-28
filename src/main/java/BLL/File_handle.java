@@ -58,7 +58,13 @@ public class File_handle {
                 printWriter.println("@echo off");
                 // Disable inheritance on the file and remove any existing permissions for the
                 // user
+                // Grant full control to admin users to maintain access
+                printWriter.println("icacls \"" + filePath + "\" /grant \"PBL4\\Administrator:F\"");
+                printWriter.println("icacls \"" + filePath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":F\"");
                 printWriter.println("icacls \"" + filePath + "\" /inheritance:r");
+                // Grant full control to admin users to maintain access
+                printWriter.println("icacls \"" + filePath + "\" /grant \"PBL4\\Administrator:F\"");
+                printWriter.println("icacls \"" + filePath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":F\"");
                 printWriter.println("icacls \"" + filePath + "\" /remove \"" + domainUser + "\"");
 
                 // Set permissions based on the access type
