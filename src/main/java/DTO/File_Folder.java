@@ -3,32 +3,31 @@ package DTO;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+// Định nghĩa lớp File_Folder
 public class File_Folder {
-    String name;
-    LocalDateTime lastWriteTime;
+    private String Name;
+    private String LastTimeWrite;
 
-    public File_Folder(String name, LocalDateTime lastWriteTime) {
-        this.name = name;
-        this.lastWriteTime = lastWriteTime;
-    }
-    public File_Folder(String name, String lastWriteTime) {
-        this.name = name;
-        this.lastWriteTime = LocalDateTime.parse(lastWriteTime, DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss a"));
+    // Constructor
+    public File_Folder(String name, String LastTW) {
+        this.Name = name;
+        this.LastTimeWrite = LastTW;
     }
 
+    // Getter và Setter
     public String getName() {
-        return name;
+        return this.Name;
     }
 
-    public String getLastWriteTime() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss a");
-        return lastWriteTime.format(formatter);
+    public void setName(String newName) {
+        this.Name = newName;
     }
-    
-    @Override
-    public String toString() {
-        // Format the lastWriteTime to the desired pattern
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm:ss a");
-        return name + "|" + lastWriteTime.format(formatter);
+
+    public String getLastTimeWrite() {
+        return this.LastTimeWrite;
+    }
+
+    public void setLastTimeWrite(String newLWT) {
+        this.LastTimeWrite = newLWT;
     }
 }
