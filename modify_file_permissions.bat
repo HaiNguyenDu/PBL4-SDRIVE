@@ -1,6 +1,10 @@
 @echo off
-icacls "\\192.168.1.25\SDriver\XPhuc\haha.docx" /inheritance:r
-icacls "\\192.168.1.25\SDriver\XPhuc\haha.docx" /remove "PBL4\Thanhan"
-icacls "\\192.168.1.25\SDriver\XPhuc\haha.docx" /grant "PBL4\Thanhan":R
-icacls "\\192.168.1.25\SDriver\XPhuc\haha.docx" /grant "PBL4\Administrator:F"
-icacls "\\192.168.1.25\SDriver\XPhuc\haha.docx" /grant "PBL4\XPhuc:F"
+icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\doc.txt" /grant "PBL4\Administrator:F"
+icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\doc.txt" /grant "PBL4\XPhuc:F"
+icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\doc.txt" /inheritance:r
+icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\doc.txt" /grant "PBL4\Administrator:F"
+icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\doc.txt" /grant "PBL4\XPhuc:F"
+icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\doc.txt" /remove "PBL4\Thanhan"
+icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\doc.txt" /grant "PBL4\Thanhan":M
+icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\doc.txt" /grant "PBL4\Administrator:F"
+icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\doc.txt" /grant "PBL4\XPhuc:F"
