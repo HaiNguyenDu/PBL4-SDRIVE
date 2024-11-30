@@ -1,7 +1,7 @@
 package Controller;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+// import java.util.Iterator;
 import java.util.List;
 
 import BLL.File_handle;
@@ -9,7 +9,6 @@ import BLL.Folder_handle;
 import BLL.SSHExample;
 import BLL.file_folder;
 import DAL.ConnectWindowServer;
-import DTO.Host;
 import DTO.UserAccess;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -36,7 +35,7 @@ public class ShareController {
     private Text cancel;
     @FXML
     private ComboBox<String> userComboBox;
-    @FXML
+    @FXML 
     private Text share;
 
     private Stage stage;
@@ -56,6 +55,7 @@ public class ShareController {
         ExecuteBackground.executeInBackground("Finding...", () -> {
             try {
                 // Lấy danh sách người dùng phù hợp với bộ lọc
+                @SuppressWarnings("unused")
                 ArrayList<String> users = new ArrayList<>();
                 if (user.equals("")) {
                     // Cập nhật giao diện trong JavaFX Application Thread

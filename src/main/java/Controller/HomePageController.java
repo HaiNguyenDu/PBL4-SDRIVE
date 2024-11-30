@@ -13,7 +13,6 @@ import com.example.sgroupdrive.HelloApplication;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -25,6 +24,7 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -45,12 +45,14 @@ public class HomePageController {
     @FXML
     public Text username;
     public Text nickName;
-    public ImageView searchIMG;
+    @FXML
+    private ImageView searchIMG;
     public ImageView shareIMG;
     public ImageView downloadIMG;
     public ImageView ourIMG;
     public ImageView fileIMG;
-    public ImageView nearIMG;
+    @FXML
+    private ImageView nearIMG;
     public ImageView trashIMG;
     public ImageView sharedIMG;
     public ImageView bodyShareIMG;
@@ -59,7 +61,8 @@ public class HomePageController {
     public TextField searchField;
     public HBox shareButton;
     public Text addNew;
-    public TableView<File_Folder> tableView;
+    @FXML
+    private TableView<File_Folder> tableView;
     private Thread reloadPage;
 
     String Path = "C:\\SDriver\\" + ConnectWindowServer.user;
@@ -187,6 +190,7 @@ public class HomePageController {
     }
 
     // Thiết lập bảng TableView
+    @SuppressWarnings("unchecked")
     void TableView(ArrayList<File_Folder> dArrayList) {
         // Save the current selected index
         int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
@@ -245,6 +249,32 @@ public class HomePageController {
                 throw new RuntimeException(e);
             }
         });
+
+        recentButton.setOnMouseClicked(event -> {
+            if(originalContent == null) {
+                originalContent = new VBox(tableView);
+            }
+            try {
+                FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("Recent1Page.fxml"));
+                BorderPane recentPage = loader.load();
+
+                Recent1Controller recentController = loader.getController();
+                recentController.setHomePageController(this);
+                try {
+                    recentController.loadData();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                viewVBox.getChildren().clear();
+                viewVBox.getChildren().add(recentPage);
+
+
+                
+            } catch (IOException e) { 
+                e.printStackTrace();
+            }
+        });
     }
 
     void addEventRowTableViewPopUp() {
@@ -282,6 +312,7 @@ public class HomePageController {
         });
 
         // Tạo một cửa sổ mới (Stage) để hiển thị màn hình New
+        @SuppressWarnings("unused")
         Stage stage = new Stage();
 
         // Sự kiện cho "New File"
@@ -406,6 +437,7 @@ public class HomePageController {
 
         // themsukien cho text Add New
         addNew.setOnMouseClicked(event -> {
+            @SuppressWarnings("unused")
             Stage primaryStage = new Stage();
             if (!popUp.isShowing()) {
                 double x = addNew.localToScreen(addNew.getLayoutBounds()).getMinX();
@@ -475,4 +507,68 @@ public class HomePageController {
         searchField = new TextField();
         searchField.setPromptText("Search");
     }
+
+    // "Gần đây" - xử lý sự kiện
+
+    @FXML
+    public VBox viewVBox;
+
+    private VBox originalContent;
+
+    @FXML
+    public Text recentButton;
+
+    // @FXML
+    // private void RecentClick() {
+
+    //     recentButton.setOnMouseClicked(event -> {
+    //         if(originalContent == null) {
+    //             originalContent = new VBox(tableView);
+    //         }
+    //         try {
+    //             FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("RecentPage.fxml"));
+    //             BorderPane recentPage = loader.load();
+
+    //             RecentController recentController = loader.getController();
+    //             recentController.setHomePageController(this);
+
+    //             viewVBox.getChildren().clear();
+    //             String s = "Hello";
+    //             System.out.println(s);
+    //             viewVBox.getChildren().add(recentPage);
+                
+    //             System.out.println(s);
+    //         } catch (IOException e) { 
+    //             e.printStackTrace();
+    //         }
+    //     });
+
+    // }
+
+    @FXML
+    public void closePage() {
+        viewVBox.getChildren().clear();
+        viewVBox.getChildren().add(originalContent);
+    }
+
+    // Xu ly su kien click nut Recent de dieu huong den trang Recent1Page
+    private Stage stage;
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    @FXML
+    public void goToRecent1Page() throws Exception {
+        try {
+            FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("Recent1Page.fxml"));
+            Parent root = loader.load();
+            Recent1Controller recent1Controller = loader.getController();
+            recent1Controller.loadData();
+            stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }   
+
 }

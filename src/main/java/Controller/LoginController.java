@@ -82,7 +82,9 @@ public class LoginController {
         loginText.setOnMouseEntered(event -> loginButton.setFill(Color.web("#4486b3")));
         loginText.setOnMouseExited(event -> loginButton.setFill(Color.WHITE));
         loginText.setOnMouseClicked(event -> {
+            @SuppressWarnings("unused")
             String[] error = validate();
+            @SuppressWarnings("unused")
             ArrayList<File_Folder> inFolder = new ArrayList<>();
             String email = emailField.getText().trim();
             String password = passwordField.getText().trim();
