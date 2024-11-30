@@ -67,6 +67,7 @@ public class HomePageController {
     public Text addNew;
     public TableView<File_Folder> tableView;
     private Thread reloadPage;
+    
 
     String Path = "C:\\SDriver\\" + ConnectWindowServer.user;
 
@@ -597,5 +598,39 @@ public class HomePageController {
     void textFiled() {
         searchField = new TextField();
         searchField.setPromptText("Search");
+    }
+
+    @FXML
+    public VBox viewVBox;
+
+    private VBox originalContent;
+
+    @FXML
+    public Text recentButton;
+
+    @FXML
+    public void closePage() {
+        viewVBox.getChildren().clear();
+        viewVBox.getChildren().add(originalContent);
+    }
+
+    // Xu ly su kien click nut Recent de dieu huong den trang Recent1Page
+    private Stage stage;
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    @FXML
+    public void goToRecent1Page() throws Exception {
+        try {
+            FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("Recent1Page.fxml"));
+            Parent root = loader.load();
+            Recent1Controller recent1Controller = loader.getController();
+            recent1Controller.loadData();
+            stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
