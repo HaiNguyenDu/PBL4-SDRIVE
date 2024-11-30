@@ -25,6 +25,7 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -37,6 +38,8 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javafx.scene.paint.Color; // Dùng JavaFX Color
 
@@ -45,6 +48,8 @@ public class HomePageController {
     @FXML
     public Text username;
     public Text nickName;
+    public Text pathText;
+    public HBox pathViewHbox;
     public ImageView searchIMG;
     public ImageView shareIMG;
     public ImageView downloadIMG;
@@ -65,6 +70,7 @@ public class HomePageController {
 
     String Path = "C:\\SDriver\\" + ConnectWindowServer.user;
 
+    List<String> pathView = new ArrayList<>();
     // Thêm biến cờ
     private volatile boolean isReloading = true;
 
@@ -114,6 +120,7 @@ public class HomePageController {
         buttonevent();
         addEventAddNewButton();
         addEventRowTableViewPopUp();
+        addEventDoubleCLickRowTableView();
         try {
             TableView(loaddata());
         } catch (Exception e) {
@@ -218,6 +225,8 @@ public class HomePageController {
         if (tableView.getStylesheets().isEmpty()) {
             tableView.getStylesheets().add(getClass().getResource("/Styles/homepage.css").toExternalForm());
         }
+
+
     }
 
     // them cho su kien cho cac button
@@ -348,7 +357,88 @@ public class HomePageController {
             }
         });
     }
+    void addEventDoubleCLickRowTableView() {
+        tableView.setRowFactory(tv ->{
+            TableRow<File_Folder> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2&&!row.isEmpty()) {
+                    File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
+                    pathView.add(selectedItem.getName());
+                    Path+="\\" + selectedItem.getName();
+                    try {
+                        TableView(loaddata());
+                        updatePathView();
+                        newPath();
+                        TableView(loaddata());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
 
+
+                }
+            });
+            return row;
+        });
+    }
+    void newPath()
+    {
+        String path = "";
+        for(String name: pathView)
+        {
+            path+="\\" + name;
+        }
+        Path = "C:\\SDriver\\" + ConnectWindowServer.user + path;
+    }
+    Text textPathView(String name)
+    {
+        Text newText = new Text(name);
+        newText.getStyleClass().add("text-style");
+        return newText;
+    }
+    void updatePathView()
+    {
+        pathViewHbox.getChildren().clear();
+        Text homeText = textPathView("Home > ");
+        homeText.setOnMouseClicked(event -> {
+            pathView.clear();
+            updatePathView();
+        });
+        pathViewHbox.getChildren().add(homeText);
+        int i =0;
+        for(String text : pathView)
+        {
+            int n = i;
+            if(n==9)
+            {
+                Text newText = textPathView("...");
+                newText.setOnMouseClicked((MouseEvent event) -> {
+                    clickTextPathView(pathView.size()-2);
+                });
+                pathViewHbox.getChildren().add(newText);
+                break;
+            }
+            else {
+                Text newText = textPathView(text + " > ");
+                newText.setOnMouseClicked((MouseEvent event) -> {
+                    clickTextPathView(n);
+                });
+                pathViewHbox.getChildren().add(newText);
+            }
+            i++;
+
+        }
+    }
+
+    void clickTextPathView(int n)
+    {
+        List<String> newPath = new ArrayList<>();
+        for(int i =0;i<=n;i++)
+        {
+            newPath.add(pathView.get(i));
+        }
+        pathView = newPath;
+        updatePathView();
+    }
     // Phương thức để hiển thị dialog nhập liệu
     private void showInputDialog(String title, String selectedItem) {
         try {
