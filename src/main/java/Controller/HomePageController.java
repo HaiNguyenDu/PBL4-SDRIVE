@@ -366,7 +366,6 @@ public class HomePageController {
                     pathView.add(selectedItem.getName());
                     Path+="\\" + selectedItem.getName();
                     try {
-                        TableView(loaddata());
                         updatePathView();
                         newPath();
                         TableView(loaddata());
@@ -402,6 +401,7 @@ public class HomePageController {
         homeText.setOnMouseClicked(event -> {
             pathView.clear();
             updatePathView();
+            newPath();
         });
         pathViewHbox.getChildren().add(homeText);
         int i =0;
@@ -413,6 +413,7 @@ public class HomePageController {
                 Text newText = textPathView("...");
                 newText.setOnMouseClicked((MouseEvent event) -> {
                     clickTextPathView(pathView.size()-2);
+                    newPath();
                 });
                 pathViewHbox.getChildren().add(newText);
                 break;
@@ -421,6 +422,7 @@ public class HomePageController {
                 Text newText = textPathView(text + " > ");
                 newText.setOnMouseClicked((MouseEvent event) -> {
                     clickTextPathView(n);
+                    newPath();
                 });
                 pathViewHbox.getChildren().add(newText);
             }
