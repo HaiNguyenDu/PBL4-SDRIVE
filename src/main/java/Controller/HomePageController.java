@@ -26,6 +26,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -274,6 +275,35 @@ public class HomePageController {
                 newStage.show();
             } catch (IOException e) {
                 throw new RuntimeException(e);
+            }
+
+        }
+        
+        );
+
+        recentButton.setOnMouseClicked(event -> {
+            if(originalContent == null) {
+                originalContent = new VBox(tableView);
+            }
+            try {
+                FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("Recent1Page.fxml"));
+                BorderPane recentPage = loader.load();
+
+                Recent1Controller recentController = loader.getController();
+                recentController.setHomePageController(this);
+                try {
+                    recentController.loadData();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                viewVBox.getChildren().clear();
+                viewVBox.getChildren().add(recentPage);
+
+
+                
+            } catch (IOException e) { 
+                e.printStackTrace();
             }
         });
     }
