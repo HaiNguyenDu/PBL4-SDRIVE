@@ -57,9 +57,7 @@ public class LoginController {
             String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
             if (!newValue) {
                 if (email.isEmpty())
-                    errorEmail.setText("Email Khong dc de trong");
-                else if (!email.matches(emailRegex))
-                    errorEmail.setText(" Sai ding dang email");
+                    errorEmail.setText("Username Khong dc de trong");
                 else
                     errorEmail.setText("");
             }
@@ -94,7 +92,7 @@ public class LoginController {
                 FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("HomePage.fxml"));
                 try {
                     Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-                    Scene newScene = new Scene(fxmlLoader.load(), screenBounds.getWidth(), screenBounds.getHeight());
+                    Scene newScene = new Scene(fxmlLoader.load(), 1260,720);
                     newStage.setScene(newScene);
                     newStage.setTitle("Home Page");
                     newStage.show();
@@ -115,13 +113,10 @@ public class LoginController {
     String[] validate() {
         String email = emailField.getText().trim();
         String password = passwordField.getText().trim();
-        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
         String[] error = { "", "" };
         // Kiểm tra username
         if (email.isEmpty())
-            error[0] = "Email Khong dc de trong";
-        else if (!email.matches(emailRegex))
-            error[0] = "Sai ding dang email";
+            error[0] = "Username Khong dc de trong";
         if (password.isEmpty())
             error[1] = "Password khong dc de trong";
         else if (password.length() < 6)

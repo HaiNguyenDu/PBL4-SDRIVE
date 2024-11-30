@@ -153,28 +153,36 @@
                </padding>
 
            </HBox>
-            <Label text="Home &gt;">
-               <font>
-                  <Font name="System Bold" size="16.0" />
-               </font>
+           <HBox fx:id="pathViewHbox" maxWidth="900.0" prefWidth="900.0">
+                <Text fx:id="pathText" text="Home &gt;">
+                   <font>
+                      <Font name="System Bold" size="12.0" />
+                   </font>
+                   <VBox.margin>
+                      <Insets top="20.0" />
+                   </VBox.margin>
+                </Text>
                <VBox.margin>
                   <Insets top="20.0" />
                </VBox.margin>
-            </Label>
+           </HBox>
            <StackPane>
                 <Rectangle arcHeight="20.0" arcWidth="20.0" fill="WHITE" height="600" stroke="WHITE" width="950.0" />
                 <VBox fx:id="viewVBox" fillWidth="false" style="-fx-background-color: tran;">
                     <TableView fx:id="tableView"  visible="true" prefHeight="600" prefWidth="900" style="-fx-background-color: transparent; -fx-border-color: transparent; ">
                         <VBox.margin>
-                            <Insets bottom="15.0" left="15" right="15.0" top="15.0" />
+                            <Insets bottom="15.0" left="15.0" right="15.0" top="5.0" />
                         </VBox.margin>
                     </TableView>
                   <StackPane.margin>
                      <Insets />
                   </StackPane.margin>
+                  <padding>
+                     <Insets top="10.0" />
+                  </padding>
                 </VBox>
                <VBox.margin>
-                  <Insets top="20.0" />
+                  <Insets />
                </VBox.margin>
            </StackPane>
             <HBox.margin>
