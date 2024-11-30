@@ -97,7 +97,7 @@
                            </font></Label>
                      </children>
                      <HBox.margin>
-                        <Insets />''
+                        <Insets />
                      </HBox.margin>
                   </VBox>
                </children>
