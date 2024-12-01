@@ -4,6 +4,8 @@ import BLL.File_handle;
 import BLL.Folder_handle;
 import BLL.SSHExample;
 import BLL.file_folder;
+import Component.tableViewMyFile;
+import Component.tableViewShared;
 import DAL.ConnectWindowServer;
 import DTO.File_Folder;
 import DTO.Host;
@@ -44,12 +46,17 @@ import java.util.List;
 
 import javafx.scene.paint.Color; // Dùng JavaFX Color
 
-public class HomePageController {
+public class HomePageController  extends MainController{
     // Khai báo các thành phần FXML
     @FXML
     public Text username;
     public Text nickName;
     public Text pathText;
+    public Text recentButton;
+    public Text sharedButton;
+    public Text _shareButton;
+    public Text generalButton;
+    public Text myItemButton;
     public HBox pathViewHbox;
     public ImageView searchIMG;
     public ImageView shareIMG;
@@ -65,70 +72,67 @@ public class HomePageController {
     public TextField searchField;
     public HBox shareButton;
     public HBox downloadButton;
+    public VBox viewVBox;
     public Text addNew;
     public TableView<File_Folder> tableView;
     private Thread reloadPage;
+    //khoi tao cac man hinh
+    // private tableViewMyFile PageMyFile;
+    // private tableViewShared PageShared;
+    private GeneralPageController generalPageController;
     
+    public String nowPage = "";   
+    public MainController mainController = this;
 
     String Path = "C:\\SDriver\\" + ConnectWindowServer.user;
-
-    List<String> pathView = new ArrayList<>();
     // Thêm biến cờ
     private volatile boolean isReloading = true;
 
-    void LoadPage() {
-        while (isReloading) { // Kiểm tra biến cờ
-            try {
-                Platform.runLater(() -> {
-                    try {
-                        TableView(loaddata());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                // Luồng bị gián đoạn
-                Thread.currentThread().interrupt(); // Đánh dấu lại trạng thái interrupt
-                break; // Thoát khỏi vòng lặp
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
+    // void LoadPage() {
+    //     while (isReloading) { // Kiểm tra biến cờ
+    //         try {
+    //             Platform.runLater(() -> {
+    //                 try {
+    //                     // PageMyFile.PushDataTableView();
+    //                 } catch (Exception e) {
+    //                     e.printStackTrace();
+    //                 }
+    //             });
+    //             Thread.sleep(5000);
+    //         } catch (InterruptedException e) {
+    //             // Luồng bị gián đoạn
+    //             Thread.currentThread().interrupt(); // Đánh dấu lại trạng thái interrupt
+    //             break; // Thoát khỏi vòng lặp
+    //         } catch (Exception e) {
+    //             e.printStackTrace();
+    //         }
+    //     }
+    // }
 
-    void stopReloadThread() {
-        isReloading = false; // Đặt cờ để dừng vòng lặp
-        if (reloadPage != null) {
-            reloadPage.interrupt(); // Ngắt luồng
-        }
-    }
+    // void stopReloadThread() {
+    //     isReloading = false; // Đặt cờ để dừng vòng lặp
+    //     if (reloadPage != null) {
+    //         reloadPage.interrupt(); // Ngắt luồng
+    //     }
+    // }
 
-    void startReloadThread() {
-        stopReloadThread(); // Đảm bảo luồng cũ đã dừng
-        isReloading = true; // Bật cờ
-        reloadPage = new Thread(this::LoadPage);
-        reloadPage.start();
-    }
+    // void startReloadThread() {
+    //     stopReloadThread(); // Đảm bảo luồng cũ đã dừng
+    //     isReloading = true; // Bật cờ
+    //     reloadPage = new Thread(this::LoadPage);
+    //     reloadPage.start();
+    // }
 
-    ArrayList<File_Folder> loaddata() throws Exception {
-        ArrayList<File_Folder> dArrayList = SSHExample.FindFolder(Path);
-        return dArrayList;
-    }
+
+
+
 
     public void initialize() {
         initImages();
         textFiled();
         buttonevent();
         addEventAddNewButton();
-        addEventRowTableViewPopUp();
-        addEventDoubleCLickRowTableView();
-        try {
-            TableView(loaddata());
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        initTableView();
         username.setText(ConnectWindowServer.user);
         nickName.setText(ConnectWindowServer.user.substring(0, 2).toUpperCase());
     }
@@ -155,83 +159,34 @@ public class HomePageController {
         bodyShareIMG.setImage(imageShare);
         upLoadeFileIMG.setImage(imageUpLoadFile);
         upLoadFolderIMG.setImage(imageUpLoadFolder);
-        reloadPage = new Thread(() -> LoadPage());
-        reloadPage.start();
+        // reloadPage = new Thread(() -> LoadPage());
+        // reloadPage.start();
     }
-
+    void initTableView()
+    {
+        generalPageController = new GeneralPageController(this);
+        tableView = generalPageController.getTableView();
+        tableView.setPrefSize(950, 600);
+        viewVBox.getChildren().clear();
+        viewVBox.getChildren().add(tableView);
+    }
+    public ArrayList<File_Folder> loadData() throws Exception {
+        ArrayList<File_Folder> dArrayList = SSHExample.FindFolder(Path);
+       return dArrayList;
+   }
     // Method to stop the old thread and start a new reload thread
-    void restartReloadThread() {
-        stopReloadThread(); // Stop the old thread if it's running
+    // // void restartReloadThread() {
+    //     stopReloadThread(); // Stop the old thread if it's running
 
-        // Start a new thread to reload the page
-        reloadPage = new Thread(() -> LoadPage());
-        reloadPage.start();
-    }
+    //     // Start a new thread to reload the page
+    //     reloadPage = new Thread(() -> LoadPage());
+    //     reloadPage.start();
+    // }
 
-    private void createNewFolder(String folderName) {
-        ExecuteBackground.executeInBackground("Creating folder...", () -> {
-            Folder_handle.createNewFolder(Path.replace("C:", "\\\\" + Host.dnsServer), folderName);
-            Platform.runLater(this::startReloadThread);
-        });
-    }
-
-    private void createNewFile(String fileName) {
-        ExecuteBackground.executeInBackground("Creating file...", () -> {
-            File_handle.createNewFile(Path.replace("C:", "\\\\" + Host.dnsServer), fileName);
-            Platform.runLater(this::startReloadThread);
-        });
-    }
-
-    private void Rename(String Path, String fileName) {
-        ExecuteBackground.executeInBackground("rename...", () -> {
-            file_folder.rename(Path, fileName);
-            Platform.runLater(this::startReloadThread);
-        });
-    }
-
-    private void Delete(String Path) {
-        ExecuteBackground.executeInBackground("delete...", () -> {
-            file_folder.deletePath(Path);
-            Platform.runLater(this::startReloadThread);
-        });
-    }
-
+    
     // Thiết lập bảng TableView
-    void TableView(ArrayList<File_Folder> dArrayList) {
-        // Save the current selected index
-        int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
-
-        // Configure columns if not already added
-        if (tableView.getColumns().isEmpty()) {
-            TableColumn<File_Folder, String> nameColumn = new TableColumn<>("Name");
-            nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
-            nameColumn.setPrefWidth(450);
-
-            TableColumn<File_Folder, String> lastWriteTimeColumn = new TableColumn<>("Last Write Time");
-            lastWriteTimeColumn.setCellValueFactory(new PropertyValueFactory<>("LastTimeWrite"));
-            lastWriteTimeColumn.setPrefWidth(450);
-
-            tableView.getColumns().addAll(nameColumn, lastWriteTimeColumn);
-        }
-
-        // Convert dArrayList to ObservableList and set it as the data for TableView
-        ObservableList<File_Folder> observableFileList = FXCollections.observableArrayList(dArrayList);
-        tableView.setItems(observableFileList);
-
-        // Restore the previous selection
-        if (selectedIndex >= 0 && selectedIndex < observableFileList.size()) {
-            tableView.getSelectionModel().select(selectedIndex);
-        }
-
-        // Add stylesheet (optional, only if not added before)
-        if (tableView.getStylesheets().isEmpty()) {
-            tableView.getStylesheets().add(getClass().getResource("/Styles/homepage.css").toExternalForm());
-        }
-
-
-    }
-
-    // them cho su kien cho cac button
+   
+    // Them cho su kien cho cac button
     void buttonevent() {
         downloadButton.setOnMouseClicked(event -> {
             try {
@@ -239,7 +194,7 @@ public class HomePageController {
                 File selectedDirectory = directoryChooser.showDialog(addNew.getScene().getWindow());
                 File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
                 if (selectedDirectory != null && selectedItem != null) {
-                    stopReloadThread();
+                    // stopReloadThread();
                     if (file_folder
                             .isFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName())) {
                         uploadFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName(),
@@ -256,20 +211,20 @@ public class HomePageController {
         shareButton.setOnMouseClicked(event -> {
             try {
                 File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
-                stopReloadThread(); // Dừng luồng reload khi mở ShareScreen
+                // stopReloadThread(); // Dừng luồng reload khi mở ShareScreen
 
                 Stage newStage = new Stage();
                 FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("ShareScreen.fxml"));
                 Scene newScene = new Scene(fxmlLoader.load(), 600, 450);
 
                 // Thiết lập Controller và truyền dữ liệu cần thiết
-                ShareController shareController = fxmlLoader.getController();
+                ShareScreenController shareController = fxmlLoader.getController();
                 shareController.setPath(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
                 shareController.setStage(newStage);
                 shareController.setItemSelect(selectedItem);
 
                 // Gắn lắng nghe sự kiện khi cửa sổ ShareScreen đóng
-                newStage.setOnHidden(e -> startReloadThread()); // Khởi động lại luồng reload
+                // newStage.setOnHidden(e -> startReloadThread()); // Khởi động lại luồng reload
 
                 newStage.setScene(newScene);
                 newStage.show();
@@ -277,9 +232,11 @@ public class HomePageController {
                 throw new RuntimeException(e);
             }
 
-        }
-        
-        );
+        });
+
+        myItemButton.setOnMouseClicked(event -> handleMyItemPage());
+
+        _shareButton.setOnMouseClicked(event -> handleSharePage());
 
         recentButton.setOnMouseClicked(event -> {
             if(originalContent == null) {
@@ -306,221 +263,37 @@ public class HomePageController {
                 e.printStackTrace();
             }
         });
-    }
-
-    void addEventRowTableViewPopUp() {
-        // Tạo ContextMenu với các MenuItem cho vùng trống
-        ContextMenu emptyAreaMenu = new ContextMenu();
-        MenuItem newFile = new MenuItem("New File");
-        MenuItem newFolder = new MenuItem("New Folder");
-
-        emptyAreaMenu.getItems().addAll(newFile, newFolder);
-
-        // Tạo ContextMenu cho vùng có dòng dữ liệu
-        ContextMenu rowMenu = new ContextMenu();
-        MenuItem renameItem = new MenuItem("Rename");
-        MenuItem deleteItem = new MenuItem("Delete");
-
-        rowMenu.getItems().addAll(renameItem, deleteItem);
-
-        // Thiết lập TableView row factory
-        tableView.setRowFactory(tv -> {
-            TableRow<File_Folder> row = new TableRow<>();
-
-            row.setOnMouseClicked(event -> {
-                if (event.getButton() == MouseButton.SECONDARY) { // Nếu click chuột phải
-                    if (row.isEmpty()) {
-                        // Click chuột phải vào vùng trống, hiển thị menu cho New File và New Folder
-                        emptyAreaMenu.show(row, event.getScreenX(), event.getScreenY());
-                    } else {
-                        // Click chuột phải vào dòng có dữ liệu, hiển thị menu cho Rename và Delete
-                        rowMenu.show(row, event.getScreenX(), event.getScreenY());
-                    }
+        // recentButton.setOnMouseClicked(event -> {
+        //     try {
+        //         handleRecentPage();
+        //     } catch (Exception e) {
+        //         e.printStackTrace();
+        //     }
+        // });
+        sharedButton.setOnMouseClicked(event -> handleSharedPage());
+        generalButton.setOnMouseClicked(event -> {
+                if (currenController != null) {
+                    currenController.onClose();
                 }
-                if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
-                    File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
-                    if (file_folder
-                            .isFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName())) {
-
-                    } else {
-                        stopReloadThread();
-                        Path = Path + "\\" + selectedItem.getName();
-                        Platform.runLater(this::startReloadThread);
-                    }
+                currenController = generalPageController;
+                try {
+                    generalPageController.setHomePageController(this);
+        
+                    // Hiển thị trang mới trong viewVBox
+                    viewVBox.getChildren().clear();
+                    viewVBox.getChildren().setAll(tableView);
+        
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            });
-
-            return row;
-        });
-
-        // Tạo một cửa sổ mới (Stage) để hiển thị màn hình New
-        Stage stage = new Stage();
-
-        // Sự kiện cho "New File"
-        newFile.setOnAction(event -> {
-            // Mở dialog nhập liệu với tiêu đề là "New File"
-            showInputDialog("New File");
-        });
-
-        // Sự kiện cho "New Folder"
-        newFolder.setOnAction(event -> {
-            // Mở dialog nhập liệu với tiêu đề là "New Folder"
-            showInputDialog("New Folder");
-        });
-
-        // Sự kiện cho "Rename"
-        renameItem.setOnAction(event -> {
-            File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
-            if (selectedItem != null) {
-                // Mở dialog đổi tên với tiêu đề là "Rename"
-                showInputDialog("Rename", Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
             }
-        });
-
-        // Sự kiện cho "Delete"
-        deleteItem.setOnAction(event -> {
-            File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
-            if (selectedItem != null) {
-                isReloading = false;
-                // Xử lý việc xóa file hoặc thư mục đã chọn
-                System.out.println("Deleting: " + selectedItem.getName());
-                Delete(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
-            }
-        });
-    }
-    void addEventDoubleCLickRowTableView() {
-        tableView.setRowFactory(tv ->{
-            TableRow<File_Folder> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2&&!row.isEmpty()) {
-                    File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
-                    pathView.add(selectedItem.getName());
-                    Path+="\\" + selectedItem.getName();
-                    try {
-                        updatePathView();
-                        newPath();
-                        TableView(loaddata());
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-
-
-                }
-            });
-            return row;
-        });
-    }
-    void newPath()
-    {
-        String path = "";
-        for(String name: pathView)
-        {
-            path+="\\" + name;
-        }
-        Path = "C:\\SDriver\\" + ConnectWindowServer.user + path;
-    }
-    Text textPathView(String name)
-    {
-        Text newText = new Text(name);
-        newText.getStyleClass().add("text-style");
-        return newText;
-    }
-    void updatePathView()
-    {
-        pathViewHbox.getChildren().clear();
-        Text homeText = textPathView("Home > ");
-        homeText.setOnMouseClicked(event -> {
-            pathView.clear();
-            updatePathView();
-            newPath();
-        });
-        pathViewHbox.getChildren().add(homeText);
-        int i =0;
-        for(String text : pathView)
-        {
-            int n = i;
-            if(n==9)
-            {
-                Text newText = textPathView("...");
-                newText.setOnMouseClicked((MouseEvent event) -> {
-                    clickTextPathView(pathView.size()-2);
-                    newPath();
-                });
-                pathViewHbox.getChildren().add(newText);
-                break;
-            }
-            else {
-                Text newText = textPathView(text + " > ");
-                newText.setOnMouseClicked((MouseEvent event) -> {
-                    clickTextPathView(n);
-                    newPath();
-                });
-                pathViewHbox.getChildren().add(newText);
-            }
-            i++;
-
-        }
+        );
     }
 
-    void clickTextPathView(int n)
-    {
-        List<String> newPath = new ArrayList<>();
-        for(int i =0;i<=n;i++)
-        {
-            newPath.add(pathView.get(i));
-        }
-        pathView = newPath;
-        updatePathView();
-    }
-    // Phương thức để hiển thị dialog nhập liệu
-    private void showInputDialog(String title, String selectedItem) {
-        try {
-            // Tải FXML và Controller
-            FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("New.fxml"));
-            Parent root = loader.load();
+  
 
-            // Lấy controller để truy cập dữ liệu
-            NewController controller = loader.getController();
-
-            // Tạo một Stage mới
-            Stage dialogStage = new Stage();
-            dialogStage.setTitle(title);
-            dialogStage.initModality(Modality.APPLICATION_MODAL); // Chặn tương tác với cửa sổ khác
-            dialogStage.setScene(new Scene(root));
-            dialogStage.showAndWait(); // Hiển thị và chờ người dùng tương tác
-
-            // Lấy kết quả từ controller
-            String name = controller.getResult();
-            if (name != null && title.equals("Rename")) {
-                Rename(selectedItem, name);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Phương thức để hiển thị dialog nhập liệu
-    private void showInputDialog(String title) {
-        // Tạo TextInputDialog
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle(title); // Tiêu đề của dialog là tên MenuItem
-        dialog.setHeaderText(null); // Không có header
-        if (title.equals("New File"))
-            dialog.setContentText("Enter file name:"); // Nội dung yêu cầu người dùng nhập
-        if (title.equals("New Folder"))
-            dialog.setContentText("Enter folder name:");
-        // Xử lý khi người dùng nhấn OK
-        dialog.showAndWait().ifPresent(name -> {
-            System.out.println("đang thực hiện..."); // Lấy giá trị người dùng nhập
-            // Bạn có thể xử lý giá trị nhập vào tại đây, ví dụ: tạo file hoặc folder mới,
-            // hoặc đổi tên
-            isReloading = false;
-            if (title.equals("New File"))
-                createNewFile(name);
-            if (title.equals("New Folder"))
-                createNewFolder(name);
-        });
-    }
+   
+   
 
     // them su kien cho button add new
     void addEventAddNewButton() {
@@ -609,7 +382,7 @@ public class HomePageController {
     private void uploadFile(String Path, String pos) {
         ExecuteBackground.executeInBackground("Uploading...", () -> {
             File_handle.upLoadFile(Path, pos);
-            Platform.runLater(this::startReloadThread);
+            // Platform.runLater(this::startReloadThread);
         });
     }
 
@@ -620,7 +393,7 @@ public class HomePageController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Platform.runLater(this::startReloadThread);
+            // Platform.runLater(this::startReloadThread);
         });
     }
 
@@ -630,13 +403,7 @@ public class HomePageController {
         searchField.setPromptText("Search");
     }
 
-    @FXML
-    public VBox viewVBox;
-
     private VBox originalContent;
-
-    @FXML
-    public Text recentButton;
 
     @FXML
     public void closePage() {
@@ -644,23 +411,64 @@ public class HomePageController {
         viewVBox.getChildren().add(originalContent);
     }
 
-    // Xu ly su kien click nut Recent de dieu huong den trang Recent1Page
-    private Stage stage;
+    // MainController xử lý việc điều hướng trang
+    private MainController currenController;
 
-    public void setStage(Stage stage) {
-        this.stage = stage;
-    }
-
-    @FXML
-    public void goToRecent1Page() throws Exception {
+    // Phuong thuc chuyen doi trang
+    public void switchPage(String path, MainController newController) {
+        if (currenController != null) {
+            currenController.onClose();
+        }
+        currenController = newController;
         try {
-            FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource("Recent1Page.fxml"));
+            FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource(path));
+            // VBox newPage = loader.load();
             Parent root = loader.load();
-            Recent1Controller recent1Controller = loader.getController();
-            recent1Controller.loadData();
-            stage.setScene(new Scene(root));
+            MainController controller = loader.getController();
+            controller.setHomePageController(this);
+
+            // Hiển thị trang mới trong viewVBox
+            viewVBox.getChildren().clear();
+            viewVBox.getChildren().setAll(root);
+
+            // Gán controller hiện tại
+            currenController = controller;
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
+
+    // Các sự kiện khi nhấn vào nút trong SideBar
+    @FXML
+    public void handleSharedPage() {
+        switchPage("SharedPage.fxml", new SharedPageController());
+    }
+
+    @FXML
+    public void handleSharePage() {
+        switchPage("SharePage.fxml", new SharePageController());
+    }
+
+    @FXML
+    public void handleMyItemPage() {
+        switchPage("MyItemPage.fxml", new MyItemController());
+    }
+
+    @FXML
+    public void handleRecentPage() throws Exception{
+        Recent1Controller controller = new Recent1Controller();
+        switchPage("Recent1Page.fxml", controller);
+        controller.loadData();
+    }
+
+    @FXML
+    public void handleGeneralPage() {
+        switchPage("HomePage.fxml", new GeneralPageController(this));
+    }
+
+    
+
+
+
 }

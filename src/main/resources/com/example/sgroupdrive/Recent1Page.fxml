@@ -18,10 +18,9 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="950.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.Recent1Controller">
    <center>
-      <VBox fx:id="vboxContainer" prefHeight="600.0" prefWidth="489.0" styleClass="right-border" stylesheets="@../../../Styles/recentpage.css" BorderPane.alignment="CENTER">
+      <VBox prefHeight="600.0" prefWidth="489.0" styleClass="right-border" stylesheets="@../../../Styles/recentpage.css" BorderPane.alignment="CENTER">
          <children>
          <!-- Bat dau tu day -->
-         <!-- <Button onAction="#loadData" text="Load Data" /> -->
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
                   <HBox prefHeight="100.0" prefWidth="200.0" />
@@ -62,9 +61,8 @@
    <right>
       <VBox alignment="TOP_RIGHT" prefHeight="600.0" prefWidth="598.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="close" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" onAction="#closePage" text="Close" />
             <VBox prefHeight="134.0" prefWidth="598.0" fx:id="vboxMail_HeaderDetail" spacing="5">
-            <HBox alignment="CENTER_LEFT" prefHeight="134.0" prefWidth="598.0" stylesheets="@../../../Styles/recentpage.css">
+            <!-- <HBox alignment="CENTER_LEFT" prefHeight="134.0" prefWidth="598.0" stylesheets="@../../../Styles/recentpage.css">
                <children>
                   <Pane prefHeight="94.0" prefWidth="111.0">
                      <children>
@@ -101,30 +99,30 @@
                      </HBox.margin>
                   </VBox>
                </children>
-            </HBox>
+            </HBox> -->
             </VBox>
             <HBox fx:id="hboxInvited" alignment="CENTER" prefHeight="65.0" prefWidth="598.0">
                <children>
-                  <Label alignment="CENTER" prefHeight="35.0" prefWidth="610.0" text="Thanh An invited you to edit a folder" textAlignment="JUSTIFY" wrapText="true">
+                  <!-- <Label alignment="CENTER" prefHeight="35.0" prefWidth="610.0" text="Thanh An invited you to edit a folder" textAlignment="JUSTIFY" wrapText="true">
                      <font>
                         <Font name="System Bold" size="24.0" />
                      </font>
-                  </Label>
+                  </Label> -->
                </children>
             </HBox>
             <VBox fx:id="vboxInvited" alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
                <children>
-                  <Label alignment="CENTER" prefHeight="35.0" prefWidth="610.0" text="Here's the folder that Thanh An shared with you." textAlignment="JUSTIFY" wrapText="true">
+                  <!-- <Label alignment="CENTER" prefHeight="35.0" prefWidth="610.0" text="Here's the folder that Thanh An shared with you." textAlignment="JUSTIFY" wrapText="true">
                      <font>
                         <Font size="15.0" />
                      </font>
                      <VBox.margin>
                         <Insets />
                      </VBox.margin>
-                  </Label>
+                  </Label> -->
                   <HBox alignment="CENTER" prefHeight="100.0" prefWidth="490.0">
                      <children>
-                        <ImageView fitHeight="65.0" fitWidth="51.0" pickOnBounds="true" preserveRatio="true">
+                        <!-- <ImageView fitHeight="65.0" fitWidth="51.0" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@../../../images/folder.png" />
                            </image>
@@ -136,10 +134,10 @@
                            <font>
                               <Font name="System Bold" size="14.0" />
                            </font>
-                        </Button>
+                        </Button> -->
                      </children>
                   </HBox>
-                  <Label alignment="CENTER" prefHeight="35.0" prefWidth="610.0" text="This invite will only work for you and people with existing access." textAlignment="JUSTIFY" wrapText="true" />
+                  <!-- <Label alignment="CENTER" prefHeight="35.0" prefWidth="610.0" text="This invite will only work for you and people with existing access." textAlignment="JUSTIFY" wrapText="true" /> -->
                </children>
             </VBox>
             <HBox alignment="CENTER" prefHeight="79.0" prefWidth="598.0">

@@ -95,22 +95,22 @@
             <VBox spacing="15.0">
                 <HBox spacing="5.0">
                     <ImageView fx:id="ourIMG" fitHeight="15.0" preserveRatio="true" />
-                    <Text text="Chung">
+                    <Text fx:id="generalButton" text="Chung">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font></Text>
                 </HBox>
                 <HBox spacing="5.0">
                     <ImageView fx:id="fileIMG" fitHeight="15.0" preserveRatio="true" />
-                    <Text text="Tập tin của tôi" />
+                    <Text fx:id="myItemButton" text="Tập tin của tôi" />
                 </HBox>
                 <HBox spacing="5.0">
                     <ImageView fx:id="bodyShareIMG" fitHeight="15.0" preserveRatio="true" />
-                    <Text text="Đã chia sẻ" />
+                    <Text fx:id="_shareButton" text="Đã chia sẻ" />
                 </HBox>
                 <HBox spacing="5.0">
                     <ImageView fx:id="sharedIMG" fitHeight="15.0" preserveRatio="true" />
-                    <Text text="Được chia sẻ" />
+                    <Text fx:id="sharedButton" text="Được chia sẻ" />
                 </HBox>
                 <HBox spacing="5.0">
                     <ImageView fx:id="nearIMG" fitHeight="15.0" preserveRatio="true" />
@@ -168,7 +168,7 @@
            </HBox>
            <StackPane>
                 <Rectangle arcHeight="20.0" arcWidth="20.0" fill="WHITE" height="600" stroke="WHITE" width="950.0" />
-                <VBox fx:id="viewVBox" fillWidth="false" style="-fx-background-color: tran;">
+                <VBox fx:id="viewVBox" fillWidth="false" style="-fx-background-color: white;">
                     <TableView fx:id="tableView"  visible="true" prefHeight="600" prefWidth="900" style="-fx-background-color: transparent; -fx-border-color: transparent; ">
                         <VBox.margin>
                             <Insets bottom="15.0" left="15.0" right="15.0" top="5.0" />

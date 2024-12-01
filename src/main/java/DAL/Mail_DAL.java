@@ -22,4 +22,10 @@ public class Mail_DAL {
         Statement stmt = conn.createStatement();
         return stmt.executeQuery("SELECT * FROM logfile");
     }
+
+    public static ResultSet loadSharedItem() throws Exception {
+        Connection conn = connectToDatabase();
+        Statement stmt = conn.createStatement();
+        return stmt.executeQuery("SELECT * FROM logfile WHERE username_receive = '" + ConnectWindowServer.user + "'");
+    }
 }

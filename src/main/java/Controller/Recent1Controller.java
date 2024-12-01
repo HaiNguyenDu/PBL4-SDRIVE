@@ -25,10 +25,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
-public class Recent1Controller {
-
-    @FXML
-    private Button close;
+public class Recent1Controller extends MainController {
 
     @FXML
     private VBox vboxContainer;
@@ -60,13 +57,6 @@ public class Recent1Controller {
 
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    @FXML
-    void closePage(ActionEvent event) {
-        if (homePageController != null) {
-            homePageController.closePage();
         }
     }
 
@@ -302,5 +292,8 @@ public class Recent1Controller {
         return javafx.scene.paint.Color.color(red, green, blue);
     }
     
+    public void onClose() {
+        System.out.println("Recent Page Closed");
+    }
 
 }

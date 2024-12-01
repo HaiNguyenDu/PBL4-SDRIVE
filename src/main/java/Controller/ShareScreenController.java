@@ -23,7 +23,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-public class ShareController {
+public class ShareScreenController extends MainController{
     @FXML
     private ImageView iconFolder;
     @FXML
@@ -357,5 +357,9 @@ public class ShareController {
     // Initialize folder icon
     private void initImages() {
         iconFolder.setImage(new Image(getClass().getResourceAsStream("/images/folderyellow.png")));
+    }
+
+    public void onClose() {
+        System.out.println("Share Page Closed");
     }
 }
