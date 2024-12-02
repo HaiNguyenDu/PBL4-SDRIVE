@@ -9,6 +9,7 @@
       <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="174.0" prefWidth="358.0" text="Day la trang Shared Folder" textAlignment="CENTER">
          <font>
             <Font size="24.0" />
+            
          </font></Label>
    </children>
 </VBox>

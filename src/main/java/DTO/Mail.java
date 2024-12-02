@@ -1,5 +1,7 @@
 package DTO;
 
+import java.util.List;
+
 public class Mail {
     String username_send;
     String username_receive;
@@ -27,7 +29,10 @@ public class Mail {
         this.access_modifier = access_modifier;
         this.path = path;
     };
-    
+    public File_Folder parseToFile_Floder(){
+        File_Folder file_Folder = new File_Folder(item_name, access_modifier);
+        return file_Folder;
+    }
     // Getter và Setter cho username_send
     public String getUsername_send() {
         return username_send;

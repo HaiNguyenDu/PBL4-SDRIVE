@@ -33,19 +33,53 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class GeneralPageController extends MainController {
 
     private Thread reloadPage;
-
+    
     public void setHomePageController(HomePageController homePageController) {
         this.homePageController = homePageController;
         initButtonEvent();
     }
 
     public void initButtonEvent() {
+        homePageController.upLoadFile.setOnMouseClicked(event -> {
+            homePageController.popup.hide();
+            FileChooser fileChooser = new FileChooser();
+
+            // // Thiết lập kiểu file cho phép chọn
+            // fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text
+            // Files", "*.txt"));
+            // fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image
+            // Files", "*.png", "*.jpg", "*.gif"));
+
+            // Mở hộp thoại chọn file và lấy file người dùng chọn
+            File getFile = fileChooser.showOpenDialog(homePageController.addNew.getScene().getWindow());
+
+            if (getFile != null) {
+                isReloading = false;
+                System.out.println("Đã chọn thư mục: " + getFile.getAbsolutePath());
+                uploadFile(getFile.getAbsolutePath(), Path.replace("C:", "\\\\" + Host.dnsServer));
+            }
+        });
+
+        homePageController.upLoadFolder.setOnMouseClicked(event -> {
+            homePageController.popup.hide();
+            DirectoryChooser directoryChooser = new DirectoryChooser();
+
+            File selectedDirectory = directoryChooser.showDialog(homePageController.addNew.getScene().getWindow());
+
+            if (selectedDirectory != null) {
+                System.out.println("Đã chọn thư mục: " + selectedDirectory.getAbsolutePath());
+                isReloading = false;
+                uploadFolder(selectedDirectory.getAbsolutePath(), Path.replace("C:", "\\\\" + Host.dnsServer));
+            }
+        });
+
         this.homePageController.shareButton.setOnMouseClicked(event -> {
             try {
                 File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
@@ -116,7 +150,10 @@ public class GeneralPageController extends MainController {
             }
 
         });
+
+
     }
+
 
     public void LoadPage() {
         while (isReloading) { // Kiểm tra biến cờ
@@ -124,14 +161,14 @@ public class GeneralPageController extends MainController {
                 break;
             }
             try {
-                Platform.runLater(() -> {
+               
                     try {
                         PushDataTableView();
                     } catch (Exception e) {
                         e.printStackTrace();
                         isReloading = false; // Dừng luồng nếu có lỗi
                     }
-                });
+                    Thread.sleep(20000);
             } catch (Exception e) {
                 e.printStackTrace();
                 isReloading = false;
@@ -183,30 +220,39 @@ public class GeneralPageController extends MainController {
     HomePageController homePageController;
 
     List<String> pathView = new ArrayList<>();
-    String Path = "C:\\SDriver\\" + ConnectWindowServer.user;
+    static String Path = "C:\\SDriver\\" + ConnectWindowServer.user;
+    public void setPath(String newPath){
+        this.Path = newPath;
+    }
+    @Override
+    public String getPath(){
+        return this.Path;
+    }
     private volatile boolean isReloading = true;
 
     public GeneralPageController(HomePageController homePageController) {
         this.homePageController = homePageController;
         try {
             PushDataTableView();
+            initButtonEvent();
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         Platform.runLater(this::startReloadThread);
-        addEventDoubleCLickRowTableView();
         addEventRowTableView();
     }
 
     public TableView<File_Folder> getTableView() {
         return tableViewMyFile;
     }
-
+    @Override
     public void PushDataTableView() throws Exception {
+        stopReloadThread();
+        System.out.println(Path);
         ArrayList<File_Folder> dArrayList = SSHExample.FindFolder(Path);
         int selectedIndex = tableViewMyFile.getSelectionModel().getSelectedIndex();
-
+        
         // Configure columns if not already added
         if (tableViewMyFile.getColumns().isEmpty()) {
             TableColumn<File_Folder, String> nameColumn = new TableColumn<>("Name");
@@ -392,84 +438,7 @@ public class GeneralPageController extends MainController {
     }
 
     // add double click
-    public void addEventDoubleCLickRowTableView() {
-        tableViewMyFile.setRowFactory(tv -> {
-            TableRow<File_Folder> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !row.isEmpty()) {
-                    File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
-                    pathView.add(selectedItem.getName());
-                    Path += "\\" + selectedItem.getName();
-                    try {
-                        updatePathView();
-                        newPath();
-                        PushDataTableView();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-
-                }
-            });
-            return row;
-        });
-    }
-
-    void newPath() {
-        String path = "";
-        for (String name : pathView) {
-            path += "\\" + name;
-        }
-        Path = "C:\\SDriver\\" + ConnectWindowServer.user + path;
-    }
-
-    Text textPathView(String name) {
-        Text newText = new Text(name);
-        newText.getStyleClass().add("text-style");
-        return newText;
-    }
-
-    void updatePathView() {
-        homePageController.pathViewHbox.getChildren().clear();
-        Text homeText = textPathView("Home > ");
-        homeText.setOnMouseClicked(event -> {
-            pathView.clear();
-            updatePathView();
-            newPath();
-        });
-        homePageController.pathViewHbox.getChildren().add(homeText);
-        int i = 0;
-        for (String text : pathView) {
-            int n = i;
-            if (n == 9) {
-                Text newText = textPathView("...");
-                newText.setOnMouseClicked((MouseEvent event) -> {
-                    clickTextPathView(pathView.size() - 2);
-                    newPath();
-                });
-                homePageController.pathViewHbox.getChildren().add(newText);
-                break;
-            } else {
-                Text newText = textPathView(text + " > ");
-                newText.setOnMouseClicked((MouseEvent event) -> {
-                    clickTextPathView(n);
-                    newPath();
-                });
-                homePageController.pathViewHbox.getChildren().add(newText);
-            }
-            i++;
-
-        }
-    }
-
-    void clickTextPathView(int n) {
-        List<String> newPath = new ArrayList<>();
-        for (int i = 0; i <= n; i++) {
-            newPath.add(pathView.get(i));
-        }
-        pathView = newPath;
-        updatePathView();
-    }
-
+    
     // Method to stop the old thread and start a new reload thread
     // // void restartReloadThread() {
     // stopReloadThread(); // Stop the old thread if it's running

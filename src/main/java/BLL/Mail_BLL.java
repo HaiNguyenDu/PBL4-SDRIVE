@@ -28,4 +28,24 @@ public class Mail_BLL {
         }
         return result;
     }
+    public static ArrayList<Mail> getShareItem() {
+        ArrayList<Mail> result = new ArrayList<>();
+        try {
+            ResultSet rs = Mail_DAL.loadShareItem();
+            while (rs.next()) {
+                result.add(new Mail(
+                        rs.getString("username_send"),
+                        rs.getString("username_receive"),
+                        rs.getString("date"),
+                        rs.getString("item_name"),
+                        rs.getBoolean("seen"),
+                        rs.getString("access_modifier"),
+                        rs.getString("path")));
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 }

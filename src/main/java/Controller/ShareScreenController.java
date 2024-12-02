@@ -51,7 +51,8 @@ public class ShareScreenController extends MainController{
         add.setOnAction(event -> onAddButtonClick());
         share.setOnMouseClicked(event -> onShareButtonClick());
     }
-
+    @Override
+    public void PushDataTableView(){}
     private void addUser(String user) {
         ExecuteBackground.executeInBackground("Finding...", () -> {
             try {

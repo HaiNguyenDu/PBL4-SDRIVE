@@ -59,7 +59,8 @@ public class Recent1Controller extends MainController {
             e.printStackTrace();
         }
     }
-
+    @Override
+    public void PushDataTableView()throws Exception{}
     private HomePageController homePageController;
 
     public void setHomePageController(HomePageController homePageController) {

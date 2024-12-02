@@ -46,9 +46,10 @@ import java.util.List;
 
 import javafx.scene.paint.Color; // Dùng JavaFX Color
 
-public class HomePageController extends MainController {
+public class HomePageController {
     // Khai báo các thành phần FXML
     @FXML
+    public Popup popup;
     public Text username;
     public Text nickName;
     public Text pathText;
@@ -72,56 +73,25 @@ public class HomePageController extends MainController {
     public TextField searchField;
     public HBox shareButton;
     public HBox downloadButton;
+    public HBox upLoadFile;
+    public HBox upLoadFolder;
     public VBox viewVBox;
     public Text addNew;
     public TableView<File_Folder> tableView;
-    // khoi tao cac man hinh
-    // private tableViewMyFile PageMyFile;
-    // private tableViewShared PageShared;
-    private GeneralPageController generalPageController;
+    public List<String> pathView = new ArrayList<>();
+
 
     public String nowPage = "";
-    public MainController mainController = this;
+    public MainController mainController;
+
+    private MainController currenController;
 
     String Path = "C:\\SDriver\\" + ConnectWindowServer.user;
     // Thêm biến cờ
     private volatile boolean isReloading = true;
 
-    // void LoadPage() {
-    // while (isReloading) { // Kiểm tra biến cờ
-    // try {
-    // Platform.runLater(() -> {
-    // try {
-    // // PageMyFile.PushDataTableView();
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
-    // });
-    // Thread.sleep(5000);
-    // } catch (InterruptedException e) {
-    // // Luồng bị gián đoạn
-    // Thread.currentThread().interrupt(); // Đánh dấu lại trạng thái interrupt
-    // break; // Thoát khỏi vòng lặp
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
-    // }
-    // }
-
-    // void stopReloadThread() {
-    // isReloading = false; // Đặt cờ để dừng vòng lặp
-    // if (reloadPage != null) {
-    // reloadPage.interrupt(); // Ngắt luồng
-    // }
-    // }
-
-    // void startReloadThread() {
-    // stopReloadThread(); // Đảm bảo luồng cũ đã dừng
-    // isReloading = true; // Bật cờ
-    // reloadPage = new Thread(this::LoadPage);
-    // reloadPage.start();
-    // }
-
+    
+   
     public void initialize() {
         initImages();
         textFiled();
@@ -159,15 +129,19 @@ public class HomePageController extends MainController {
     }
 
     void initTableView() {
-        generalPageController = new GeneralPageController(this);
-        currenController = generalPageController;
+        MyItemController myItemController = new MyItemController(this);
+        currenController = myItemController;
         nowPage = "HomePage";
-        tableView = generalPageController.getTableView();
+        tableView = myItemController.getTableView();
+        addEventDoubleCLickRowTableView();
         tableView.setPrefSize(950, 600);
         viewVBox.getChildren().clear();
         viewVBox.getChildren().add(tableView);
     }
+    void addEventButton()
+    {
 
+    }
     public ArrayList<File_Folder> loadData() throws Exception {
         ArrayList<File_Folder> dArrayList = SSHExample.FindFolder(Path);
         return dArrayList;
@@ -214,13 +188,12 @@ public class HomePageController extends MainController {
             }
         });
 
-        sharedButton.setOnMouseClicked(event -> handleSharedPage());
+        sharedButton.setOnMouseClicked(event -> handleSharedPage(this));
         generalButton.setOnMouseClicked(event -> {
             if (currenController != null) {
                 currenController.onClose();
             }
-            generalPageController = new GeneralPageController(this);
-            ;
+            GeneralPageController generalPageController = new GeneralPageController(this);
             currenController = generalPageController;
             try {
                 generalPageController.setHomePageController(this);
@@ -236,10 +209,10 @@ public class HomePageController extends MainController {
 
     // them su kien cho button add new
     void addEventAddNewButton() {
-        Popup popUp = new Popup();
+        popup = new Popup();
         VBox popUpSub = new VBox(10);
-        HBox upLoadFile = new HBox(5);
-        HBox upLoadFolder = new HBox(5);
+        upLoadFile = new HBox(5);
+        upLoadFolder = new HBox(5);
         Text upLoadFileText = new Text();
         Text upLoadFolderText = new Text();
 
@@ -269,17 +242,17 @@ public class HomePageController extends MainController {
         popUpSub.getChildren().addAll(upLoadFile, upLoadFolder);
 
         // Popup
-        popUp.getContent().add(popUpSub);
+        popup.getContent().add(popUpSub);
 
         // themsukien cho text Add New
         addNew.setOnMouseClicked(event -> {
             Stage primaryStage = new Stage();
-            if (!popUp.isShowing()) {
+            if (!popup.isShowing()) {
                 double x = addNew.localToScreen(addNew.getLayoutBounds()).getMinX();
                 double y = addNew.localToScreen(addNew.getLayoutBounds()).getMinY();
-                popUp.show(addNew.getScene().getWindow(), x - 20, y + 30);
+                popup.show(addNew.getScene().getWindow(), x - 20, y + 30);
             } else {
-                popUp.hide();
+                popup.hide();
             }
         });
 
@@ -300,7 +273,7 @@ public class HomePageController extends MainController {
     }
 
     // MainController xử lý việc điều hướng trang
-    private MainController currenController;
+
 
     // Phuong thuc chuyen doi trang
     public void switchPage(String path, MainController newController) {
@@ -309,40 +282,35 @@ public class HomePageController extends MainController {
         }
         currenController = newController;
         try {
-            FXMLLoader loader = new FXMLLoader(HelloApplication.class.getResource(path));
-            // VBox newPage = loader.load();
-            Parent root = loader.load();
-            MainController controller = loader.getController();
-            controller.setHomePageController(this);
 
+            tableView = newController.getTableView();
             // Hiển thị trang mới trong viewVBox
             viewVBox.getChildren().clear();
-            viewVBox.getChildren().setAll(root);
+            viewVBox.getChildren().setAll(tableView);
 
             // Gán controller hiện tại
-            currenController = controller;
-        } catch (IOException e) {
+            currenController = newController;
+            addEventDoubleCLickRowTableView();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Các sự kiện khi nhấn vào nút trong SideBar
-    @FXML
-    public void handleSharedPage() {
-        nowPage = "SharedPage";
-        switchPage("SharedPage.fxml", new SharedPageController());
-    }
 
+    public void handleSharedPage(HomePageController homePageController) {
+        SharedPageController controller = new SharedPageController(this);
+        switchPage("SharedPage.fxml", controller);
+ 
+    }
     @FXML
     public void handleSharePage() {
-        nowPage = "SharePage";
-        switchPage("SharePage.fxml", new SharePageController());
+        switchPage("SharePage.fxml", new SharePageController(this));
     }
 
     @FXML
     public void handleMyItemPage() {
         nowPage = "MyItem";
-        switchPage("MyItemPage.fxml", new SharePageController());
+        switchPage("MyItemPage.fxml", new SharePageController(this));
     }
 
     @FXML
@@ -353,10 +321,104 @@ public class HomePageController extends MainController {
         controller.loadData();
     }
 
-    // @FXML
-    // public void handleGeneralPage() {
-    // nowPage = "HomePage";
-    // switchPage("HomePage.fxml", new GeneralPageController(this));
-    // }
+
+    //add double click 
+    void addEventDoubleCLickRowTableView() {
+        tableView.setRowFactory(tv ->{
+            TableRow<File_Folder> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2&&!row.isEmpty()) {
+                  
+                    File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
+                    if(file_folder.isFile(currenController.getPath().replace("C:", "\\\\" + Host.dnsServer)+"\\"+selectedItem.getName()))
+                    {}
+                    else{
+
+                 
+                    pathView.add(selectedItem.getName());
+                
+                    try {
+                        updatePathView();
+                        newPath();
+                        currenController.PushDataTableView();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                }
+            });
+            return row;
+        });
+    }
+    void newPath()
+    {
+        String path = "";
+        for(String name: pathView)
+        {
+            path+="\\" + name;
+        }
+        String newPath = "C:\\SDriver\\" + ConnectWindowServer.user + path;
+        currenController.setPath(newPath);
+    }
+    Text textPathView(String name)
+    {
+        Text newText = new Text(name);
+        newText.getStyleClass().add("text-style");
+        return newText;
+    }
+   
+    void updatePathView()
+    {
+        pathViewHbox.getChildren().clear();
+        Text homeText = textPathView("Home > ");
+        homeText.setOnMouseClicked(event -> {
+            pathView.clear();
+            updatePathView();
+            newPath();
+            try {
+                currenController.PushDataTableView();
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        });
+        pathViewHbox.getChildren().add(homeText);
+        int i =0;
+        for(String text : pathView)
+        {
+            int n = i;
+            if(n==9)
+            {
+                Text newText = textPathView("...");
+                newText.setOnMouseClicked((MouseEvent event) -> {
+                    clickTextPathView(pathView.size()-2);
+                    newPath();
+                });
+                pathViewHbox.getChildren().add(newText);
+                break;
+            }
+            else {
+                Text newText = textPathView(text + " > ");
+                newText.setOnMouseClicked((MouseEvent event) -> {
+                    clickTextPathView(n);
+                    newPath();
+                });
+                pathViewHbox.getChildren().add(newText);
+            }
+            i++;
+
+        }
+    }
+    void clickTextPathView(int n)
+    {
+        List<String> newPath = new ArrayList<>();
+        for(int i =0;i<=n;i++)
+        {
+            newPath.add(pathView.get(i));
+        }
+        pathView = newPath;
+        updatePathView();
+    }
+
 
 }
