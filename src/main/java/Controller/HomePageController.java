@@ -185,41 +185,6 @@ public class HomePageController extends MainController {
 
     // Them cho su kien cho cac button
     void buttonevent() {
-        shareButton.setOnMouseClicked(event -> {
-            try {
-                File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
-                if (currenController != null && nowPage == "HomePage") {
-                    GeneralPageController child = (GeneralPageController) currenController;
-                    child.stopReloadThread();
-                    ;
-                }
-                // stopReloadThread(); // Dừng luồng reload khi mở ShareScreen
-
-                Stage newStage = new Stage();
-                FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("ShareScreen.fxml"));
-                Scene newScene = new Scene(fxmlLoader.load(), 600, 450);
-
-                // Thiết lập Controller và truyền dữ liệu cần thiết
-                ShareScreenController shareController = fxmlLoader.getController();
-                shareController.setPath(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
-                shareController.setStage(newStage);
-                shareController.setItemSelect(selectedItem);
-
-                // Gắn lắng nghe sự kiện khi cửa sổ ShareScreen đóng
-                newStage.setOnHidden(e -> {
-                    if (currenController != null && nowPage == "HomePage") {
-                        GeneralPageController child = (GeneralPageController) currenController;
-                        child.startReloadThread();
-                    }
-                });
-
-                newStage.setScene(newScene);
-                newStage.show();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-        });
 
         myItemButton.setOnMouseClicked(event -> handleMyItemPage());
 
@@ -261,7 +226,7 @@ public class HomePageController extends MainController {
                 generalPageController.setHomePageController(this);
 
                 viewVBox.getChildren().clear();
-                viewVBox.getChildren().add(tableView);
+                viewVBox.getChildren().add(generalPageController.getTableView());
 
             } catch (Exception e) {
                 e.printStackTrace();

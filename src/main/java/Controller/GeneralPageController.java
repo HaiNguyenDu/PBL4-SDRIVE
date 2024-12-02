@@ -188,14 +188,13 @@ public class GeneralPageController extends MainController {
 
     public GeneralPageController(HomePageController homePageController) {
         this.homePageController = homePageController;
-        // try {
-        // PushDataTableView();
-        // } catch (Exception e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-        // them cac su kien
-        startReloadThread();
+        try {
+            PushDataTableView();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        Platform.runLater(this::startReloadThread);
         addEventDoubleCLickRowTableView();
         addEventRowTableView();
     }
