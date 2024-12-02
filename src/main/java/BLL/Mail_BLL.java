@@ -18,9 +18,9 @@ public class Mail_BLL {
                         rs.getString("username_receive"),
                         rs.getString("date"),
                         rs.getString("item_name"),
+                        rs.getString("path"),
                         rs.getBoolean("seen"),
-                        rs.getString("access_modifier"),
-                        rs.getString("path")));
+                        rs.getString("access_modifier")));
             }
 
         } catch (Exception e) {
@@ -28,6 +28,7 @@ public class Mail_BLL {
         }
         return result;
     }
+
     public static ArrayList<Mail> getShareItem() {
         ArrayList<Mail> result = new ArrayList<>();
         try {
@@ -38,9 +39,9 @@ public class Mail_BLL {
                         rs.getString("username_receive"),
                         rs.getString("date"),
                         rs.getString("item_name"),
+                        rs.getString("path"),
                         rs.getBoolean("seen"),
-                        rs.getString("access_modifier"),
-                        rs.getString("path")));
+                        rs.getString("access_modifier")));
             }
 
         } catch (Exception e) {

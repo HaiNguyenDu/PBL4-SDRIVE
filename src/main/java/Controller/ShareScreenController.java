@@ -23,7 +23,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-public class ShareScreenController extends MainController{
+public class ShareScreenController extends MainController {
     @FXML
     private ImageView iconFolder;
     @FXML
@@ -36,7 +36,7 @@ public class ShareScreenController extends MainController{
     private Text cancel;
     @FXML
     private ComboBox<String> userComboBox;
-    @FXML 
+    @FXML
     private Text share;
 
     private Stage stage;
@@ -51,8 +51,11 @@ public class ShareScreenController extends MainController{
         add.setOnAction(event -> onAddButtonClick());
         share.setOnMouseClicked(event -> onShareButtonClick());
     }
+
     @Override
-    public void PushDataTableView(){}
+    public void PushDataTableView() {
+    }
+
     private void addUser(String user) {
         ExecuteBackground.executeInBackground("Finding...", () -> {
             try {

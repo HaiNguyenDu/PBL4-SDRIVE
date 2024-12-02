@@ -11,7 +11,8 @@ public class Mail {
     boolean seen;
     String access_modifier;
 
-    public Mail(String username_send, String username_receive, String date, String item_name, boolean seen, String access_modifier) {
+    public Mail(String username_send, String username_receive, String date, String item_name, boolean seen,
+            String access_modifier) {
         this.username_send = username_send;
         this.username_receive = username_receive;
         this.date = date;
@@ -20,7 +21,8 @@ public class Mail {
         this.access_modifier = access_modifier;
     };
 
-    public Mail(String username_send, String username_receive, String date, String item_name, boolean seen, String access_modifier, String path) {
+    public Mail(String username_send, String username_receive, String date, String item_name, String path, boolean seen,
+            String access_modifier) {
         this.username_send = username_send;
         this.username_receive = username_receive;
         this.date = date;
@@ -29,10 +31,12 @@ public class Mail {
         this.access_modifier = access_modifier;
         this.path = path;
     };
-    public File_Folder parseToFile_Floder(){
+
+    public File_Folder parseToFile_Floder() {
         File_Folder file_Folder = new File_Folder(item_name, access_modifier);
         return file_Folder;
     }
+
     // Getter và Setter cho username_send
     public String getUsername_send() {
         return username_send;
@@ -45,6 +49,14 @@ public class Mail {
     // Getter và Setter cho username_receive
     public String getUsername_receive() {
         return username_receive;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public void setUsername_receive(String username_receive) {

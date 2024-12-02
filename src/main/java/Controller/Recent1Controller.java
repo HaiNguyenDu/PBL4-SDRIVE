@@ -42,25 +42,28 @@ public class Recent1Controller extends MainController {
     @FXML
     public void loadData() throws Exception {
         try {
-            ResultSet rs = Mail_DAL.fetchData();
+            ResultSet rs = Mail_DAL.loadSharedItem();
             while (rs.next()) {
                 System.out.println();
                 String username_send = rs.getString("username_send");
-                String username_receive =rs.getString("username_receive");
+                String username_receive = rs.getString("username_receive");
                 String email = username_send + "@pbl4.dut.vn";
                 String date = rs.getString("date");
                 String item_name = rs.getString("item_name");
                 String path = rs.getString("path");
                 HBox row = createHBoxForRow(username_send, username_receive, email, date, item_name, path);
-                vboxContainer.getChildren().add(row); // Thêm HBox vào VBox
+                vboxContainer.getChildren().add(row);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
     @Override
-    public void PushDataTableView()throws Exception{}
+    public void PushDataTableView() throws Exception {
+    }
+
     private HomePageController homePageController;
 
     public void setHomePageController(HomePageController homePageController) {
@@ -68,7 +71,8 @@ public class Recent1Controller extends MainController {
     }
 
     @SuppressWarnings("static-access")
-    private HBox createHBoxForRow(String username_send, String username_receive, String email, String date, String item_name, String path) {
+    private HBox createHBoxForRow(String username_send, String username_receive, String email, String date,
+            String item_name, String path) {
         HBox hbox = new HBox(10);
         hbox.setAlignment(Pos.CENTER_LEFT);
         hbox.setMinSize(352, 94); // Kích thước tối thiểu
@@ -138,9 +142,9 @@ public class Recent1Controller extends MainController {
         vbox.setVgrow(hbox, Priority.NEVER);
 
         // Khoảng cách cố định giữa các phần tử
-        vboxContainer.setSpacing(5); 
+        vboxContainer.setSpacing(5);
         // Loại bỏ padding
-        vboxContainer.setPadding(Insets.EMPTY); 
+        vboxContainer.setPadding(Insets.EMPTY);
 
         hbox.setOnMouseClicked(event -> {
             hbox.getStyleClass().add("selected-email");
@@ -153,7 +157,7 @@ public class Recent1Controller extends MainController {
                     }
                 }
             }
-        
+
             // Áp dụng các thay đổi khác sau khi chọn HBox
             hbox.getStylesheets().add(getClass().getResource("/Styles/recentpage.css").toExternalForm());
 
@@ -188,7 +192,7 @@ public class Recent1Controller extends MainController {
             imageView.setFitWidth(51.0);
             imageView.setPickOnBounds(true);
             imageView.setPreserveRatio(true);
-            imageView.setImage(new Image(getClass().getResource("/images/folder.png").toExternalForm())); 
+            imageView.setImage(new Image(getClass().getResource("/images/folder.png").toExternalForm()));
 
             // Tạo Button
             Button button = new Button(item_name);
@@ -210,7 +214,6 @@ public class Recent1Controller extends MainController {
             label_This.setWrapText(true);
             label_This.setFont(new javafx.scene.text.Font("System", 12));
 
-
             // Thêm HBox và Label vào bố cục
             vboxInvited.getChildren().clear();
             vboxInvited.getChildren().addAll(label_Here, hbox_Folder, label_This);
@@ -219,61 +222,62 @@ public class Recent1Controller extends MainController {
         return hbox;
     }
 
-    private HBox createMail_HeaderDetail(String username_send, String username_receive, String email, String date, Color randomColor) {
-         // Tạo HBox chính
-         HBox hbox = new HBox();
-         hbox.setAlignment(Pos.CENTER_LEFT);
-         hbox.setPrefSize(598, 134);
-         hbox.setStyle("-fx-stylesheets: '@../../../Styles/recentpage.css';");
- 
-         // Tạo Pane chứa Circle và Label
-         Pane pane = new Pane();
-         pane.setPrefSize(111, 94);
- 
-         Circle circle = new Circle(55, 67, 33);
-         circle.setFill(randomColor);
-         circle.setStroke(Color.BLACK);
-         pane.getChildren().add(circle);
- 
-         Label circleLabel = new Label(getInitials(username_send));
-         circleLabel.setTextFill(javafx.scene.paint.Color.WHITE);
-         circleLabel.setFont(new javafx.scene.text.Font("System Bold", 22));
-         circleLabel.setLayoutX(47);
-         circleLabel.setLayoutY(51);
-         pane.getChildren().add(circleLabel);
- 
-         pane.setCursor(Cursor.DEFAULT);
- 
-         // Tạo VBox chứa các Label
-         VBox vbox = new VBox(5);
-         vbox.setAlignment(Pos.CENTER_LEFT);
-         vbox.setNodeOrientation(javafx.geometry.NodeOrientation.LEFT_TO_RIGHT);
-         vbox.setPrefSize(489, 122);
- 
-         // Label đầu tiên
-         Label nameLabel = new Label(username_send + " <" + username_send + "@pbl4.dut.vn>");
-         nameLabel.setPrefSize(492, 27);
-         nameLabel.setFont(new javafx.scene.text.Font("System Bold", 18));
-         vbox.getChildren().add(nameLabel);
- 
-         // Label thứ hai
-         Label toLabel = new Label("to: <"+ username_receive +"@pbl4.dut.vn>");
-         toLabel.setPrefSize(506, 18);
-         toLabel.setFont(new javafx.scene.text.Font("System Bold", 12));
-         vbox.getChildren().add(toLabel); 
- 
-         // Label thứ ba
-         Label dateLabel = new Label("date: " + date);
-         dateLabel.setPrefSize(495, 18);
-         dateLabel.setFont(new javafx.scene.text.Font("System Bold", 12));
-         vbox.getChildren().add(dateLabel);
- 
-         VBox.setMargin(vbox, Insets.EMPTY);
- 
-         // Thêm Pane và VBox vào HBox
-         hbox.getChildren().addAll(pane, vbox);
- 
-         return hbox;
+    private HBox createMail_HeaderDetail(String username_send, String username_receive, String email, String date,
+            Color randomColor) {
+        // Tạo HBox chính
+        HBox hbox = new HBox();
+        hbox.setAlignment(Pos.CENTER_LEFT);
+        hbox.setPrefSize(598, 134);
+        hbox.setStyle("-fx-stylesheets: '@../../../Styles/recentpage.css';");
+
+        // Tạo Pane chứa Circle và Label
+        Pane pane = new Pane();
+        pane.setPrefSize(111, 94);
+
+        Circle circle = new Circle(55, 67, 33);
+        circle.setFill(randomColor);
+        circle.setStroke(Color.BLACK);
+        pane.getChildren().add(circle);
+
+        Label circleLabel = new Label(getInitials(username_send));
+        circleLabel.setTextFill(javafx.scene.paint.Color.WHITE);
+        circleLabel.setFont(new javafx.scene.text.Font("System Bold", 22));
+        circleLabel.setLayoutX(47);
+        circleLabel.setLayoutY(51);
+        pane.getChildren().add(circleLabel);
+
+        pane.setCursor(Cursor.DEFAULT);
+
+        // Tạo VBox chứa các Label
+        VBox vbox = new VBox(5);
+        vbox.setAlignment(Pos.CENTER_LEFT);
+        vbox.setNodeOrientation(javafx.geometry.NodeOrientation.LEFT_TO_RIGHT);
+        vbox.setPrefSize(489, 122);
+
+        // Label đầu tiên
+        Label nameLabel = new Label(username_send + " <" + username_send + "@pbl4.dut.vn>");
+        nameLabel.setPrefSize(492, 27);
+        nameLabel.setFont(new javafx.scene.text.Font("System Bold", 18));
+        vbox.getChildren().add(nameLabel);
+
+        // Label thứ hai
+        Label toLabel = new Label("to: <" + username_receive + "@pbl4.dut.vn>");
+        toLabel.setPrefSize(506, 18);
+        toLabel.setFont(new javafx.scene.text.Font("System Bold", 12));
+        vbox.getChildren().add(toLabel);
+
+        // Label thứ ba
+        Label dateLabel = new Label("date: " + date);
+        dateLabel.setPrefSize(495, 18);
+        dateLabel.setFont(new javafx.scene.text.Font("System Bold", 12));
+        vbox.getChildren().add(dateLabel);
+
+        VBox.setMargin(vbox, Insets.EMPTY);
+
+        // Thêm Pane và VBox vào HBox
+        hbox.getChildren().addAll(pane, vbox);
+
+        return hbox;
     }
 
     // Hàm lấy chữ cái đầu từ tên
@@ -292,7 +296,7 @@ public class Recent1Controller extends MainController {
         double blue = random.nextDouble();
         return javafx.scene.paint.Color.color(red, green, blue);
     }
-    
+
     public void onClose() {
         System.out.println("Recent Page Closed");
     }

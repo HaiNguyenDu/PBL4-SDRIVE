@@ -36,9 +36,11 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class SharePageController extends MainController{
+public class SharePageController extends MainController {
     private Thread reloadPage;
-    TableView<Mail> tableView =new TableView<>();
+    TableView<Mail> tableView = new TableView<>();
+    ArrayList<Mail> dArrayList;
+
     public void setHomePageController(HomePageController homePageController) {
         this.homePageController = homePageController;
         initButtonEvent();
@@ -48,13 +50,6 @@ public class SharePageController extends MainController{
         homePageController.upLoadFile.setOnMouseClicked(event -> {
             homePageController.popup.hide();
             FileChooser fileChooser = new FileChooser();
-
-            // // Thiết lập kiểu file cho phép chọn
-            // fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text
-            // Files", "*.txt"));
-            // fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image
-            // Files", "*.png", "*.jpg", "*.gif"));
-
             // Mở hộp thoại chọn file và lấy file người dùng chọn
             File getFile = fileChooser.showOpenDialog(homePageController.addNew.getScene().getWindow());
 
@@ -89,7 +84,8 @@ public class SharePageController extends MainController{
 
                 // Thiết lập Controller và truyền dữ liệu cần thiết
                 ShareScreenController shareController = fxmlLoader.getController();
-                shareController.setPath(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name());
+                shareController
+                        .setPath(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name());
                 shareController.setStage(newStage);
                 shareController.setItemSelect(selectedItem.parseToFile_Floder());
 
@@ -125,10 +121,8 @@ public class SharePageController extends MainController{
                 throw new RuntimeException(e);
             }
         });
-      
 
     }
-
 
     public void LoadPage() {
         while (isReloading) { // Kiểm tra biến cờ
@@ -136,14 +130,14 @@ public class SharePageController extends MainController{
                 break;
             }
             try {
-               
-                    try {
-                        PushDataTableView();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        isReloading = false; // Dừng luồng nếu có lỗi
-                    }
-                    Thread.sleep(20000);
+
+                try {
+                    PushDataTableView();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    isReloading = false; // Dừng luồng nếu có lỗi
+                }
+                Thread.sleep(20000);
             } catch (Exception e) {
                 e.printStackTrace();
                 isReloading = false;
@@ -191,22 +185,26 @@ public class SharePageController extends MainController{
     }
 
     @FXML
- 
+
     HomePageController homePageController;
 
     List<String> pathView = new ArrayList<>();
     static String Path = "C:\\SDriver\\" + ConnectWindowServer.user;
-    public void setPath(String newPath){
+
+    public void setPath(String newPath) {
         this.Path = newPath;
     }
+
     @Override
-    public String getPath(){
+    public String getPath() {
         return this.Path;
     }
+
     private volatile boolean isReloading = true;
 
     public SharePageController(HomePageController homePageController) {
         this.homePageController = homePageController;
+        dArrayList = homePageController.shareList;
         try {
             PushDataTableView();
             initButtonEvent();
@@ -221,45 +219,43 @@ public class SharePageController extends MainController{
     public TableView<Mail> getTableView() {
         return tableView;
     }
+
     @Override
-     public void PushDataTableView() throws Exception{
-           // Save the current selected index
-           ArrayList<Mail> dArrayList = Mail_BLL.getShareItem();
-           int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
-   
-           // Configure columns if not already added
-           if (tableView.getColumns().isEmpty()) {
-               TableColumn<Mail, String> item_name = new TableColumn<>("Item Name");
-               item_name.setCellValueFactory(new PropertyValueFactory<>("item_name"));
-               item_name.setPrefWidth(315);
-   
-               TableColumn<Mail, String> username_receive = new TableColumn<>("Receiver Name");
-               username_receive.setCellValueFactory(new PropertyValueFactory<>("username_receive"));
-               username_receive.setPrefWidth(315);
-   
-               TableColumn<Mail, String> date = new TableColumn<>("Date");
-               date.setCellValueFactory(new PropertyValueFactory<>("date"));
-               date.setPrefWidth(315);
-   
-               tableView.getColumns().addAll(item_name, date, username_receive);
-           }
-   
-           // Convert dArrayList to ObservableList and set it as the data for TableView
-           ObservableList<Mail> observableFileList = FXCollections.observableArrayList(dArrayList);
-           tableView.setItems(observableFileList);
-   
-           // Restore the previous selection
-           if (selectedIndex >= 0 && selectedIndex < observableFileList.size()) {
-               tableView.getSelectionModel().select(selectedIndex);
-           }
-   
-           // Add stylesheet (optional, only if not added before)
-           if (tableView.getStylesheets().isEmpty()) {
-               // tableView.getStylesheets().add(getClass().getResource("/Styles/homepage.css").toExternalForm());
-           }
-   
-   
-       }
+    public void PushDataTableView() throws Exception {
+        int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
+
+        // Configure columns if not already added
+        if (tableView.getColumns().isEmpty()) {
+            TableColumn<Mail, String> item_name = new TableColumn<>("Item Name");
+            item_name.setCellValueFactory(new PropertyValueFactory<>("item_name"));
+            item_name.setPrefWidth(315);
+
+            TableColumn<Mail, String> username_receive = new TableColumn<>("Receiver Name");
+            username_receive.setCellValueFactory(new PropertyValueFactory<>("username_receive"));
+            username_receive.setPrefWidth(315);
+
+            TableColumn<Mail, String> date = new TableColumn<>("Date");
+            date.setCellValueFactory(new PropertyValueFactory<>("date"));
+            date.setPrefWidth(315);
+
+            tableView.getColumns().addAll(item_name, date, username_receive);
+        }
+
+        // Convert dArrayList to ObservableList and set it as the data for TableView
+        ObservableList<Mail> observableFileList = FXCollections.observableArrayList(dArrayList);
+        tableView.setItems(observableFileList);
+
+        // Restore the previous selection
+        if (selectedIndex >= 0 && selectedIndex < observableFileList.size()) {
+            tableView.getSelectionModel().select(selectedIndex);
+        }
+
+        // Add stylesheet (optional, only if not added before)
+        if (tableView.getStylesheets().isEmpty()) {
+            // tableView.getStylesheets().add(getClass().getResource("/Styles/homepage.css").toExternalForm());
+        }
+
+    }
 
     public void addEventRowTableView() {
         // Tạo ContextMenu với các MenuItem cho vùng trống
@@ -291,7 +287,6 @@ public class SharePageController extends MainController{
                     }
                 }
 
-
             });
 
             return row;
@@ -315,7 +310,8 @@ public class SharePageController extends MainController{
             Mail selectedItem = tableView.getSelectionModel().getSelectedItem();
             if (selectedItem != null) {
                 // Mở dialog đổi tên với tiêu đề là "Rename"
-                showInputDialog("Rename", Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name());
+                showInputDialog("Rename",
+                        Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name());
             }
         });
 
@@ -408,7 +404,7 @@ public class SharePageController extends MainController{
     }
 
     // add double click
-    
+
     // Method to stop the old thread and start a new reload thread
     // // void restartReloadThread() {
     // stopReloadThread(); // Stop the old thread if it's running

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.example.sgroupdrive.HelloApplication;
 
+import BLL.MailActivate;
 import BLL.SSHExample;
 import DTO.File_Folder;
 import javafx.fxml.FXML;
@@ -88,6 +89,7 @@ public class LoginController {
             String password = passwordField.getText().trim();
             if (SSHExample.setAccount("pbl4.dut.vn", email, password)) {
                 System.err.println("success");
+                MailActivate.init(email);
                 Stage newStage = new Stage();
                 FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("HomePage.fxml"));
                 try {

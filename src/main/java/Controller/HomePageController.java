@@ -2,6 +2,8 @@ package Controller;
 
 import BLL.File_handle;
 import BLL.Folder_handle;
+import BLL.MailActivate;
+import BLL.Mail_BLL;
 import BLL.SSHExample;
 import BLL.file_folder;
 import Component.tableViewMyFile;
@@ -9,6 +11,7 @@ import Component.tableViewShared;
 import DAL.ConnectWindowServer;
 import DTO.File_Folder;
 import DTO.Host;
+import DTO.Mail;
 
 import com.example.sgroupdrive.HelloApplication;
 
@@ -79,15 +82,19 @@ public class HomePageController {
     public Text addNew;
     public TableView<File_Folder> tableView;
     public List<String> pathView = new ArrayList<>();
+    public ArrayList<Mail> sharedList = new ArrayList<>();
+    public ArrayList<Mail> shareList = new ArrayList<>();
 
     public String nowPage = "";
     public MainController mainController;
+    public Thread listenMessageThread;
 
     private MainController currenController;
 
     String Path = "C:\\SDriver\\" + ConnectWindowServer.user;
     // Thêm biến cờ
     private volatile boolean isReloading = true;
+    private volatile boolean isMail = true;
 
     public void initialize() {
         initImages();
@@ -95,8 +102,45 @@ public class HomePageController {
         buttonevent();
         addEventAddNewButton();
         initTableView();
+        sharedList = Mail_BLL.getSharedItem();
+        shareList = Mail_BLL.getShareItem();
+        listenMessageThread = new Thread(() -> listenerMessage());
+        listenMessageThread.start();
         username.setText(ConnectWindowServer.user);
         nickName.setText(ConnectWindowServer.user.substring(0, 2).toUpperCase());
+    }
+
+    public void listenerMessage() {
+        while (isMail) {
+            System.out.println("lisquen");
+            if (MailActivate.isNewMess) {
+                System.out.println("New Message");
+                ArrayList<String> newMArrayList = MailActivate.newMessages;
+                MailActivate.newMessages.clear();
+                for (String message : newMArrayList) {
+                    String[] processing = message.split("\\|");
+                    Mail mail = new Mail(processing[0], processing[1], processing[2], processing[3], processing[4],
+                            Boolean.parseBoolean(processing[5]), processing[6]);
+                    for (int i = 0; i < sharedList.size(); i++) {
+                        if (shareList.get(i).getUsername_send().equals(mail.getUsername_send())
+                                && shareList.get(i).getUsername_receive().equals(mail.getUsername_receive())
+                                && shareList.get(i).getItem_name().equals(mail.getItem_name())
+                                && shareList.get(i).getPath().equals(mail.getPath())) {
+                            sharedList.remove(i);
+                            break;
+                        }
+                    }
+                    sharedList.add(mail);
+                    System.out.println(message);
+                }
+            }
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
     void initImages() {
