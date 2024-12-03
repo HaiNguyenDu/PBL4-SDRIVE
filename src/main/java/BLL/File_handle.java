@@ -1,5 +1,6 @@
 package BLL;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -10,6 +11,27 @@ import java.nio.file.attribute.FileAttribute;
 import DAL.ConnectWindowServer;
 
 public class File_handle {
+
+    public static void openFile(String filePath) {
+        // Tạo đối tượng File từ đường dẫn
+        File file = new File(filePath);
+
+        if (file.exists()) {
+            if (Desktop.isDesktopSupported()) {
+                try {
+                    Desktop desktop = Desktop.getDesktop();
+                    desktop.open(file);
+                    System.out.println("Đang mở file: " + filePath);
+                } catch (IOException e) {
+                    System.out.println("Không thể mở file: " + e.getMessage());
+                }
+            } else {
+                System.out.println("Hệ thống không hỗ trợ ứng dụng Desktop.");
+            }
+        } else {
+            System.out.println("File không tồn tại: " + filePath);
+        }
+    }
 
     public static void createNewFile(String directoryPath, String fileName) {
         Path path = Paths.get(directoryPath, fileName); // Kết hợp đường dẫn thư mục và tên file

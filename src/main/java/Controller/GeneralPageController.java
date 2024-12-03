@@ -40,10 +40,10 @@ import javafx.stage.Stage;
 public class GeneralPageController extends MainController {
 
     private Thread reloadPage;
-    
+
     public void setHomePageController(HomePageController homePageController) {
         this.homePageController = homePageController;
-        initButtonEvent();
+
     }
 
     public void initButtonEvent() {
@@ -113,7 +113,7 @@ public class GeneralPageController extends MainController {
                         .showDialog(this.homePageController.addNew.getScene().getWindow());
                 File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
                 if (selectedDirectory != null && selectedItem != null) {
-                    // stopReloadThread();
+                    stopReloadThread();
                     if (file_folder
                             .isFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName())) {
                         uploadFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName(),
@@ -151,9 +151,7 @@ public class GeneralPageController extends MainController {
 
         });
 
-
     }
-
 
     public void LoadPage() {
         while (isReloading) { // Kiểm tra biến cờ
@@ -161,14 +159,14 @@ public class GeneralPageController extends MainController {
                 break;
             }
             try {
-               
-                    try {
-                        PushDataTableView();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        isReloading = false; // Dừng luồng nếu có lỗi
-                    }
-                    Thread.sleep(20000);
+
+                try {
+                    PushDataTableView();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    isReloading = false; // Dừng luồng nếu có lỗi
+                }
+                Thread.sleep(6000);
             } catch (Exception e) {
                 e.printStackTrace();
                 isReloading = false;
@@ -178,9 +176,9 @@ public class GeneralPageController extends MainController {
 
     public void stopReloadThread() {
         isReloading = false;
-        if (reloadPage != null && reloadPage.isAlive()) {
-            reloadPage.interrupt();
-        }
+        // if (reloadPage != null && reloadPage.isAlive()) {
+        // reloadPage.interrupt();
+        // }
     }
 
     public void startReloadThread() {
@@ -221,13 +219,16 @@ public class GeneralPageController extends MainController {
 
     List<String> pathView = new ArrayList<>();
     static String Path = "C:\\SDriver\\" + ConnectWindowServer.user;
-    public void setPath(String newPath){
+
+    public void setPath(String newPath) {
         this.Path = newPath;
     }
+
     @Override
-    public String getPath(){
+    public String getPath() {
         return this.Path;
     }
+
     private volatile boolean isReloading = true;
 
     public GeneralPageController(HomePageController homePageController) {
@@ -246,13 +247,17 @@ public class GeneralPageController extends MainController {
     public TableView<File_Folder> getTableView() {
         return tableViewMyFile;
     }
+
+    public synchronized ArrayList<File_Folder> getFile_Folders() {
+        return SSHExample.FindFolder(Path);
+    }
+
     @Override
     public void PushDataTableView() throws Exception {
-        stopReloadThread();
         System.out.println(Path);
-        ArrayList<File_Folder> dArrayList = SSHExample.FindFolder(Path);
+        ArrayList<File_Folder> dArrayList = getFile_Folders();
         int selectedIndex = tableViewMyFile.getSelectionModel().getSelectedIndex();
-        
+
         // Configure columns if not already added
         if (tableViewMyFile.getColumns().isEmpty()) {
             TableColumn<File_Folder, String> nameColumn = new TableColumn<>("Name");
@@ -438,7 +443,7 @@ public class GeneralPageController extends MainController {
     }
 
     // add double click
-    
+
     // Method to stop the old thread and start a new reload thread
     // // void restartReloadThread() {
     // stopReloadThread(); // Stop the old thread if it's running

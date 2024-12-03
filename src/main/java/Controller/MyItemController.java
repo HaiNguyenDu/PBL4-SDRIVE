@@ -34,10 +34,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class MyItemController extends MainController{
+public class MyItemController extends MainController {
 
     private Thread reloadPage;
-    
+
     public void setHomePageController(HomePageController homePageController) {
         this.homePageController = homePageController;
         initButtonEvent();
@@ -148,9 +148,7 @@ public class MyItemController extends MainController{
 
         });
 
-
     }
-
 
     public void LoadPage() {
         while (isReloading) { // Kiểm tra biến cờ
@@ -158,14 +156,14 @@ public class MyItemController extends MainController{
                 break;
             }
             try {
-               
-                    try {
-                        PushDataTableView();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        isReloading = false; // Dừng luồng nếu có lỗi
-                    }
-                    Thread.sleep(20000);
+
+                try {
+                    PushDataTableView();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    isReloading = false; // Dừng luồng nếu có lỗi
+                }
+                Thread.sleep(6000);
             } catch (Exception e) {
                 e.printStackTrace();
                 isReloading = false;
@@ -175,9 +173,9 @@ public class MyItemController extends MainController{
 
     public void stopReloadThread() {
         isReloading = false;
-        if (reloadPage != null && reloadPage.isAlive()) {
-            reloadPage.interrupt();
-        }
+        // if (reloadPage != null && reloadPage.isAlive()) {
+        // reloadPage.interrupt();
+        // }
     }
 
     public void startReloadThread() {
@@ -218,13 +216,16 @@ public class MyItemController extends MainController{
 
     List<String> pathView = new ArrayList<>();
     static String Path = "C:\\SDriver\\" + ConnectWindowServer.user;
-    public void setPath(String newPath){
+
+    public void setPath(String newPath) {
         this.Path = newPath;
     }
+
     @Override
-    public String getPath(){
+    public String getPath() {
         return this.Path;
     }
+
     private volatile boolean isReloading = true;
 
     public MyItemController(HomePageController homePageController) {
@@ -243,13 +244,13 @@ public class MyItemController extends MainController{
     public TableView<File_Folder> getTableView() {
         return tableViewMyFile;
     }
+
     @Override
     public void PushDataTableView() throws Exception {
-        stopReloadThread();
         System.out.println(Path);
         ArrayList<File_Folder> dArrayList = SSHExample.FindFolder(Path);
         int selectedIndex = tableViewMyFile.getSelectionModel().getSelectedIndex();
-        
+
         // Configure columns if not already added
         if (tableViewMyFile.getColumns().isEmpty()) {
             TableColumn<File_Folder, String> nameColumn = new TableColumn<>("Name");
@@ -306,16 +307,6 @@ public class MyItemController extends MainController{
                     } else {
                         // Click chuột phải vào dòng có dữ liệu, hiển thị menu cho Rename và Delete
                         rowMenu.show(row, event.getScreenX(), event.getScreenY());
-                    }
-                }
-                // doubleclick
-                if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
-                    File_Folder selectedItem = (File_Folder) tableViewMyFile.getSelectionModel().getSelectedItem();
-                    if (file_folder
-                            .isFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName())) {
-
-                    } else {
-
                     }
                 }
 
@@ -435,7 +426,7 @@ public class MyItemController extends MainController{
     }
 
     // add double click
-    
+
     // Method to stop the old thread and start a new reload thread
     // // void restartReloadThread() {
     // stopReloadThread(); // Stop the old thread if it's running

@@ -4,7 +4,10 @@ import DTO.*;
 import DAL.ConnectWindowServer;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -143,10 +146,38 @@ public class SSHExample {
         return accessList;
     }
 
-    public static ArrayList<File_Folder> FindFolder(String FolderName) throws Exception {
-        String information = ConnectWindowServer.FindFolder(FolderName);
-        System.out.println(information);
-        return parseInputToFileFolderList(information);
+    // public static ArrayList<File_Folder> FindFolder(String FolderName) throws
+    // Exception {
+    // String information = ConnectWindowServer.FindFolder(FolderName);
+    // System.out.println(information);
+    // return parseInputToFileFolderList(information);
+    // }
+
+    // Phương thức liệt kê file và folder và trả về ArrayList<File_Folder>
+    public static ArrayList<File_Folder> FindFolder(String Path) {
+        String directoryPath = Path.replace("C:", "\\\\" + Host.dnsServer);
+        ArrayList<File_Folder> fileList = new ArrayList<>();
+
+        // Tạo đối tượng File cho thư mục
+        File directory = new File(directoryPath);
+
+        // Kiểm tra xem thư mục có tồn tại và có phải thư mục không
+        if (directory.exists() && directory.isDirectory()) {
+            // Liệt kê tất cả các tệp và thư mục trong thư mục
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    long lastModifiedMillis = file.lastModified();
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                    String lastModified = sdf.format(new Date(lastModifiedMillis));
+                    fileList.add(new File_Folder(file.getName(), lastModified));
+                }
+            }
+        } else {
+            System.out.println("Đường dẫn không hợp lệ hoặc không phải là thư mục.");
+        }
+
+        return fileList;
     }
 
     // Phương thức chia sẻ thư mục với người dùng trong domain với quyền truy cập

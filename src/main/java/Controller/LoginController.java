@@ -92,9 +92,13 @@ public class LoginController {
                 FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("HomePage.fxml"));
                 try {
                     Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
-                    Scene newScene = new Scene(fxmlLoader.load(), 1260,720);
+                    Scene newScene = new Scene(fxmlLoader.load(), 1260, 720);
+                    Stage loginscreen = new Stage();
+                    loginscreen = (Stage) loginText.getScene().getWindow();
+                    loginscreen.close();
                     newStage.setScene(newScene);
                     newStage.setTitle("Home Page");
+
                     newStage.show();
 
                 } catch (IOException e) {
