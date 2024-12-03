@@ -29,6 +29,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -300,6 +302,31 @@ public class MyItemController extends MainController {
             TableRow<File_Folder> row = new TableRow<>();
 
             row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+
+                    File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
+                    if (file_folder.isFile(getPath().replace("C:", "\\\\" + Host.dnsServer) + "\\"
+                            + selectedItem.getName())) {
+                        File_handle.openFile(getPath().replace("C:", "\\\\" + Host.dnsServer) + "\\"
+                                + selectedItem.getName());
+                    } else {
+                        pathView.add(selectedItem.getName());
+                        try {
+                            updatePathView();
+                            newPath();
+                            ExecuteBackground.executeInBackground("switching...", () -> {
+                                try {
+                                    PushDataTableView();
+                                } catch (Exception e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                            });
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
                 if (event.getButton() == MouseButton.SECONDARY) { // Nếu click chuột phải
                     if (row.isEmpty()) {
                         // Click chuột phải vào vùng trống, hiển thị menu cho New File và New Folder
@@ -439,5 +466,89 @@ public class MyItemController extends MainController {
     public void onClose() {
         System.out.println("General Page Closed");
         stopReloadThread();
+    }
+
+    void newPath() {
+        String path = "";
+        for (String name : pathView) {
+            path += "\\" + name;
+        }
+        String newPath = "C:\\SDriver\\" + ConnectWindowServer.user + path;
+        setPath(newPath);
+    }
+
+    Text textPathView(String name) {
+        Text newText = new Text(name);
+        newText.getStyleClass().add("text-style");
+        return newText;
+    }
+
+    void updatePathView() {
+        homePageController.pathViewHbox.getChildren().clear();
+        Text homeText = textPathView("Home > ");
+        homeText.setOnMouseClicked(event -> {
+            pathView.clear();
+            updatePathView();
+            newPath();
+            try {
+                ExecuteBackground.executeInBackground("Switching...", () -> {
+                    try {
+                        PushDataTableView();
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                });
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        });
+        homePageController.pathViewHbox.getChildren().add(homeText);
+        int i = 0;
+        for (String text : pathView) {
+            int n = i;
+            if (n == 9) {
+                Text newText = textPathView("...");
+                newText.setOnMouseClicked((MouseEvent event) -> {
+                    clickTextPathView(pathView.size() - 2);
+                    newPath();
+                });
+                homePageController.pathViewHbox.getChildren().add(newText);
+                break;
+            } else {
+                Text newText = textPathView(text + " > ");
+                newText.setOnMouseClicked((MouseEvent event) -> {
+                    clickTextPathView(n);
+                    newPath();
+                    try {
+                        ExecuteBackground.executeInBackground("Switching...", () -> {
+                            try {
+                                PushDataTableView();
+                            } catch (Exception e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        });
+
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                });
+                homePageController.pathViewHbox.getChildren().add(newText);
+            }
+            i++;
+
+        }
+    }
+
+    void clickTextPathView(int n) {
+        List<String> newPath = new ArrayList<>();
+        for (int i = 0; i <= n; i++) {
+            newPath.add(pathView.get(i));
+        }
+        pathView = newPath;
+        updatePathView();
     }
 }

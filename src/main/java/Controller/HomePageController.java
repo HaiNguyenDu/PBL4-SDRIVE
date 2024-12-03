@@ -130,8 +130,7 @@ public class HomePageController {
         currenController = myItemController;
         nowPage = "HomePage";
         tableView = myItemController.getTableView();
-        addEventDoubleCLickRowTableView();
-
+        myItemController.addEventRowTableView();
         tableView.setPrefSize(950, 600);
         viewVBox.getChildren().clear();
         viewVBox.getChildren().add(tableView);
@@ -288,7 +287,7 @@ public class HomePageController {
 
             // Gán controller hiện tại
             currenController = newController;
-            addEventDoubleCLickRowTableView();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -374,6 +373,7 @@ public class HomePageController {
             });
             return row;
         });
+
     }
 
     void newPath() {
