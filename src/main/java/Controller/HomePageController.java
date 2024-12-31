@@ -82,8 +82,8 @@ public class HomePageController {
     public Text addNew;
     public TableView<File_Folder> tableView;
     public List<String> pathView = new ArrayList<>();
-    public ArrayList<Mail> sharedList = new ArrayList<>();
-    public ArrayList<Mail> shareList = new ArrayList<>();
+    public static ArrayList<Mail> sharedList = new ArrayList<>();
+    public static ArrayList<Mail> shareList = new ArrayList<>();
 
     public String nowPage = "";
     public MainController mainController;
@@ -115,17 +115,24 @@ public class HomePageController {
             System.out.println("lisquen");
             if (MailActivate.isNewMess) {
                 System.out.println("New Message");
-                ArrayList<String> newMArrayList = MailActivate.newMessages;
+                ArrayList<String> newMArrayList = new ArrayList<>(MailActivate.newMessages);
+                MailActivate.isNewMess = false;
                 MailActivate.newMessages.clear();
+                System.out.println(newMArrayList.get(0));
                 for (String message : newMArrayList) {
+                    System.out.println(message);
                     String[] processing = message.split("\\|");
+                    System.out.println(processing[0] + processing[1] + processing[2] + processing[3] + processing[4] +
+                            Boolean.parseBoolean(processing[5]) + processing[6]);
                     Mail mail = new Mail(processing[0], processing[1], processing[2], processing[3], processing[4],
                             Boolean.parseBoolean(processing[5]), processing[6]);
+                    System.out.println(mail.getUsername_send() + mail.getUsername_receive() + mail.getItem_name()
+                            + mail.getPath());
                     for (int i = 0; i < sharedList.size(); i++) {
-                        if (shareList.get(i).getUsername_send().equals(mail.getUsername_send())
-                                && shareList.get(i).getUsername_receive().equals(mail.getUsername_receive())
-                                && shareList.get(i).getItem_name().equals(mail.getItem_name())
-                                && shareList.get(i).getPath().equals(mail.getPath())) {
+                        if (sharedList.get(i).getUsername_send().equals(mail.getUsername_send())
+                                && sharedList.get(i).getUsername_receive().equals(mail.getUsername_receive())
+                                && sharedList.get(i).getItem_name().equals(mail.getItem_name())
+                                && sharedList.get(i).getPath().equals(mail.getPath())) {
                             sharedList.remove(i);
                             break;
                         }
