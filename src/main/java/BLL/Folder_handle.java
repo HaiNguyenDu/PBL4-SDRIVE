@@ -233,6 +233,20 @@ public class Folder_handle {
             printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\Administrator:(OI)(CI)F\" /T");
             printWriter.println(
                     "icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\" /T");
+            // Grant XPhuc full control over the folder to maintain access to all contents
+            printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full
+            // control
+            // for
+            // Administrators
+            printWriter.println(
+                    "icacls \"" + folderPath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\""); // Full
+            // control
+            // for
+            // specific
+            // user
+            printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\Administrator:(OI)(CI)F\" /T");
+            printWriter.println(
+                    "icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\" /T");
             // Remove specific permissions for Thanhan to reset
             printWriter.println("icacls \"" + folderPath + "\" /remove \"" + domainUser + "\"");
             printWriter.println("icacls \"" + folderPath + "\" /remove \"" + domainUser + "\" /T");
