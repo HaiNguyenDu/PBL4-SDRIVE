@@ -17,7 +17,7 @@ public class MailActivate {
     public static ArrayList<String> newMessages = new ArrayList<>();
     public static String newMessage = "";
     public static boolean isNewMess = false;
-    public static String host = "192.168.1.9";
+    public static String host = "192.168.1.254";
 
     static public void sendMail(Mail mail_send) {
         // Tạo thread gửi tin nhắn

@@ -176,6 +176,16 @@ public class SSHExample {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        boolean has = false;
+        for (UserAccess element : accessList) {
+            if (element.getUsername().equals("Everyone")) {
+                has = true;
+                break;
+            }
+        }
+        if (!has) {
+            accessList.add(new UserAccess("Everyone", "Deny", false));
+        }
         return accessList;
     }
 

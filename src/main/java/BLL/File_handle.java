@@ -124,7 +124,9 @@ public class File_handle {
         try {
             String batchFilePath = "modify_file_permissions.bat";
             String domainUser = "PBL4\\" + username;
-
+            if (username.equals("Everyone")) {
+                domainUser = username;
+            }
             // Create the batch file to modify permissions for a single file
             try (FileWriter fileWriter = new FileWriter(batchFilePath);
                     PrintWriter printWriter = new PrintWriter(fileWriter)) {

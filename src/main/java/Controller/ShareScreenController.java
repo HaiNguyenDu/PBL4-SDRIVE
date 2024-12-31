@@ -1,14 +1,21 @@
 package Controller;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 // import java.util.Iterator;
 import java.util.List;
 
 import BLL.File_handle;
 import BLL.Folder_handle;
+import BLL.MailActivate;
 import BLL.SSHExample;
 import BLL.file_folder;
 import DAL.ConnectWindowServer;
+import DTO.Mail;
 import DTO.UserAccess;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -278,6 +285,19 @@ public class ShareScreenController extends MainController {
                 System.out.println("///////////////////////////////////////////////////////");
                 printList();
                 System.out.println("///////////////////////////////////////////////////////");
+                for (int i = 0; i < newList.size(); i++) {
+                    if (newList.get(i).getUsername().equals("Everyone")) {
+                        if (newList.get(i).getAccess().equals("Read/Write")) {
+                            for (int j = 0; j < newList.size(); j++) {
+                                if (newList.get(j).getUsername().equals("PBL4\\Administrator")
+                                        || newList.get(j).getUsername().equals("PBL4\\" + ConnectWindowServer.user))
+                                    continue;
+                                newList.get(j).setAccess(newList.get(i).getAccess());
+                            }
+                        }
+                        break; // Dừng vòng lặp sau khi di chuyển Everyone
+                    }
+                }
                 // Tạo danh sách tạm để lưu các phần tử cần giữ lại
                 List<UserAccess> tempList = new ArrayList<>();
                 for (UserAccess i : newList) {
@@ -312,11 +332,45 @@ public class ShareScreenController extends MainController {
         });
     }
 
+    public static String transformPath(String fullPath) {
+        if (fullPath == null || fullPath.isEmpty()) {
+            throw new IllegalArgumentException("The provided path is null or empty.");
+        }
+        if (fullPath.startsWith("\\\\")) {
+            String[] parts = fullPath.split("\\\\");
+            if (parts.length > 3) {
+                StringBuilder shortenedPath = new StringBuilder();
+                shortenedPath.append("\\"); // UNC prefix
+                for (int i = 3; i < parts.length; i++) {
+                    shortenedPath.append(parts[i]);
+                    if (i < parts.length - 1) {
+                        shortenedPath.append("\\");
+                    }
+                }
+                return shortenedPath.toString();
+            }
+        }
+        return fullPath;
+    }
+
+    private void send_Message(UserAccess userAccess) {
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDate = currentDate.format(formatter);
+        Path paths = Paths.get(path);
+        String fileName = paths.getFileName().toString();
+        Mail itemSelect = new Mail(ConnectWindowServer.user, userAccess.getUsername().replace("PBL4\\", "").trim(),
+                formattedDate.toString(),
+                fileName, transformPath(path), false, userAccess.getAccess());
+        MailActivate.sendMail(itemSelect);
+    }
+
     // Update access permissions based on the newList
     private void updateAccessPermissionsForFolder() {
         // Logic to update permissions for all users in newList
         for (UserAccess userAccess : newList) {
             System.out.println(userAccess.getUsername() + ":" + userAccess.getAccess());
+            send_Message(userAccess);
             switch (userAccess.getAccess()) {
                 case "Read/Write":
                     Folder_handle.modifyUserPermissions(path, userAccess.getUsername().replace("PBL4\\", ""), "M");
@@ -340,6 +394,7 @@ public class ShareScreenController extends MainController {
     private void updateAccessPermissionsForFile() {
         // Logic to update permissions for all users in newList
         for (UserAccess userAccess : newList) {
+            send_Message(userAccess);
             switch (userAccess.getAccess()) {
                 case "Read/Write":
                     File_handle.modifyUserFilePermissions(path, userAccess.getUsername().replace("PBL4\\", ""), "M");
