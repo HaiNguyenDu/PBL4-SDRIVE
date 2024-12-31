@@ -10,6 +10,18 @@
     -fx-font-size: 14px;
 }
 
+.text-style{
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-fill: black;
+}
+.text-style:hover{
+    -fx-font-scale: 20px;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-fill: #06abec;
+    -fx-cursor: "hand";
+}
 
 
 

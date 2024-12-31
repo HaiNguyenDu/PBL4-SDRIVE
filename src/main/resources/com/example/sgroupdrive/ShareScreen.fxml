@@ -7,7 +7,7 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane nodeOrientation="LEFT_TO_RIGHT" prefHeight="500.0" prefWidth="600.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.ShareController">
+<AnchorPane nodeOrientation="LEFT_TO_RIGHT" prefHeight="500.0" prefWidth="600.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.ShareScreenController">
     <VBox spacing="10.0" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="20.0" AnchorPane.rightAnchor="30.0" AnchorPane.bottomAnchor="30.0">
         <!-- Header -->
         <HBox>

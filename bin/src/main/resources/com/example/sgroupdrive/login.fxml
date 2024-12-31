@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.text.*?>
+
+<VBox alignment="CENTER" prefHeight="720" prefWidth="1260" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.LoginController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+
+    <StackPane alignment="CENTER" prefHeight="720" prefWidth="1260">
+        <HBox alignment="CENTER" spacing="100">
+            <ImageView fx:id="imageViewBackgroundLeft" fitHeight="720" preserveRatio="true" />
+            <ImageView fx:id="imageViewBackgroundRight" fitHeight="720" preserveRatio="true" />
+        </HBox>
+        <HBox alignment="CENTER">
+            <ImageView fx:id="imageViewLogo" fitHeight="500.0" fitWidth="400.0" preserveRatio="true" />
+            <StackPane alignment="CENTER">
+                <Rectangle height="500" strokeDashOffset="20.0" strokeLineJoin="BEVEL" strokeType="OUTSIDE" width="350">
+               <fill>
+                  <LinearGradient endX="1.0" endY="1.0">
+                     <stops>
+                        <Stop>
+                           <color>
+                              <Color red="0.3343999981880188" green="0.5945895314216614" blue="0.7599999904632568" />
+                           </color>
+                        </Stop>
+                        <Stop offset="1.0">
+                           <color>
+                              <Color red="1.0" green="1.0" blue="1.0" />
+                           </color>
+                        </Stop>
+                     </stops>
+                  </LinearGradient>
+               </fill>
+               <stroke>
+                  <LinearGradient endX="1.0" endY="1.0">
+                     <stops>
+                        <Stop>
+                           <color>
+                              <Color red="0.3343999981880188" green="0.5945895314216614" blue="0.7599999904632568" />
+                           </color>
+                        </Stop>
+                        <Stop offset="1.0">
+                           <color>
+                              <Color red="0.5729166865348816" green="0.6821180582046509" blue="0.75" />
+                           </color>
+                        </Stop>
+                     </stops>
+                  </LinearGradient>
+               </stroke>
+                </Rectangle>
+                <VBox alignment="CENTER" styleClass="login.css">
+                    <Text fontSmoothingType="LCD" lineSpacing="10" text="LOGIN">
+                  <font>
+                     <Font name="System Bold" size="36.0" />
+                  </font>
+                  <fill>
+                     <LinearGradient endX="1.0" endY="1.0">
+                        <stops>
+                           <Stop>
+                              <color>
+                                 <Color red="1.0" green="1.0" blue="1.0" />
+                              </color>
+                           </Stop>
+                           <Stop offset="1.0">
+                              <color>
+                                 <Color red="0.3176470696926117" green="0.9529411792755127" blue="1.0" />
+                              </color>
+                           </Stop>
+                        </stops>
+                     </LinearGradient>
+                  </fill></Text>
+                    <VBox>
+                      <VBox.margin>
+                         <Insets bottom="30.0" left="50.0" right="50.0" top="70.0" />
+                      </VBox.margin>
+                        <TextField fx:id="emailField" prefHeight="40.0" prefWidth="180.0" promptText="UserName">
+
+                        </TextField>
+                        <Text fx:id="errorEmail" fill="RED">
+                     <font>
+                        <Font size="12.0" />
+                     </font></Text>
+                     </VBox>
+                    <VBox>
+                  <VBox.margin>
+                     <Insets bottom="30.0" left="50.0" right="50.0" />
+                  </VBox.margin>
+                    <PasswordField fx:id="passwordField" prefHeight="40.0" prefWidth="180.0" promptText="Password">
+                  <font>
+                      <Font name="Ubuntu Mono Regular" size="13.0" />
+                  </font>
+                    </PasswordField>
+                        <Text fx:id="errorPassword" fill="RED"/>
+                    </VBox>
+                <HBox alignment="CENTER" spacing="40">
+                    <StackPane>
+                        <Rectangle fx:id="loginButton" accessibleRole="BUTTON" arcHeight="20.0" arcWidth="20.0" fill="white" height="30" stroke="#d0c7c7" strokeType="OUTSIDE" strokeWidth="2.0" width="80" />
+                    <Text fx:id="loginText" fill="deepskyblue" smooth="false" strokeWidth="2.0" text="Login">
+                        <font>
+                           <Font name="System Bold" size="13.0" />
+                        </font></Text>
+                    </StackPane>
+                    <StackPane>
+                        <Rectangle fx:id="registerButton" accessibleRole="BUTTON" arcHeight="20.0" arcWidth="20.0" fill="white" height="30" stroke="#d5d3d7" strokeWidth="2.0" width="80">
+                        </Rectangle>
+                        <Text fx:id="registerText" fill="deepskyblue" text="Register">
+                        <font>
+                           <Font name="System Bold" size="13.0" />
+                        </font>
+                        <StackPane.margin>
+                           <Insets />
+                        </StackPane.margin></Text>
+                    </StackPane>
+                  <VBox.margin>
+                     <Insets bottom="50.0" />
+                  </VBox.margin>
+                </HBox>
+                </VBox>
+            </StackPane>
+
+        </HBox>
+    </StackPane>
+</VBox>

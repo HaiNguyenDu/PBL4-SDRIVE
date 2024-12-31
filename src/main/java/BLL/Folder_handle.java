@@ -200,6 +200,9 @@ public class Folder_handle {
             PrintWriter printWriter = new PrintWriter(fileWriter);
             printWriter.println("@echo off");
             String domainUser = "PBL4\\" + username;
+            if (username.equals("Everyone")) {
+                domainUser = username;
+            }
             // Grant XPhuc full control over the folder to maintain access to all contents
             printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full
             // control
@@ -216,6 +219,20 @@ public class Folder_handle {
                     "icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\" /T");
             // Disable inheritance on the parent folder, if necessary
             printWriter.println("icacls \"" + folderPath + "\" /inheritance:r");
+            // Grant XPhuc full control over the folder to maintain access to all contents
+            printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full
+            // control
+            // for
+            // Administrators
+            printWriter.println(
+                    "icacls \"" + folderPath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\""); // Full
+            // control
+            // for
+            // specific
+            // user
+            printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\Administrator:(OI)(CI)F\" /T");
+            printWriter.println(
+                    "icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\" /T");
             // Grant XPhuc full control over the folder to maintain access to all contents
             printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full
             // control
