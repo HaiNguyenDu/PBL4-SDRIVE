@@ -1,9 +1,11 @@
 package Controller;
 
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Random;
 
 import DAL.Mail_DAL;
+import DTO.Mail;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -42,19 +44,18 @@ public class Recent1Controller extends MainController {
     @FXML
     public void loadData() throws Exception {
         try {
-            ResultSet rs = Mail_DAL.loadSharedItem();
-            while (rs.next()) {
+            ArrayList<Mail> list = HomePageController.sharedList;
+            for (int i = 0; i < list.size(); i++) {
                 System.out.println();
-                String username_send = rs.getString("username_send");
-                String username_receive = rs.getString("username_receive");
-                String email = username_send + "@pbl4.dut.vn";
-                String date = rs.getString("date");
-                String item_name = rs.getString("item_name");
-                String path = rs.getString("path");
+                String username_send = list.get(i).getUsername_send();
+                String username_receive = list.get(i).getUsername_receive();
+                String email = list.get(i).getUsername_send() + "@pbl4.dut.vn";
+                String date = list.get(i).getDate();
+                String item_name = list.get(i).getItem_name();
+                String path = list.get(i).getPath();
                 HBox row = createHBoxForRow(username_send, username_receive, email, date, item_name, path);
                 vboxContainer.getChildren().add(row);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
