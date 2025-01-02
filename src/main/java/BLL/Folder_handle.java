@@ -11,14 +11,23 @@ public class Folder_handle {
 
     // Tạo thư mục mới
     public static void createNewFolder(String parentDirectory, String folderName) {
-        Path folderPath = Paths.get(parentDirectory, folderName); // Kết hợp đường dẫn thư mục và tên thư mục
+        Path folderPath = Paths.get(parentDirectory, folderName);
 
         try {
-            // Tạo thư mục (bao gồm tất cả thư mục con nếu cần)
+            // Check if the parent directory exists
+            System.out.println("Creating folder: " + folderPath);
+            Path parentPath = folderPath.getParent();
+            if (!Files.exists(parentPath)) {
+                System.out.println("Parent directory does not exist: " + parentPath);
+                return;
+            }
+
+            // Attempt to create the directory
             Files.createDirectories(folderPath);
             System.out.println("Folder created: " + folderPath);
         } catch (IOException e) {
             System.err.println("Error creating folder: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

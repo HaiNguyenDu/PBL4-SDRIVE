@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Random;
 
+import DAL.ConnectWindowServer;
 import DAL.Mail_DAL;
 import DTO.Mail;
 import javafx.event.ActionEvent;
@@ -53,7 +54,8 @@ public class Recent1Controller extends MainController {
                 String date = list.get(i).getDate();
                 String item_name = list.get(i).getItem_name();
                 String path = list.get(i).getPath();
-                HBox row = createHBoxForRow(username_send, username_receive, email, date, item_name, path);
+                boolean read = list.get(i).getSeen();
+                HBox row = createHBoxForRow(username_send, username_receive, email, date, item_name, path, read);
                 vboxContainer.getChildren().add(row);
             }
         } catch (Exception e) {
@@ -73,7 +75,7 @@ public class Recent1Controller extends MainController {
 
     @SuppressWarnings("static-access")
     private HBox createHBoxForRow(String username_send, String username_receive, String email, String date,
-            String item_name, String path) {
+            String item_name, String path, boolean read) {
         HBox hbox = new HBox(10);
         hbox.setAlignment(Pos.CENTER_LEFT);
         hbox.setMinSize(352, 94); // Kích thước tối thiểu
@@ -82,7 +84,6 @@ public class Recent1Controller extends MainController {
 
         hbox.setPadding(Insets.EMPTY); // Loại bỏ padding
         hbox.setSpacing(10); // Khoảng cách cố định giữa các phần tử
-
         // Tạo Pane chứa Circle và Label
         Pane pane = new Pane();
         pane.setPrefSize(111.0, 94.0);
@@ -132,7 +133,11 @@ public class Recent1Controller extends MainController {
         contentLabel.getStyleClass().add("label-content");
         contentLabel.setMaxWidth(200);
         contentLabel.setEllipsisString("...");
-
+        if (!read) {
+            nameLabel.setStyle("-fx-font-weight: bold; -fx-text-fill:rgb(15, 163, 173);");
+            emailLabel.setStyle("-fx-font-weight: bold; -fx-text-fill:rgb(15, 163, 173);");
+            contentLabel.setStyle("-fx-font-weight: bold; -fx-text-fill:rgb(15, 163, 173);");
+        }
         // Thêm các Label vào VBox
         vbox.getChildren().addAll(nameLabel, emailLabel, contentLabel);
 
@@ -149,7 +154,9 @@ public class Recent1Controller extends MainController {
 
         hbox.setOnMouseClicked(event -> {
             hbox.getStyleClass().add("selected-email");
-
+            nameLabel.setStyle("-fx-font-weight: normal; -fx-text-fill:black;");
+            emailLabel.setStyle("-fx-font-weight: normal; -fx-text-fill:black;");
+            contentLabel.setStyle("-fx-font-weight: normal; -fx-text-fill:black;");
             for (Node node : vboxContainer.getChildren()) {
                 if (node instanceof HBox) {
                     HBox otherHBox = (HBox) node;
@@ -200,6 +207,16 @@ public class Recent1Controller extends MainController {
             button.setPrefSize(134.0, 66.0);
             button.setMnemonicParsing(false);
             button.setFont(Font.font("System Bold", 14));
+
+            button.setOnAction((ActionEvent e) -> {
+                try {
+                    homePageController.nowPage = "MyItem";
+                    System.out.println("C:" + path);
+                    homePageController.switchPage("MyItemPage.fxml", new MyItemController(homePageController,"C:" + path));
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            });
 
             // Đặt margin cho Button
             HBox.setMargin(button, new Insets(0, 0, 0, 15));

@@ -61,6 +61,7 @@ public class HomePageController {
     public Text _shareButton;
     public Text generalButton;
     public Text myItemButton;
+    public Text countMail;
     public HBox pathViewHbox;
     public ImageView searchIMG;
     public ImageView shareIMG;
@@ -108,6 +109,7 @@ public class HomePageController {
         listenMessageThread.start();
         username.setText(ConnectWindowServer.user);
         nickName.setText(ConnectWindowServer.user.substring(0, 2).toUpperCase());
+
     }
 
     public void listenerMessage() {
@@ -147,6 +149,21 @@ public class HomePageController {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            countUnreadMail();
+        }
+    }
+
+    void countUnreadMail() {
+        int count = 0;
+        for (Mail mail : sharedList) {
+            if (!mail.getSeen()) {
+                count++;
+            }
+        }
+        if (count > 0) {
+            countMail.setText(count + "");
+        } else {
+            countMail.setText("");
         }
     }
 
@@ -177,7 +194,7 @@ public class HomePageController {
     }
 
     void initTableView() {
-        MyItemController myItemController = new MyItemController(this);
+        MyItemController myItemController = new MyItemController(this, "C:\\SDriver\\" + ConnectWindowServer.user);
         currenController = myItemController;
         nowPage = "HomePage";
         tableView = myItemController.getTableView();
@@ -338,7 +355,7 @@ public class HomePageController {
 
             // Gán controller hiện tại
             currenController = newController;
-
+            pathView.clear();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -358,7 +375,7 @@ public class HomePageController {
     @FXML
     public void handleMyItemPage() {
         nowPage = "MyItem";
-        switchPage("MyItemPage.fxml", new MyItemController(this));
+        switchPage("MyItemPage.fxml", new MyItemController(this, "C:\\SDriver\\" + ConnectWindowServer.user));
     }
 
     @FXML
