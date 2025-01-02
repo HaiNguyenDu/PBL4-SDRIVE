@@ -19,17 +19,23 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -127,27 +133,32 @@ public class MyItemController extends MainController {
             }
         });
         this.homePageController.shareButton.setOnMouseClicked(event -> {
-            try {
-                File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
-                stopReloadThread(); // Dừng luồng reload khi mở ShareScreen
-                Stage newStage = new Stage();
-                FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("ShareScreen.fxml"));
-                Scene newScene = new Scene(fxmlLoader.load(), 600, 450);
-                // Thiết lập Controller và truyền dữ liệu cần thiết
-                ShareScreenController shareController = fxmlLoader.getController();
-                shareController.setPath(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
-                shareController.setStage(newStage);
-                shareController.setItemSelect(selectedItem);
+            if (!MyItemController.originPath.equals("C:\\SDriver\\" + ConnectWindowServer.user)) {
+                showAlertDialog("Error", "You can only share files in your own folder");
+            } else {
+                try {
+                    File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
+                    stopReloadThread(); // Dừng luồng reload khi mở ShareScreen
+                    Stage newStage = new Stage();
+                    FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("ShareScreen.fxml"));
+                    Scene newScene = new Scene(fxmlLoader.load(), 600, 450);
+                    // Thiết lập Controller và truyền dữ liệu cần thiết
+                    ShareScreenController shareController = fxmlLoader.getController();
+                    shareController
+                            .setPath(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
+                    shareController.setStage(newStage);
+                    shareController.setItemSelect(selectedItem);
 
-                // Gắn lắng nghe sự kiện khi cửa sổ ShareScreen đóng
-                Platform.runLater(this::startReloadThread);
+                    // Gắn lắng nghe sự kiện khi cửa sổ ShareScreen đóng
+                    Platform.runLater(this::startReloadThread);
 
-                newStage.setScene(newScene);
-                newStage.show();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                    newStage.setScene(newScene);
+                    newStage.show();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
             }
-
         });
 
     }
@@ -217,7 +228,8 @@ public class MyItemController extends MainController {
     HomePageController homePageController;
 
     List<String> pathView = new ArrayList<>();
-    static String Path = "C:\\SDriver\\" + ConnectWindowServer.user;
+    static String Path;
+    static String originPath;
 
     public void setPath(String newPath) {
         this.Path = newPath;
@@ -230,7 +242,10 @@ public class MyItemController extends MainController {
 
     private volatile boolean isReloading = true;
 
-    public MyItemController(HomePageController homePageController) {
+    public MyItemController(HomePageController homePageController, String Path) {
+        System.out.println(Path);
+        MyItemController.Path = Path;
+        MyItemController.originPath = Path;
         this.homePageController = homePageController;
         try {
             PushDataTableView();
@@ -294,13 +309,23 @@ public class MyItemController extends MainController {
         ContextMenu rowMenu = new ContextMenu();
         MenuItem renameItem = new MenuItem("Rename");
         MenuItem deleteItem = new MenuItem("Delete");
+        MenuItem linkItem = new MenuItem("Link");
 
-        rowMenu.getItems().addAll(renameItem, deleteItem);
+        rowMenu.getItems().addAll(renameItem, deleteItem, linkItem);
 
         // Thiết lập TableView row factory
         tableViewMyFile.setRowFactory(tv -> {
             TableRow<File_Folder> row = new TableRow<>();
-
+            tv.setOnMouseClicked(event -> {
+                if (event.getButton() == MouseButton.SECONDARY) { // Nếu click chuột phải
+                    File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
+                    if (row.isEmpty() && selectedItem == null) {
+                      // Click chuột phải vào vùng trống hoặc khi không có dữ liệu nào trên bảng, hiển
+                      // thị menu cho New File và New Folder
+                      emptyAreaMenu.show(row, event.getScreenX(), event.getScreenY());
+                    }
+                }
+            });
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && !row.isEmpty()) {
 
@@ -312,8 +337,9 @@ public class MyItemController extends MainController {
                     } else {
                         pathView.add(selectedItem.getName());
                         try {
-                            updatePathView();
-                            newPath();
+                            System.out.println(MyItemController.originPath.replace("C:\\", ""));
+                            updatePathView(MyItemController.originPath.replace("C:\\", ""));
+                            newPath(MyItemController.originPath.replace("C:\\", ""));
                             ExecuteBackground.executeInBackground("switching...", () -> {
                                 try {
                                     PushDataTableView();
@@ -328,8 +354,9 @@ public class MyItemController extends MainController {
                     }
                 }
                 if (event.getButton() == MouseButton.SECONDARY) { // Nếu click chuột phải
-                    if (row.isEmpty()) {
-                        // Click chuột phải vào vùng trống, hiển thị menu cho New File và New Folder
+                    if (tableViewMyFile.getItems().size() == 0 || row.isEmpty()) {
+                        // Click chuột phải vào vùng trống hoặc khi không có dữ liệu nào trên bảng, hiển
+                        // thị menu cho New File và New Folder
                         emptyAreaMenu.show(row, event.getScreenX(), event.getScreenY());
                     } else {
                         // Click chuột phải vào dòng có dữ liệu, hiển thị menu cho Rename và Delete
@@ -342,6 +369,7 @@ public class MyItemController extends MainController {
             return row;
         });
         Stage stage = new Stage();
+        stage.setTitle("New Stage");
 
         // Sự kiện cho "New File"
         newFile.setOnAction(event -> {
@@ -374,6 +402,51 @@ public class MyItemController extends MainController {
                 Delete(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
             }
         });
+
+        // Sự kiện cho "Link"
+        linkItem.setOnAction(event -> {
+            File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                // Mở dialog nhập liệu với tiêu đề là "Link"
+                showCopyDialog(Path + "\\" + selectedItem.getName());
+            }
+        });
+    }
+
+    private void showCopyDialog(String content) {
+        Platform.runLater(() -> {
+            // Create a new stage for the dialog
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("Link");
+
+            // Create a VBox to hold the TextField and Button
+            VBox vbox = new VBox();
+            vbox.setSpacing(10);
+            vbox.setPadding(new Insets(10));
+
+            // Create a TextField and set it to read-only
+            TextField textField = new TextField(content);
+            textField.setEditable(false);
+
+            // Create a Button to copy the content of the TextField
+            Button copyButton = new Button("Copy");
+            copyButton.setOnAction(event -> {
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                ClipboardContent clipboardContent = new ClipboardContent();
+                clipboardContent.putString(textField.getText());
+                clipboard.setContent(clipboardContent);
+            });
+
+            // Add the TextField and Button to the VBox
+            vbox.getChildren().addAll(textField, copyButton);
+
+            // Create a Scene with the VBox and set it on the stage
+            Scene scene = new Scene(vbox);
+            dialogStage.setScene(scene);
+
+            // Show the dialog
+            dialogStage.showAndWait();
+        });
     }
 
     private void showInputDialog(String title) {
@@ -395,6 +468,17 @@ public class MyItemController extends MainController {
                 createNewFile(name);
             if (title.equals("New Folder"))
                 createNewFolder(name);
+        });
+    }
+
+    private void showAlertDialog(String title, String message) {
+        Platform.runLater(() -> {
+            javafx.scene.control.Alert alert = new javafx.scene.control.Alert(
+                    javafx.scene.control.Alert.AlertType.INFORMATION);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
         });
     }
 
@@ -468,13 +552,13 @@ public class MyItemController extends MainController {
         stopReloadThread();
     }
 
-    void newPath() {
+    void newPath(String newPath) {
         String path = "";
         for (String name : pathView) {
             path += "\\" + name;
         }
-        String newPath = "C:\\SDriver\\" + ConnectWindowServer.user + path;
-        setPath(newPath);
+        String finalPath = "C:\\" + newPath + path;
+        setPath(finalPath);
     }
 
     Text textPathView(String name) {
@@ -483,13 +567,13 @@ public class MyItemController extends MainController {
         return newText;
     }
 
-    void updatePathView() {
+    void updatePathView(String newPath) {
         homePageController.pathViewHbox.getChildren().clear();
         Text homeText = textPathView("Home > ");
         homeText.setOnMouseClicked(event -> {
             pathView.clear();
-            updatePathView();
-            newPath();
+            updatePathView(newPath);
+            newPath(newPath);
             try {
                 ExecuteBackground.executeInBackground("Switching...", () -> {
                     try {
@@ -511,16 +595,16 @@ public class MyItemController extends MainController {
             if (n == 9) {
                 Text newText = textPathView("...");
                 newText.setOnMouseClicked((MouseEvent event) -> {
-                    clickTextPathView(pathView.size() - 2);
-                    newPath();
+                    clickTextPathView(pathView.size() - 2, newPath);
+                    newPath(newPath);
                 });
                 homePageController.pathViewHbox.getChildren().add(newText);
                 break;
             } else {
                 Text newText = textPathView(text + " > ");
                 newText.setOnMouseClicked((MouseEvent event) -> {
-                    clickTextPathView(n);
-                    newPath();
+                    clickTextPathView(n, newPath);
+                    newPath(newPath);
                     try {
                         ExecuteBackground.executeInBackground("Switching...", () -> {
                             try {
@@ -543,12 +627,12 @@ public class MyItemController extends MainController {
         }
     }
 
-    void clickTextPathView(int n) {
-        List<String> newPath = new ArrayList<>();
+    void clickTextPathView(int n, String newPath) {
+        List<String> newPathView = new ArrayList<>();
         for (int i = 0; i <= n; i++) {
-            newPath.add(pathView.get(i));
+            newPathView.add(pathView.get(i));
         }
-        pathView = newPath;
-        updatePathView();
+        pathView = newPathView;
+        updatePathView(newPath);
     }
 }

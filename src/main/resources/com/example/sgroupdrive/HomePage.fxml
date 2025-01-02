@@ -115,6 +115,12 @@
                 <HBox spacing="5.0">
                     <ImageView fx:id="nearIMG" fitHeight="15.0" preserveRatio="true" />
                     <Text fx:id="recentButton" text="Gần đây"/>
+                  <Text fx:id="countMail" text="" style="-fx-fill: red;">
+                   <font>
+                     <Font name="System Bold" size="13.0" />
+                   </font>
+                  </Text>
+                   
                 </HBox>
                 <HBox spacing="5.0">
                     <ImageView fx:id="trashIMG" fitHeight="15.0" preserveRatio="true" />

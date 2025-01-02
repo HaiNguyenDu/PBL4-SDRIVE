@@ -109,11 +109,47 @@ public class LoginController {
             } else {
                 System.err.println("fail");
             }
-
-        });
+           
+            
+          
+        }
+        );
         // register
         registerText.setOnMouseEntered(event -> registerButton.setFill(Color.web("#4486b3")));
         registerText.setOnMouseExited(event -> registerButton.setFill(Color.WHITE));
+        //enterlogin 
+        passwordField.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode().toString().equals("ENTER")) {
+                @SuppressWarnings("unused")
+                String[] error = validate();
+                @SuppressWarnings("unused")
+                ArrayList<File_Folder> inFolder = new ArrayList<>();
+                String email = emailField.getText().trim();
+                String password = passwordField.getText().trim();
+                if (SSHExample.setAccount("pbl4.dut.vn", email, password)) {
+                    System.err.println("success");
+                    MailActivate.init(email);
+                    Stage newStage = new Stage();
+                    FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("HomePage.fxml"));
+                    try {
+                        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                        Scene newScene = new Scene(fxmlLoader.load(), 1260, 720);
+                        Stage loginscreen = new Stage();
+                        loginscreen = (Stage) loginText.getScene().getWindow();
+                        loginscreen.close();
+                        newStage.setScene(newScene);
+                        newStage.setTitle("Home Page");
+    
+                        newStage.show();
+    
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.err.println("fail");
+                }
+            }
+        });
     }
 
     String[] validate() {
