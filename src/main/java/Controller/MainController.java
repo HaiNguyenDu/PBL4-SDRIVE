@@ -6,7 +6,7 @@ abstract public class MainController {
   
     // Lưu trữ thông tin về HomePageController
     protected HomePageController homePageController;
-
+    static String path;
     // Thiết lập HomePageController
     public void setHomePageController(HomePageController homePageController) {
         this.homePageController = homePageController;

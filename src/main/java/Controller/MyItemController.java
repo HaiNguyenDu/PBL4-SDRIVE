@@ -44,7 +44,7 @@ import javafx.stage.Stage;
 
 public class MyItemController extends MainController {
 
-    private Thread reloadPage;
+    private static Thread reloadPage;
 
     public void setHomePageController(HomePageController homePageController) {
         this.homePageController = homePageController;
@@ -55,14 +55,6 @@ public class MyItemController extends MainController {
         homePageController.upLoadFile.setOnMouseClicked(event -> {
             homePageController.popup.hide();
             FileChooser fileChooser = new FileChooser();
-
-            // // Thiết lập kiểu file cho phép chọn
-            // fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text
-            // Files", "*.txt"));
-            // fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image
-            // Files", "*.png", "*.jpg", "*.gif"));
-
-            // Mở hộp thoại chọn file và lấy file người dùng chọn
             File getFile = fileChooser.showOpenDialog(homePageController.addNew.getScene().getWindow());
 
             if (getFile != null) {
@@ -227,9 +219,14 @@ public class MyItemController extends MainController {
     static TableView<File_Folder> tableViewMyFile = new TableView<>();
     HomePageController homePageController;
 
-    List<String> pathView = new ArrayList<>();
+    static List<String> pathView = new ArrayList<>();
     static String Path;
     static String originPath;
+
+    public void setDefaultPath() {
+        this.Path = "C:\\SDriver\\" + ConnectWindowServer.user;
+        pathView.clear();
+    }
 
     public void setPath(String newPath) {
         this.Path = newPath;
@@ -302,7 +299,7 @@ public class MyItemController extends MainController {
         ContextMenu emptyAreaMenu = new ContextMenu();
         MenuItem newFile = new MenuItem("New File");
         MenuItem newFolder = new MenuItem("New Folder");
-        
+
         emptyAreaMenu.getItems().addAll(newFile, newFolder);
 
         // Tạo ContextMenu cho vùng có dòng dữ liệu
@@ -320,9 +317,9 @@ public class MyItemController extends MainController {
                 if (event.getButton() == MouseButton.SECONDARY) { // Nếu click chuột phải
                     File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
                     if (row.isEmpty() && selectedItem == null) {
-                      // Click chuột phải vào vùng trống hoặc khi không có dữ liệu nào trên bảng, hiển
-                      // thị menu cho New File và New Folder
-                      emptyAreaMenu.show(row, event.getScreenX(), event.getScreenY());
+                        // Click chuột phải vào vùng trống hoặc khi không có dữ liệu nào trên bảng, hiển
+                        // thị menu cho New File và New Folder
+                        emptyAreaMenu.show(row, event.getScreenX(), event.getScreenY());
                     }
                 }
             });
@@ -548,6 +545,14 @@ public class MyItemController extends MainController {
     // }
     @Override
     public void onClose() {
+        isReloading = false;
+        try {
+            if(reloadPage != null || reloadPage.isAlive())
+            reloadPage.interrupt();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         System.out.println("General Page Closed");
         stopReloadThread();
     }
@@ -563,7 +568,7 @@ public class MyItemController extends MainController {
 
     Text textPathView(String name) {
         Text newText = new Text(name);
-        newText.getStyleClass().add("text-style");
+        newText.setStyle("-fx-fill:#333333;-fx-font-size:14;-fx-font-weight:bold;");
         return newText;
     }
 
