@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Random;
 
+import BLL.Mail_BLL;
 import DAL.ConnectWindowServer;
 import DAL.Mail_DAL;
 import DTO.Mail;
@@ -60,6 +61,25 @@ public class Recent1Controller extends MainController {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void loadDataAfterSetSeen() throws Exception {
+        HomePageController.sharedList = Mail_BLL.getSharedItem();
+        ArrayList<Mail> list = HomePageController.sharedList;
+        vboxContainer.getChildren().clear();
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println(list.size());
+            String username_send = list.get(i).getUsername_send();
+            String username_receive = list.get(i).getUsername_receive();
+            String email = list.get(i).getUsername_send() + "@pbl4.dut.vn";
+            String date = list.get(i).getDate();
+            String item_name = list.get(i).getItem_name();
+            String path = list.get(i).getPath();
+            boolean read = list.get(i).getSeen();
+          
+            HBox row = createHBoxForRow(username_send, username_receive, email, date, item_name, path, read);
+            vboxContainer.getChildren().add(row);
         }
     }
 
@@ -153,8 +173,18 @@ public class Recent1Controller extends MainController {
         vboxContainer.setPadding(Insets.EMPTY);
 
         hbox.setOnMouseClicked(event -> {
+            if (!read) {
+                try {
+                    Mail_DAL.updateMail_Seen(
+                            new Mail(username_send, username_receive, date, item_name, true, null, path));
+                    loadDataAfterSetSeen();
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
             hbox.getStyleClass().add("selected-email");
-            nameLabel.setStyle("-fx-font-weight: normal; -fx-text-fill:black;");
+            nameLabel.setStyle("-fx-font-weight: bold; -fx-text-fill:black;");
             emailLabel.setStyle("-fx-font-weight: normal; -fx-text-fill:black;");
             contentLabel.setStyle("-fx-font-weight: normal; -fx-text-fill:black;");
             for (Node node : vboxContainer.getChildren()) {
@@ -212,7 +242,8 @@ public class Recent1Controller extends MainController {
                 try {
                     homePageController.nowPage = "MyItem";
                     System.out.println("C:" + path);
-                    homePageController.switchPage("MyItemPage.fxml", new MyItemController(homePageController,"C:" + path));
+                    homePageController.switchPage("MyItemPage.fxml",
+                            new MyItemController(homePageController, "C:" + path));
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }

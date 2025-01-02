@@ -272,12 +272,12 @@ public class MyItemController extends MainController {
         if (tableViewMyFile.getColumns().isEmpty()) {
             TableColumn<File_Folder, String> nameColumn = new TableColumn<>("Name");
             nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
-            nameColumn.setPrefWidth(450);
+            nameColumn.setPrefWidth(472.5);
 
             TableColumn<File_Folder, String> lastWriteTimeColumn = new TableColumn<>("Last Write Time");
             lastWriteTimeColumn.setCellValueFactory(new PropertyValueFactory<>("LastTimeWrite"));
-            lastWriteTimeColumn.setPrefWidth(450);
-
+            lastWriteTimeColumn.setPrefWidth(472.5);
+            tableViewMyFile.setPrefHeight(900);
             tableViewMyFile.getColumns().addAll(nameColumn, lastWriteTimeColumn);
         }
 
@@ -302,7 +302,7 @@ public class MyItemController extends MainController {
         ContextMenu emptyAreaMenu = new ContextMenu();
         MenuItem newFile = new MenuItem("New File");
         MenuItem newFolder = new MenuItem("New Folder");
-
+        
         emptyAreaMenu.getItems().addAll(newFile, newFolder);
 
         // Tạo ContextMenu cho vùng có dòng dữ liệu

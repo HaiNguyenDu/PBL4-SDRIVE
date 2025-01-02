@@ -1,28 +1,3 @@
-.table-view {
-    -fx-border-color: transparent;
-    -fx-font-size: 14px; /* Kích thước chữ khi hover */
-    -x-font-weight: bold; /* Độ đậm chữ khi hover */
-}
-
-.column-header {
-    -fx-border-width: 0 ;
-    -fx-background-color: white;
-    -fx-font-size: 14px;
-}
-
-.text-style{
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-fill: black;
-}
-.text-style:hover{
-    -fx-font-scale: 20px;
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-fill: #06abec;
-    -fx-cursor: "hand";
-}
-
 
 
 

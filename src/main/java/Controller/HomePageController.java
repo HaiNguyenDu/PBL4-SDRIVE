@@ -174,7 +174,7 @@ public class HomePageController {
         Image imageOur = new Image(getClass().getResourceAsStream("/images/chung.png"));
         Image imageFile = new Image(getClass().getResourceAsStream("/images/file.png"));
         Image imageNear = new Image(getClass().getResourceAsStream("/images/near.png"));
-        Image imageTrash = new Image(getClass().getResourceAsStream("/images/trash.png"));
+
         Image imageShared = new Image(getClass().getResourceAsStream("/images/shared.png"));
         Image imageUpLoadFile = new Image(getClass().getResourceAsStream("/images/upLoadFile.png"));
         Image imageUpLoadFolder = new Image(getClass().getResourceAsStream("/images/upLoadFolder.png"));
@@ -184,7 +184,6 @@ public class HomePageController {
         ourIMG.setImage(imageOur);
         fileIMG.setImage(imageFile);
         nearIMG.setImage(imageNear);
-        trashIMG.setImage(imageTrash);
         sharedIMG.setImage(imageShared);
         bodyShareIMG.setImage(imageShare);
         upLoadeFileIMG.setImage(imageUpLoadFile);
@@ -226,11 +225,12 @@ public class HomePageController {
     // Them cho su kien cho cac button
     void buttonevent() {
 
-        myItemButton.setOnMouseClicked(event -> handleMyItemPage());
+        myItemButton.setOnMouseClicked(event ->{ handleMyItemPage(); setColorButton(1);});
 
-        _shareButton.setOnMouseClicked(event -> handleSharePage());
+        _shareButton.setOnMouseClicked(event -> {handleSharePage(); setColorButton(2);});
 
         recentButton.setOnMouseClicked(event -> {
+            setColorButton(4);
             if (originalContent == null) {
                 originalContent = new VBox(tableView);
             }
@@ -254,8 +254,9 @@ public class HomePageController {
             }
         });
 
-        sharedButton.setOnMouseClicked(event -> handleSharedPage(this));
+        sharedButton.setOnMouseClicked(event -> {handleSharedPage(this); setColorButton(3);});
         generalButton.setOnMouseClicked(event -> {
+            setColorButton(0);
             if (currenController != null) {
                 currenController.onClose();
             }
@@ -271,6 +272,24 @@ public class HomePageController {
                 e.printStackTrace();
             }
         });
+    }
+
+    // doi mau khi click vao cac route
+    void setColorButton(int index)
+    {
+        generalButton.setStyle("-fx-fill:#33333;");
+        sharedButton.setStyle("-fx-fill:#33333;");
+        recentButton.setStyle("-fx-fill:#33333;");
+        _shareButton.setStyle("-fx-fill:#33333;");
+        myItemButton.setStyle("-fx-fill:#33333;");
+        switch(index)
+        {
+            case 0 : generalButton.setStyle("-fx-fill:#06abec;"); break;
+            case 1 : myItemButton.setStyle("-fx-fill:#06abec;"); break;
+            case 2 : _shareButton.setStyle("-fx-fill:#06abec;"); break;
+            case 3 : sharedButton.setStyle("-fx-fill:#06abec;"); break;
+            case 4 : recentButton.setStyle("-fx-fill:#06abec;"); break;
+        }
     }
 
     // them su kien cho button add new
@@ -387,145 +406,147 @@ public class HomePageController {
     }
 
     // add double click
-    void addEventDoubleCLickRowTableView() {
-        ContextMenu emptyAreaMenu = new ContextMenu();
-        MenuItem newFile = new MenuItem("New File");
-        MenuItem newFolder = new MenuItem("New Folder");
+    // void addEventDoubleCLickRowTableView() {
+    // ContextMenu emptyAreaMenu = new ContextMenu();
+    // MenuItem newFile = new MenuItem("New File");
+    // MenuItem newFolder = new MenuItem("New Folder");
 
-        emptyAreaMenu.getItems().addAll(newFile, newFolder);
+    // emptyAreaMenu.getItems().addAll(newFile, newFolder);
 
-        // Tạo ContextMenu cho vùng có dòng dữ liệu
-        ContextMenu rowMenu = new ContextMenu();
-        MenuItem renameItem = new MenuItem("Rename");
-        MenuItem deleteItem = new MenuItem("Delete");
+    // // Tạo ContextMenu cho vùng có dòng dữ liệu
+    // ContextMenu rowMenu = new ContextMenu();
+    // MenuItem renameItem = new MenuItem("Rename");
+    // MenuItem deleteItem = new MenuItem("Delete");
 
-        rowMenu.getItems().addAll(renameItem, deleteItem);
-        tableView.setRowFactory(tv -> {
-            TableRow<File_Folder> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && !row.isEmpty()) {
+    // rowMenu.getItems().addAll(renameItem, deleteItem);
+    // tableView.setRowFactory(tv -> {
+    // TableRow<File_Folder> row = new TableRow<>();
+    // row.setOnMouseClicked(event -> {
+    // if (event.getClickCount() == 2 && !row.isEmpty()) {
 
-                    File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
-                    if (file_folder.isFile(currenController.getPath().replace("C:", "\\\\" + Host.dnsServer) + "\\"
-                            + selectedItem.getName())) {
-                        File_handle.openFile(currenController.getPath().replace("C:", "\\\\" + Host.dnsServer) + "\\"
-                                + selectedItem.getName());
-                    } else {
-                        pathView.add(selectedItem.getName());
-                        try {
-                            updatePathView();
-                            newPath();
-                            ExecuteBackground.executeInBackground("switching...", () -> {
-                                try {
-                                    currenController.PushDataTableView();
-                                } catch (Exception e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
-                                }
-                            });
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                }
-                if (event.getButton() == MouseButton.SECONDARY) { // Nếu click chuột phải
-                    if (row.isEmpty()) {
-                        // Click chuột phải vào vùng trống, hiển thị menu cho New File và New Folder
-                        emptyAreaMenu.show(row, event.getScreenX(), event.getScreenY());
-                    } else {
-                        // Click chuột phải vào dòng có dữ liệu, hiển thị menu cho Rename và Delete
-                        rowMenu.show(row, event.getScreenX(), event.getScreenY());
-                    }
-                }
+    // File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
+    // if (file_folder.isFile(currenController.getPath().replace("C:", "\\\\" +
+    // Host.dnsServer) + "\\"
+    // + selectedItem.getName())) {
+    // File_handle.openFile(currenController.getPath().replace("C:", "\\\\" +
+    // Host.dnsServer) + "\\"
+    // + selectedItem.getName());
+    // } else {
+    // pathView.add(selectedItem.getName());
+    // try {
+    // updatePathView();
+    // newPath();
+    // ExecuteBackground.executeInBackground("switching...", () -> {
+    // try {
+    // currenController.PushDataTableView();
+    // } catch (Exception e) {
+    // // TODO Auto-generated catch block
+    // e.printStackTrace();
+    // }
+    // });
+    // } catch (Exception e) {
+    // throw new RuntimeException(e);
+    // }
+    // }
+    // }
+    // if (event.getButton() == MouseButton.SECONDARY) { // Nếu click chuột phải
+    // if (row.isEmpty()) {
+    // // Click chuột phải vào vùng trống, hiển thị menu cho New File và New Folder
+    // emptyAreaMenu.show(row, event.getScreenX(), event.getScreenY());
+    // } else {
+    // // Click chuột phải vào dòng có dữ liệu, hiển thị menu cho Rename và Delete
+    // rowMenu.show(row, event.getScreenX(), event.getScreenY());
+    // }
+    // }
 
-            });
-            return row;
-        });
+    // });
+    // return row;
+    // });
 
-    }
+    // }
 
-    void newPath() {
-        String path = "";
-        for (String name : pathView) {
-            path += "\\" + name;
-        }
-        String newPath = "C:\\SDriver\\" + ConnectWindowServer.user + path;
-        currenController.setPath(newPath);
-    }
+    // void newPath() {
+    // String path = "";
+    // for (String name : pathView) {
+    // path += "\\" + name;
+    // }
+    // String newPath = "C:\\SDriver\\" + ConnectWindowServer.user + path;
+    // currenController.setPath(newPath);
+    // }
 
-    Text textPathView(String name) {
-        Text newText = new Text(name);
-        newText.getStyleClass().add("text-style");
-        return newText;
-    }
+    // Text textPathView(String name) {
+    // Text newText = new Text(name);
+    // newText.getStyleClass().add("text-style");
+    // return newText;
+    // }
 
-    void updatePathView() {
-        pathViewHbox.getChildren().clear();
-        Text homeText = textPathView("Home > ");
-        homeText.setOnMouseClicked(event -> {
-            pathView.clear();
-            updatePathView();
-            newPath();
-            try {
-                ExecuteBackground.executeInBackground("Switching...", () -> {
-                    try {
-                        currenController.PushDataTableView();
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                });
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        });
-        pathViewHbox.getChildren().add(homeText);
-        int i = 0;
-        for (String text : pathView) {
-            int n = i;
-            if (n == 9) {
-                Text newText = textPathView("...");
-                newText.setOnMouseClicked((MouseEvent event) -> {
-                    clickTextPathView(pathView.size() - 2);
-                    newPath();
-                });
-                pathViewHbox.getChildren().add(newText);
-                break;
-            } else {
-                Text newText = textPathView(text + " > ");
-                newText.setOnMouseClicked((MouseEvent event) -> {
-                    clickTextPathView(n);
-                    newPath();
-                    try {
-                        ExecuteBackground.executeInBackground("Switching...", () -> {
-                            try {
-                                currenController.PushDataTableView();
-                            } catch (Exception e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-                        });
+    // void updatePathView() {
+    // pathViewHbox.getChildren().clear();
+    // Text homeText = textPathView("Home > ");
+    // homeText.setOnMouseClicked(event -> {
+    // pathView.clear();
+    // updatePathView();
+    // newPath();
+    // try {
+    // ExecuteBackground.executeInBackground("Switching...", () -> {
+    // try {
+    // currenController.PushDataTableView();
+    // } catch (Exception e) {
+    // // TODO Auto-generated catch block
+    // e.printStackTrace();
+    // }
+    // });
+    // } catch (Exception e) {
+    // // TODO Auto-generated catch block
+    // e.printStackTrace();
+    // }
+    // });
+    // pathViewHbox.getChildren().add(homeText);
+    // int i = 0;
+    // for (String text : pathView) {
+    // int n = i;
+    // if (n == 9) {
+    // Text newText = textPathView("...");
+    // newText.setOnMouseClicked((MouseEvent event) -> {
+    // clickTextPathView(pathView.size() - 2);
+    // newPath();
+    // });
+    // pathViewHbox.getChildren().add(newText);
+    // break;
+    // } else {
+    // Text newText = textPathView(text + " > ");
+    // newText.setOnMouseClicked((MouseEvent event) -> {
+    // clickTextPathView(n);
+    // newPath();
+    // try {
+    // ExecuteBackground.executeInBackground("Switching...", () -> {
+    // try {
+    // currenController.PushDataTableView();
+    // } catch (Exception e) {
+    // // TODO Auto-generated catch block
+    // e.printStackTrace();
+    // }
+    // });
 
-                    } catch (Exception e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                });
-                pathViewHbox.getChildren().add(newText);
-            }
-            i++;
+    // } catch (Exception e) {
+    // // TODO Auto-generated catch block
+    // e.printStackTrace();
+    // }
+    // });
+    // pathViewHbox.getChildren().add(newText);
+    // }
+    // i++;
 
-        }
-    }
+    // }
+    // }
 
-    void clickTextPathView(int n) {
-        List<String> newPath = new ArrayList<>();
-        for (int i = 0; i <= n; i++) {
-            newPath.add(pathView.get(i));
-        }
-        pathView = newPath;
-        updatePathView();
-    }
+    // void clickTextPathView(int n) {
+    // List<String> newPath = new ArrayList<>();
+    // for (int i = 0; i <= n; i++) {
+    // newPath.add(pathView.get(i));
+    // }
+    // pathView = newPath;
+    // updatePathView();
+    // }
 
 }

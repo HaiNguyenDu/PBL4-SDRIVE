@@ -242,7 +242,7 @@ public class SharedPageController extends MainController {
             TableColumn<Mail, String> date = new TableColumn<>("Date");
             date.setCellValueFactory(new PropertyValueFactory<>("date"));
             date.setPrefWidth(315);
-
+            tableView.setPrefHeight(900);
             tableView.getColumns().addAll(item_name, date, username_send);
         }
 

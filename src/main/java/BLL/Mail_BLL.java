@@ -18,7 +18,7 @@ public class Mail_BLL {
                         rs.getString("username_receive"),
                         rs.getString("date"),
                         rs.getString("item_name"),
-                        rs.getString("path"),
+                        rs.getString("path"), 
                         rs.getBoolean("seen"),
                         rs.getString("access_modifier")));
             }
