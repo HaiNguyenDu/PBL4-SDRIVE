@@ -62,6 +62,7 @@ public class HomePageController {
     public Text generalButton;
     public Text myItemButton;
     public Text countMail;
+    public Text searchButton;
     public HBox pathViewHbox;
     public ImageView searchIMG;
     public ImageView shareIMG;
@@ -85,6 +86,7 @@ public class HomePageController {
     public List<String> pathView = new ArrayList<>();
     public static ArrayList<Mail> sharedList = new ArrayList<>();
     public static ArrayList<Mail> shareList = new ArrayList<>();
+    public static String CopyPath = "";
 
     public String nowPage = "";
     public MainController mainController;
@@ -99,7 +101,7 @@ public class HomePageController {
 
     public void initialize() {
         initImages();
-        textFiled();
+        // textFiled();
         buttonevent();
         addEventAddNewButton();
         initTableView();
@@ -193,6 +195,9 @@ public class HomePageController {
     }
 
     void initTableView() {
+        if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
+            MyItemController.reloadPage.interrupt();
+        }
         MyItemController myItemController = new MyItemController(this, "C:\\SDriver\\" + ConnectWindowServer.user);
         currenController = myItemController;
         nowPage = "HomePage";
@@ -224,6 +229,37 @@ public class HomePageController {
 
     // Them cho su kien cho cac button
     void buttonevent() {
+
+        searchButton.setOnMouseClicked(event -> {
+            String search = searchField.getText();
+            System.out.println(search);
+            if (search.isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("Please enter the search content");
+                alert.showAndWait();
+            } else {
+                try {
+                    String isAccess = file_folder.checkPathAccess(search.trim().replace("C:", "\\\\" + Host.dnsServer));
+                    if (isAccess.equals("success")) {
+                        nowPage = "MyItem";
+                        System.out.println("C:" + search);
+                        if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
+                            MyItemController.reloadPage.interrupt();
+                        }
+                        switchPage("MyItemPage.fxml",
+                                new MyItemController(this, search.trim()));
+                    } else {
+                        Dialog.showAlertDialog("Fail", isAccess);
+                    }
+
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+
+            }
+        });
 
         myItemButton.setOnMouseClicked(event -> {
             handleMyItemPage();
@@ -381,14 +417,14 @@ public class HomePageController {
 
         pathViewHbox.getChildren().clear();
 
-        MyItemController close = new MyItemController(this, "C:\\SDriver\\" + ConnectWindowServer.user);
-        close.setDefaultPath();
-      
+        // MyItemController close = new MyItemController(this, "C:\\SDriver\\" +
+        // ConnectWindowServer.user);
+        // close.setDefaultPath();
+        // MyItemController.Path = "C:\\SDriver\\" + ConnectWindowServer.user;
+        MyItemController.pathView.clear();
+
         Text homeText = textPathView("Home > ");
         pathViewHbox.getChildren().add(homeText);
-        if (currenController != null) {
-            currenController.onClose();
-        }
         currenController = newController;
         try {
 
@@ -419,6 +455,9 @@ public class HomePageController {
     @FXML
     public void handleMyItemPage() {
         nowPage = "MyItem";
+        if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
+            MyItemController.reloadPage.interrupt();
+        }
         switchPage("MyItemPage.fxml", new MyItemController(this, "C:\\SDriver\\" + ConnectWindowServer.user));
     }
 

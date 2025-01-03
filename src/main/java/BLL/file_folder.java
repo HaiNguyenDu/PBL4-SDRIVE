@@ -5,6 +5,17 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
 public class file_folder {
+    public static String checkPathAccess(String path) {
+        Path inputPath = Paths.get(path);
+        if (Files.exists(inputPath)) {
+            if (Files.isReadable(inputPath)) {
+                return "success";
+            }
+            return "Access denied";
+        } else {
+            return "Path does not exist: " + path;
+        }
+    }
 
     public static void rename(String path, String newName) {
         Path oldPath = Paths.get(path); // Đường dẫn hiện tại

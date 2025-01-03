@@ -318,14 +318,18 @@ public class Folder_handle {
             // printWriter.println("icacls \"" + folderPath + "\" /inheritance:e");
             // Close the PrintWriter
             printWriter.close();
-            Process process = Runtime.getRuntime().exec(batchFilePath);
-            int exitCode = process.waitFor();
-            if (exitCode == 0) {
-                System.out.println("Permissions successfully modified for " + username + " on folder " + folderPath);
-            } else {
-                System.err.println("Failed to modify permissions. Exit code: " + exitCode);
-            }
-        } catch (IOException | InterruptedException e) {
+            ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", batchFilePath);
+            processBuilder.inheritIO();
+            processBuilder.start();
+            // Process process = Runtime.getRuntime().exec(batchFilePath);
+            // int exitCode = process.waitFor();
+            // if (exitCode == 0) {
+            // System.out.println("Permissions successfully modified for " + username + " on
+            // folder " + folderPath);
+            // } else {
+            // System.err.println("Failed to modify permissions. Exit code: " + exitCode);
+            // }
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

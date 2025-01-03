@@ -34,8 +34,12 @@
 
                 </ImageView>
                 <TextField fx:id="searchField" prefWidth="480" promptText="Search" style="-fx-background-color: transparent;">
-
                 </TextField>
+                 <Text fx:id="searchButton" text="Search" style="-fx-fill:#333333;">
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font>
+                     </Text>
             </HBox>
         </StackPane>
         <StackPane>

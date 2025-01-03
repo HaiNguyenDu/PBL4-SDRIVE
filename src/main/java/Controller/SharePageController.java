@@ -204,7 +204,8 @@ public class SharePageController extends MainController {
 
     public SharePageController(HomePageController homePageController) {
         this.homePageController = homePageController;
-        dArrayList = homePageController.shareList;
+        dArrayList = Mail_BLL.getShareItem();
+        ;
         try {
             PushDataTableView();
             initButtonEvent();
@@ -212,7 +213,7 @@ public class SharePageController extends MainController {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        Platform.runLater(this::startReloadThread);
+        // Platform.runLater(this::startReloadThread);
         addEventRowTableView();
     }
 
@@ -277,6 +278,31 @@ public class SharePageController extends MainController {
             TableRow<Mail> row = new TableRow<>();
 
             row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+
+                    Mail selectedItem = tableView.getSelectionModel().getSelectedItem();
+                    if (selectedItem != null) {
+                        try {
+                            String isAccess = file_folder.checkPathAccess("\\\\" + Host.dnsServer + selectedItem.getPath());
+                            if (isAccess.equals("success")) {
+                                this.homePageController.nowPage = "MyItem";
+                                System.out.println("C:" + selectedItem.getPath());
+                                if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
+                                    MyItemController.reloadPage.interrupt();
+                                }
+                                this.homePageController.switchPage("MyItemPage.fxml",
+                                        new MyItemController(this.homePageController, "C:" + selectedItem.getPath()));
+                            } else {
+                                Dialog.showAlertDialog("Fail", isAccess);
+                            }
+
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+
+                    }
+                }
+
                 if (event.getButton() == MouseButton.SECONDARY) { // Nếu click chuột phải
                     if (row.isEmpty()) {
                         // Click chuột phải vào vùng trống, hiển thị menu cho New File và New Folder
@@ -416,6 +442,6 @@ public class SharePageController extends MainController {
     @Override
     public void onClose() {
         System.out.println("General Page Closed");
-        stopReloadThread();
+        // stopReloadThread();
     }
 }

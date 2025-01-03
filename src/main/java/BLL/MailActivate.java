@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import DTO.Mail;
@@ -17,7 +18,7 @@ public class MailActivate {
     public static ArrayList<String> newMessages = new ArrayList<>();
     public static String newMessage = "";
     public static boolean isNewMess = false;
-    public static String host = "192.168.1.35";
+    public static String host = "192.168.1.6";
 
     static public void sendMail(Mail mail_send) {
         // Tạo thread gửi tin nhắn
@@ -64,7 +65,7 @@ public class MailActivate {
         listenThread.start();
     }
 
-    static public void init(String username) {
+    static public String init(String username) {
         try {
             socket = new Socket(host, 6000);
             din = new DataInputStream(socket.getInputStream());
@@ -73,16 +74,31 @@ public class MailActivate {
             // Gửi yêu cầu kết nối ban đầu
             dos.writeUTF(username + "|connect");
             dos.flush();
-
+            String serverResponse = "";
             // Nhận phản hồi từ server
-            String serverResponse = din.readUTF();
+            try {
+                socket.setSoTimeout(5000); // Set timeout to 5 seconds
+                serverResponse = din.readUTF();
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to receive server response", e);
+            }
             System.out.println("Server: " + serverResponse);
             if (serverResponse.equals("Connected")) {
                 listenThread();
             }
-
+            if (serverResponse.equals("")) {
+                return "không connect được với Host";
+            }
+            return "Success";
+        } catch (UnknownHostException e) {
+            // Xử lý lỗi không tìm thấy host
+            return "không connect được với Host";
+        } catch (IOException e) {
+            // Xử lý lỗi I/O khi tạo socket
+            return "không tạo được socket";
         } catch (Exception e) {
             e.printStackTrace();
+            return e.getMessage();
         }
     }
 }

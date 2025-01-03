@@ -83,12 +83,13 @@ public class SSHExample {
         }
     }
 
-    static public boolean setAccount(String host, String User, String Password) {
-        if (ConnectWindowServer.setAccount(host, User, Password)) {
+    static public String setAccount(String host, String User, String Password) {
+        String result = ConnectWindowServer.setAccount(host, User, Password);
+        if (result.toLowerCase().equals("success")) {
             accessNetworkShare(User, Password, "\\\\" + Host.dnsServer + "\\SDriver");
-            return true;
+            return "Success";
         } else {
-            return false;
+            return result;
         }
     }
 

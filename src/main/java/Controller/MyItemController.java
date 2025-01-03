@@ -5,8 +5,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.core.appender.rolling.action.IfAccumulatedFileCount;
+
 import com.example.sgroupdrive.HelloApplication;
 
+import BLL.FileAccessTracker;
 import BLL.File_handle;
 import BLL.Folder_handle;
 import BLL.SSHExample;
@@ -44,7 +47,7 @@ import javafx.stage.Stage;
 
 public class MyItemController extends MainController {
 
-    private static Thread reloadPage;
+    public static Thread reloadPage;
 
     public void setHomePageController(HomePageController homePageController) {
         this.homePageController = homePageController;
@@ -80,7 +83,7 @@ public class MyItemController extends MainController {
         this.homePageController.shareButton.setOnMouseClicked(event -> {
             try {
                 File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
-                stopReloadThread(); // Dừng luồng reload khi mở ShareScreen
+                // stopReloadThread(); // Dừng luồng reload khi mở ShareScreen
 
                 Stage newStage = new Stage();
                 FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("ShareScreen.fxml"));
@@ -93,9 +96,9 @@ public class MyItemController extends MainController {
                 shareController.setItemSelect(selectedItem);
 
                 // Gắn lắng nghe sự kiện khi cửa sổ ShareScreen đóng
-                newStage.setOnHidden(e -> {
-                    Platform.runLater(this::startReloadThread);
-                });
+                // newStage.setOnHidden(e -> {
+                // Platform.runLater(this::startReloadThread);
+                // });
 
                 newStage.setScene(newScene);
                 newStage.show();
@@ -130,7 +133,10 @@ public class MyItemController extends MainController {
             } else {
                 try {
                     File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
-                    stopReloadThread(); // Dừng luồng reload khi mở ShareScreen
+                    // if (MyItemController.reloadPage != null &&
+                    // MyItemController.reloadPage.isAlive()) {
+                    // MyItemController.reloadPage.interrupt();
+                    // } // Dừng luồng reload khi mở ShareScreen
                     Stage newStage = new Stage();
                     FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("ShareScreen.fxml"));
                     Scene newScene = new Scene(fxmlLoader.load(), 600, 450);
@@ -142,7 +148,7 @@ public class MyItemController extends MainController {
                     shareController.setItemSelect(selectedItem);
 
                     // Gắn lắng nghe sự kiện khi cửa sổ ShareScreen đóng
-                    Platform.runLater(this::startReloadThread);
+                    // Platform.runLater(this::startReloadThread);
 
                     newStage.setScene(newScene);
                     newStage.show();
@@ -156,7 +162,7 @@ public class MyItemController extends MainController {
     }
 
     public void LoadPage() {
-        while (isReloading) { // Kiểm tra biến cờ
+        while (!Thread.interrupted()) { // Kiểm tra biến cờ
             if (Thread.interrupted()) {
                 break;
             }
@@ -164,14 +170,16 @@ public class MyItemController extends MainController {
 
                 try {
                     PushDataTableView();
+                    Thread.sleep(6000);
                 } catch (Exception e) {
                     e.printStackTrace();
                     isReloading = false; // Dừng luồng nếu có lỗi
+                    break;
                 }
-                Thread.sleep(6000);
             } catch (Exception e) {
                 e.printStackTrace();
                 isReloading = false;
+                break;
             }
         }
     }
@@ -185,13 +193,6 @@ public class MyItemController extends MainController {
 
     public void startReloadThread() {
         stopReloadThread();
-        try {
-            if (reloadPage != null) {
-                reloadPage.join(); // Đợi luồng cũ dừng hẳn
-            }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
         isReloading = true;
         reloadPage = new Thread(this::LoadPage);
         reloadPage.start();
@@ -200,7 +201,12 @@ public class MyItemController extends MainController {
     private void uploadFile(String Path, String pos) {
         ExecuteBackground.executeInBackground("Uploading...", () -> {
             File_handle.upLoadFile(Path, pos);
-            Platform.runLater(this::startReloadThread);
+            try {
+                PushDataTableView();
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         });
     }
 
@@ -211,7 +217,12 @@ public class MyItemController extends MainController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Platform.runLater(this::startReloadThread);
+            try {
+                PushDataTableView();
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         });
     }
 
@@ -237,7 +248,7 @@ public class MyItemController extends MainController {
         return this.Path;
     }
 
-    private volatile boolean isReloading = true;
+    private volatile boolean isReloading = false;
 
     public MyItemController(HomePageController homePageController, String Path) {
         System.out.println(Path);
@@ -299,16 +310,24 @@ public class MyItemController extends MainController {
         ContextMenu emptyAreaMenu = new ContextMenu();
         MenuItem newFile = new MenuItem("New File");
         MenuItem newFolder = new MenuItem("New Folder");
+        MenuItem parseItem2 = new MenuItem("Parse");
 
-        emptyAreaMenu.getItems().addAll(newFile, newFolder);
+        emptyAreaMenu.getItems().addAll(newFile, newFolder, parseItem2);
 
         // Tạo ContextMenu cho vùng có dòng dữ liệu
         ContextMenu rowMenu = new ContextMenu();
         MenuItem renameItem = new MenuItem("Rename");
         MenuItem deleteItem = new MenuItem("Delete");
         MenuItem linkItem = new MenuItem("Link");
+        MenuItem copyItem = new MenuItem("Copy");
+        MenuItem parseItem = new MenuItem("Parse");
+        MenuItem trackerItem = new MenuItem("Tracker");
 
-        rowMenu.getItems().addAll(renameItem, deleteItem, linkItem);
+        if (MyItemController.Path.trim().contains("C:\\SDriver\\" + ConnectWindowServer.user)) {
+            rowMenu.getItems().addAll(renameItem, deleteItem, linkItem, copyItem, parseItem, trackerItem);
+        } else {
+            rowMenu.getItems().addAll(renameItem, deleteItem, linkItem, copyItem, parseItem);
+        }
 
         // Thiết lập TableView row factory
         tableViewMyFile.setRowFactory(tv -> {
@@ -361,12 +380,61 @@ public class MyItemController extends MainController {
                     }
                 }
 
+                if (event.getButton() == MouseButton.PRIMARY && row.isEmpty()) {
+                    rowMenu.hide();
+                    emptyAreaMenu.hide();
+                    tableViewMyFile.getSelectionModel().clearSelection();
+                }
+
             });
 
             return row;
         });
         Stage stage = new Stage();
         stage.setTitle("New Stage");
+
+        trackerItem.setOnAction(event -> {
+            File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                FileAccessTracker tracker = new FileAccessTracker();
+                tracker.beginTracker(Path + "\\" + selectedItem.getName());
+                System.out.println("Tracker");
+                Stage textStage = new Stage();
+                textStage.setTitle(Path + "\\" + selectedItem.getName());
+
+                VBox vbox = new VBox();
+                vbox.setPadding(new Insets(10));
+                Text dynamicText = new Text();
+                vbox.getChildren().add(dynamicText);
+
+                Scene scene = new Scene(vbox, 300, 300);
+                textStage.setScene(scene);
+                textStage.show();
+
+                Thread read = new Thread(() -> {
+                    while (true) {
+                        if (Thread.interrupted()) {
+                            break;
+                        }
+                        dynamicText.setText(tracker.ListUser);
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            break;
+                        }
+                    }
+                }); read.start();
+
+                textStage.setOnCloseRequest(closeEvent -> {
+                    // Handle the window close event
+                    System.out.println("Dynamic Text window closed");
+                    // Stop the thread updating the text
+                    read.interrupt();
+                    tracker.end();
+                });
+            }
+        });
 
         // Sự kiện cho "New File"
         newFile.setOnAction(event -> {
@@ -406,6 +474,158 @@ public class MyItemController extends MainController {
             if (selectedItem != null) {
                 // Mở dialog nhập liệu với tiêu đề là "Link"
                 showCopyDialog(Path + "\\" + selectedItem.getName());
+            }
+        });
+
+        copyItem.setOnAction(event -> {
+            File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                // Mở dialog nhập liệu với tiêu đề là "Copy"
+                HomePageController.CopyPath = Path + "\\" + selectedItem.getName();
+            }
+        });
+
+        parseItem.setOnAction(event -> {
+            if (HomePageController.CopyPath.equals("")) {
+                showAlertDialog("Error", "You have not copied any file or folder");
+            } else if (HomePageController.CopyPath.equals(Path)) {
+                showAlertDialog("Error", "You can't parse a file or folder in the same directory");
+            } else {
+                File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
+                if (selectedItem != null) {
+                    // Mở dialog nhập liệu với tiêu đề là "parse"
+                    if (file_folder.isFile(HomePageController.CopyPath.replace("C:", "\\\\" + Host.dnsServer))) {
+                        ExecuteBackground.executeInBackground("Parsing...", () -> {
+                            File_handle.upLoadFile(HomePageController.CopyPath.replace("C:", "\\\\" + Host.dnsServer),
+                                    Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
+                            try {
+                                PushDataTableView();
+                            } catch (Exception e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        });
+                    } else {
+                        ExecuteBackground.executeInBackground("Parsing...", () -> {
+                            try {
+                                Folder_handle.UploadDirectory(
+                                        HomePageController.CopyPath.replace("C:", "\\\\" + Host.dnsServer),
+                                        Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
+                            } catch (IOException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                            try {
+                                PushDataTableView();
+                            } catch (Exception e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                } else {
+                    if (file_folder.isFile(HomePageController.CopyPath.replace("C:", "\\\\" + Host.dnsServer))) {
+                        ExecuteBackground.executeInBackground("Parsing...", () -> {
+                            File_handle.upLoadFile(HomePageController.CopyPath.replace("C:", "\\\\" + Host.dnsServer),
+                                    Path.replace("C:", "\\\\" + Host.dnsServer));
+                            try {
+                                PushDataTableView();
+                            } catch (Exception e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        });
+                    } else {
+                        ExecuteBackground.executeInBackground("Parsing...", () -> {
+                            try {
+                                Folder_handle.UploadDirectory(
+                                        HomePageController.CopyPath.replace("C:", "\\\\" + Host.dnsServer),
+                                        Path.replace("C:", "\\\\" + Host.dnsServer));
+                            } catch (IOException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                            try {
+                                PushDataTableView();
+                            } catch (Exception e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
+        parseItem2.setOnAction(event -> {
+            if (HomePageController.CopyPath.equals("")) {
+                showAlertDialog("Error", "You have not copied any file or folder");
+            } else if (HomePageController.CopyPath.equals(Path)) {
+                showAlertDialog("Error", "You can't parse a file or folder in the same directory");
+            } else {
+                File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
+                if (selectedItem != null) {
+                    // Mở dialog nhập liệu với tiêu đề là "parse"
+                    if (file_folder.isFile(HomePageController.CopyPath.replace("C:", "\\\\" + Host.dnsServer))) {
+                        ExecuteBackground.executeInBackground("Parsing...", () -> {
+                            File_handle.upLoadFile(HomePageController.CopyPath.replace("C:", "\\\\" + Host.dnsServer),
+                                    Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
+                            try {
+                                PushDataTableView();
+                            } catch (Exception e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        });
+                    } else {
+                        ExecuteBackground.executeInBackground("Parsing...", () -> {
+                            try {
+                                Folder_handle.UploadDirectory(
+                                        HomePageController.CopyPath.replace("C:", "\\\\" + Host.dnsServer),
+                                        Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
+                            } catch (IOException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                            try {
+                                PushDataTableView();
+                            } catch (Exception e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                } else {
+                    if (file_folder.isFile(HomePageController.CopyPath.replace("C:", "\\\\" + Host.dnsServer))) {
+                        ExecuteBackground.executeInBackground("Parsing...", () -> {
+                            File_handle.upLoadFile(HomePageController.CopyPath.replace("C:", "\\\\" + Host.dnsServer),
+                                    Path.replace("C:", "\\\\" + Host.dnsServer));
+                            try {
+                                PushDataTableView();
+                            } catch (Exception e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        });
+                    } else {
+                        ExecuteBackground.executeInBackground("Parsing...", () -> {
+                            try {
+                                Folder_handle.UploadDirectory(
+                                        HomePageController.CopyPath.replace("C:", "\\\\" + Host.dnsServer),
+                                        Path.replace("C:", "\\\\" + Host.dnsServer));
+                            } catch (IOException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                            try {
+                                PushDataTableView();
+                            } catch (Exception e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                }
             }
         });
     }
@@ -508,28 +728,48 @@ public class MyItemController extends MainController {
     public void createNewFolder(String folderName) {
         ExecuteBackground.executeInBackground("Creating folder...", () -> {
             Folder_handle.createNewFolder(Path.replace("C:", "\\\\" + Host.dnsServer), folderName);
-            Platform.runLater(this::startReloadThread);
+            try {
+                PushDataTableView();
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         });
     }
 
     public void createNewFile(String fileName) {
         ExecuteBackground.executeInBackground("Creating file...", () -> {
             File_handle.createNewFile(Path.replace("C:", "\\\\" + Host.dnsServer), fileName);
-            Platform.runLater(this::startReloadThread);
+            try {
+                PushDataTableView();
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         });
     }
 
     public void Rename(String Path, String fileName) {
         ExecuteBackground.executeInBackground("rename...", () -> {
             file_folder.rename(Path, fileName);
-            Platform.runLater(this::startReloadThread);
+            try {
+                PushDataTableView();
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         });
     }
 
     public void Delete(String Path) {
         ExecuteBackground.executeInBackground("delete...", () -> {
             file_folder.deletePath(Path);
-            Platform.runLater(this::startReloadThread);
+            try {
+                PushDataTableView();
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         });
     }
 
@@ -545,16 +785,16 @@ public class MyItemController extends MainController {
     // }
     @Override
     public void onClose() {
-        isReloading = false;
-        try {
-            if(reloadPage != null || reloadPage.isAlive())
-            reloadPage.interrupt();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        // isReloading = false;
+        // try {
+        // if (reloadPage != null || reloadPage.isAlive())
+        // reloadPage.interrupt();
+        // } catch (Exception e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
         System.out.println("General Page Closed");
-        stopReloadThread();
+        // stopReloadThread();
     }
 
     void newPath(String newPath) {

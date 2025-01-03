@@ -175,7 +175,7 @@ public class ShareScreenController extends MainController {
                 }
             }
             if (userExists) {
-                System.out.println("Người dùng đã tồn tại trong danh sách.");
+                Dialog.showAlertDialog("Warning", "Người dùng đã tồn tại trong danh sách.");
                 return;
             }
 
@@ -363,6 +363,7 @@ public class ShareScreenController extends MainController {
                 formattedDate.toString(),
                 fileName, transformPath(path), false, userAccess.getAccess());
         MailActivate.sendMail(itemSelect);
+        HomePageController.shareList.add(itemSelect);
     }
 
     // Update access permissions based on the newList
@@ -370,7 +371,7 @@ public class ShareScreenController extends MainController {
         // Logic to update permissions for all users in newList
         for (UserAccess userAccess : newList) {
             System.out.println(userAccess.getUsername() + ":" + userAccess.getAccess());
-            send_Message(userAccess);
+            if(!userAccess.getUsername().trim().equals("Everyone"))send_Message(userAccess);
             switch (userAccess.getAccess()) {
                 case "Read/Write":
                     Folder_handle.modifyUserPermissions(path, userAccess.getUsername().replace("PBL4\\", ""), "M");
@@ -394,7 +395,7 @@ public class ShareScreenController extends MainController {
     private void updateAccessPermissionsForFile() {
         // Logic to update permissions for all users in newList
         for (UserAccess userAccess : newList) {
-            send_Message(userAccess);
+            if(!userAccess.getUsername().trim().equals("Everyone"))send_Message(userAccess);
             switch (userAccess.getAccess()) {
                 case "Read/Write":
                     File_handle.modifyUserFilePermissions(path, userAccess.getUsername().replace("PBL4\\", ""), "M");
