@@ -43,6 +43,27 @@ public class Mail_DAL {
         return stmt.executeQuery("SELECT * FROM logfile WHERE username_send = '" + ConnectWindowServer.user + "'");
     }
 
+    public static ResultSet loadGeneralItem() throws Exception {
+        Connection conn = connectToDatabase();
+        Statement stmt = conn.createStatement();
+        return stmt.executeQuery("SELECT * FROM logfile WHERE username_send = '" + ConnectWindowServer.user + "' or username_receive = '" + ConnectWindowServer.user + "'");
+    }
+
+    public static void updateNameFile(String newFileName, String oldpath, String newpath) throws Exception {
+        Connection conn = connectToDatabase();
+        String sql = "UPDATE logFile SET item_name = ?, path = ? WHERE path = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, newFileName);
+            pstmt.setString(2, newpath);
+            pstmt.setString(3, oldpath);
+            System.out.println(pstmt.toString());
+            int rowsAffected = pstmt.executeUpdate();
+            System.out.println("Số hàng bị ảnh hưởng: " + rowsAffected);
+        }
+        conn.close();
+    }
+
     public static void updateMail_Seen(Mail mail) throws Exception {
         Connection conn = connectToDatabase();
         String sql = "UPDATE logFile SET seen = ? WHERE username_send = ? and username_receive = ? and item_name = ? and path = ?";

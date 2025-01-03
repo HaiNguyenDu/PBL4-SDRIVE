@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Random;
 
+import BLL.File_handle;
 import BLL.Mail_BLL;
 import BLL.file_folder;
 import DAL.ConnectWindowServer;
@@ -245,13 +246,19 @@ public class Recent1Controller extends MainController {
                 try {
                     String isAccess = file_folder.checkPathAccess("\\\\" + Host.dnsServer + path);
                     if (isAccess.equals("success")) {
-                        homePageController.nowPage = "MyItem";
-                        System.out.println("C:" + path);
-                        if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
-                            MyItemController.reloadPage.interrupt();
+                        if(file_folder.isFile("\\\\" + Host.dnsServer + path)){
+                            File_handle.openFile("\\\\" + Host.dnsServer + path);
                         }
-                        homePageController.switchPage("MyItemPage.fxml",
-                                new MyItemController(homePageController, "C:" + path));
+                        else{
+                            homePageController.nowPage = "MyItem";
+                            System.out.println("C:" + path);
+                            if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
+                                MyItemController.reloadPage.interrupt();
+                            }
+                            homePageController.switchPage("MyItemPage.fxml",
+                                    new MyItemController(homePageController, "C:" + path));
+                        }
+                       
                     } else {
                         Dialog.showAlertDialog("Fail", isAccess);
                     }

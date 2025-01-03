@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import DAL.Mail_DAL;
+import DTO.Host;
+
 public class file_folder {
     public static String checkPathAccess(String path) {
         Path inputPath = Paths.get(path);
@@ -38,10 +41,16 @@ public class file_folder {
                 } else {
                     System.out.println("The path is neither a file nor a directory.");
                 }
+                String oldName = oldPath.getFileName().toString();
+                System.out.println("Old name: " + oldName);
+                Mail_DAL.updateNameFile(newName, path.trim().replace("\\\\" + Host.dnsServer, ""), newPath.toString().trim().replace("\\\\" + Host.dnsServer, ""));
             } else {
                 System.out.println("The path does not exist: " + oldPath);
             }
         } catch (IOException e) {
+            System.err.println("Error renaming: " + e.getMessage());
+        }
+        catch (Exception e) {
             System.err.println("Error renaming: " + e.getMessage());
         }
     }

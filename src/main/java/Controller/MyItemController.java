@@ -752,6 +752,7 @@ public class MyItemController extends MainController {
     public void Rename(String Path, String fileName) {
         ExecuteBackground.executeInBackground("rename...", () -> {
             file_folder.rename(Path, fileName);
+            
             try {
                 PushDataTableView();
             } catch (Exception e) {

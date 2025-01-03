@@ -205,7 +205,7 @@ public class SharePageController extends MainController {
     public SharePageController(HomePageController homePageController) {
         this.homePageController = homePageController;
         dArrayList = Mail_BLL.getShareItem();
-        ;
+        HomePageController.shareList = Mail_BLL.getShareItem();
         try {
             PushDataTableView();
             initButtonEvent();
@@ -283,15 +283,22 @@ public class SharePageController extends MainController {
                     Mail selectedItem = tableView.getSelectionModel().getSelectedItem();
                     if (selectedItem != null) {
                         try {
-                            String isAccess = file_folder.checkPathAccess("\\\\" + Host.dnsServer + selectedItem.getPath());
+                            String isAccess = file_folder
+                                    .checkPathAccess("\\\\" + Host.dnsServer + selectedItem.getPath());
                             if (isAccess.equals("success")) {
-                                this.homePageController.nowPage = "MyItem";
-                                System.out.println("C:" + selectedItem.getPath());
-                                if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
-                                    MyItemController.reloadPage.interrupt();
+                                if (file_folder.isFile("\\\\" + Host.dnsServer + selectedItem.getPath())) {
+                                    File_handle.openFile("\\\\" + Host.dnsServer + selectedItem.getPath());
+                                } else {
+                                    this.homePageController.nowPage = "MyItem";
+                                    System.out.println("C:" + selectedItem.getPath());
+                                    if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
+                                        MyItemController.reloadPage.interrupt();
+                                    }
+                                    this.homePageController.switchPage("MyItemPage.fxml",
+                                            new MyItemController(this.homePageController,
+                                                    "C:" + selectedItem.getPath()));
                                 }
-                                this.homePageController.switchPage("MyItemPage.fxml",
-                                        new MyItemController(this.homePageController, "C:" + selectedItem.getPath()));
+
                             } else {
                                 Dialog.showAlertDialog("Fail", isAccess);
                             }
