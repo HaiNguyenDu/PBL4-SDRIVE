@@ -20,9 +20,8 @@ public class Mail {
         this.seen = seen;
         this.access_modifier = access_modifier;
     };
-
     public Mail(String username_send, String username_receive, String date, String item_name, boolean seen,
-            String access_modifier, String path) {
+            String access_modifier,String path) {
         this.username_send = username_send;
         this.username_receive = username_receive;
         this.date = date;
@@ -31,6 +30,7 @@ public class Mail {
         this.access_modifier = access_modifier;
         this.path = path;
     };
+
 
     public Mail(String username_send, String username_receive, String date, String item_name, String path, boolean seen,
             String access_modifier) {

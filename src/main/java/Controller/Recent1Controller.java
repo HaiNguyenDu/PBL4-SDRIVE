@@ -1,12 +1,16 @@
 package Controller;
 
+import java.beans.EventHandler;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Random;
 
+import BLL.File_handle;
 import BLL.Mail_BLL;
+import BLL.file_folder;
 import DAL.ConnectWindowServer;
 import DAL.Mail_DAL;
+import DTO.Host;
 import DTO.Mail;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -77,7 +81,7 @@ public class Recent1Controller extends MainController {
             String item_name = list.get(i).getItem_name();
             String path = list.get(i).getPath();
             boolean read = list.get(i).getSeen();
-          
+
             HBox row = createHBoxForRow(username_send, username_receive, email, date, item_name, path, read);
             vboxContainer.getChildren().add(row);
         }
@@ -238,12 +242,27 @@ public class Recent1Controller extends MainController {
             button.setMnemonicParsing(false);
             button.setFont(Font.font("System Bold", 14));
 
-            button.setOnAction((ActionEvent e) -> {
+            button.setOnAction(e -> {
                 try {
-                    homePageController.nowPage = "MyItem";
-                    System.out.println("C:" + path);
-                    homePageController.switchPage("MyItemPage.fxml",
-                            new MyItemController(homePageController, "C:" + path));
+                    String isAccess = file_folder.checkPathAccess("\\\\" + Host.dnsServer + path);
+                    if (isAccess.equals("success")) {
+                        if(file_folder.isFile("\\\\" + Host.dnsServer + path)){
+                            File_handle.openFile("\\\\" + Host.dnsServer + path);
+                        }
+                        else{
+                            homePageController.nowPage = "MyItem";
+                            System.out.println("C:" + path);
+                            if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
+                                MyItemController.reloadPage.interrupt();
+                            }
+                            homePageController.switchPage("MyItemPage.fxml",
+                                    new MyItemController(homePageController, "C:" + path));
+                        }
+                       
+                    } else {
+                        Dialog.showAlertDialog("Fail", isAccess);
+                    }
+                   
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }

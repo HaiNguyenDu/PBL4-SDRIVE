@@ -13,6 +13,7 @@ import BLL.Mail_BLL;
 import BLL.SSHExample;
 import BLL.file_folder;
 import DAL.ConnectWindowServer;
+import DAL.Mail_DAL;
 import DTO.File_Folder;
 import DTO.Host;
 import DTO.Mail;
@@ -209,7 +210,8 @@ public class SharedPageController extends MainController {
 
     public SharedPageController(HomePageController homePageController) {
         this.homePageController = homePageController;
-        dArrayList = homePageController.sharedList;
+        dArrayList = Mail_BLL.getSharedItem();
+        HomePageController.sharedList = Mail_BLL.getSharedItem();
         try {
             PushDataTableView();
             initButtonEvent();
@@ -282,6 +284,38 @@ public class SharedPageController extends MainController {
             TableRow<Mail> row = new TableRow<>();
 
             row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+
+                    Mail selectedItem = tableView.getSelectionModel().getSelectedItem();
+                    if (selectedItem != null) {
+                        try {
+                            String isAccess = file_folder
+                                    .checkPathAccess("\\\\" + Host.dnsServer + selectedItem.getPath());
+                            if (isAccess.equals("success")) {
+                                if (file_folder.isFile("\\\\" + Host.dnsServer + selectedItem.getPath())) {
+                                    File_handle.openFile("\\\\" + Host.dnsServer + selectedItem.getPath());
+                                } else {
+                                    this.homePageController.nowPage = "MyItem";
+                                    System.out.println("C:" + selectedItem.getPath());
+                                    if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
+                                        MyItemController.reloadPage.interrupt();
+                                    }
+                                    this.homePageController.switchPage("MyItemPage.fxml",
+                                            new MyItemController(this.homePageController,
+                                                    "C:" + selectedItem.getPath()));
+                                }
+
+                            } else {
+                                Dialog.showAlertDialog("Fail", isAccess);
+                            }
+
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+
+                    }
+                }
+                
                 if (event.getButton() == MouseButton.SECONDARY) { // Nếu click chuột phải
                     if (row.isEmpty()) {
                         // Click chuột phải vào vùng trống, hiển thị menu cho New File và New Folder

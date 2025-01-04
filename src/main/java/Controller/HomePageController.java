@@ -62,6 +62,7 @@ public class HomePageController {
     public Text generalButton;
     public Text myItemButton;
     public Text countMail;
+    public Text searchButton;
     public HBox pathViewHbox;
     public ImageView searchIMG;
     public ImageView shareIMG;
@@ -85,6 +86,7 @@ public class HomePageController {
     public List<String> pathView = new ArrayList<>();
     public static ArrayList<Mail> sharedList = new ArrayList<>();
     public static ArrayList<Mail> shareList = new ArrayList<>();
+    public static String CopyPath = "";
 
     public String nowPage = "";
     public MainController mainController;
@@ -99,7 +101,7 @@ public class HomePageController {
 
     public void initialize() {
         initImages();
-        textFiled();
+        // textFiled();
         buttonevent();
         addEventAddNewButton();
         initTableView();
@@ -193,6 +195,9 @@ public class HomePageController {
     }
 
     void initTableView() {
+        if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
+            MyItemController.reloadPage.interrupt();
+        }
         MyItemController myItemController = new MyItemController(this, "C:\\SDriver\\" + ConnectWindowServer.user);
         currenController = myItemController;
         nowPage = "HomePage";
@@ -225,9 +230,46 @@ public class HomePageController {
     // Them cho su kien cho cac button
     void buttonevent() {
 
-        myItemButton.setOnMouseClicked(event ->{ handleMyItemPage(); setColorButton(1);});
+        searchButton.setOnMouseClicked(event -> {
+            String search = searchField.getText();
+            System.out.println(search);
+            if (search.isEmpty()) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setContentText("Please enter the search content");
+                alert.showAndWait();
+            } else {
+                try {
+                    String isAccess = file_folder.checkPathAccess(search.trim().replace("C:", "\\\\" + Host.dnsServer));
+                    if (isAccess.equals("success")) {
+                        nowPage = "MyItem";
+                        System.out.println("C:" + search);
+                        if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
+                            MyItemController.reloadPage.interrupt();
+                        }
+                        switchPage("MyItemPage.fxml",
+                                new MyItemController(this, search.trim()));
+                    } else {
+                        Dialog.showAlertDialog("Fail", isAccess);
+                    }
 
-        _shareButton.setOnMouseClicked(event -> {handleSharePage(); setColorButton(2);});
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+
+            }
+        });
+
+        myItemButton.setOnMouseClicked(event -> {
+            handleMyItemPage();
+            setColorButton(1);
+        });
+
+        _shareButton.setOnMouseClicked(event -> {
+            handleSharePage();
+            setColorButton(2);
+        });
 
         recentButton.setOnMouseClicked(event -> {
             setColorButton(4);
@@ -254,7 +296,10 @@ public class HomePageController {
             }
         });
 
-        sharedButton.setOnMouseClicked(event -> {handleSharedPage(this); setColorButton(3);});
+        sharedButton.setOnMouseClicked(event -> {
+            handleSharedPage(this);
+            setColorButton(3);
+        });
         generalButton.setOnMouseClicked(event -> {
             setColorButton(0);
             if (currenController != null) {
@@ -275,20 +320,28 @@ public class HomePageController {
     }
 
     // doi mau khi click vao cac route
-    void setColorButton(int index)
-    {
+    void setColorButton(int index) {
         generalButton.setStyle("-fx-fill:#33333;");
         sharedButton.setStyle("-fx-fill:#33333;");
         recentButton.setStyle("-fx-fill:#33333;");
         _shareButton.setStyle("-fx-fill:#33333;");
         myItemButton.setStyle("-fx-fill:#33333;");
-        switch(index)
-        {
-            case 0 : generalButton.setStyle("-fx-fill:#06abec;"); break;
-            case 1 : myItemButton.setStyle("-fx-fill:#06abec;"); break;
-            case 2 : _shareButton.setStyle("-fx-fill:#06abec;"); break;
-            case 3 : sharedButton.setStyle("-fx-fill:#06abec;"); break;
-            case 4 : recentButton.setStyle("-fx-fill:#06abec;"); break;
+        switch (index) {
+            case 0:
+                generalButton.setStyle("-fx-fill:#06abec;");
+                break;
+            case 1:
+                myItemButton.setStyle("-fx-fill:#06abec;");
+                break;
+            case 2:
+                _shareButton.setStyle("-fx-fill:#06abec;");
+                break;
+            case 3:
+                sharedButton.setStyle("-fx-fill:#06abec;");
+                break;
+            case 4:
+                recentButton.setStyle("-fx-fill:#06abec;");
+                break;
         }
     }
 
@@ -361,9 +414,17 @@ public class HomePageController {
 
     // Phuong thuc chuyen doi trang
     public void switchPage(String path, MainController newController) {
-        if (currenController != null) {
-            currenController.onClose();
-        }
+
+        pathViewHbox.getChildren().clear();
+
+        // MyItemController close = new MyItemController(this, "C:\\SDriver\\" +
+        // ConnectWindowServer.user);
+        // close.setDefaultPath();
+        // MyItemController.Path = "C:\\SDriver\\" + ConnectWindowServer.user;
+        MyItemController.pathView.clear();
+
+        Text homeText = textPathView("Home > ");
+        pathViewHbox.getChildren().add(homeText);
         currenController = newController;
         try {
 
@@ -394,6 +455,9 @@ public class HomePageController {
     @FXML
     public void handleMyItemPage() {
         nowPage = "MyItem";
+        if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
+            MyItemController.reloadPage.interrupt();
+        }
         switchPage("MyItemPage.fxml", new MyItemController(this, "C:\\SDriver\\" + ConnectWindowServer.user));
     }
 
@@ -405,148 +469,10 @@ public class HomePageController {
         controller.loadData();
     }
 
-    // add double click
-    // void addEventDoubleCLickRowTableView() {
-    // ContextMenu emptyAreaMenu = new ContextMenu();
-    // MenuItem newFile = new MenuItem("New File");
-    // MenuItem newFolder = new MenuItem("New Folder");
-
-    // emptyAreaMenu.getItems().addAll(newFile, newFolder);
-
-    // // Tạo ContextMenu cho vùng có dòng dữ liệu
-    // ContextMenu rowMenu = new ContextMenu();
-    // MenuItem renameItem = new MenuItem("Rename");
-    // MenuItem deleteItem = new MenuItem("Delete");
-
-    // rowMenu.getItems().addAll(renameItem, deleteItem);
-    // tableView.setRowFactory(tv -> {
-    // TableRow<File_Folder> row = new TableRow<>();
-    // row.setOnMouseClicked(event -> {
-    // if (event.getClickCount() == 2 && !row.isEmpty()) {
-
-    // File_Folder selectedItem = tableView.getSelectionModel().getSelectedItem();
-    // if (file_folder.isFile(currenController.getPath().replace("C:", "\\\\" +
-    // Host.dnsServer) + "\\"
-    // + selectedItem.getName())) {
-    // File_handle.openFile(currenController.getPath().replace("C:", "\\\\" +
-    // Host.dnsServer) + "\\"
-    // + selectedItem.getName());
-    // } else {
-    // pathView.add(selectedItem.getName());
-    // try {
-    // updatePathView();
-    // newPath();
-    // ExecuteBackground.executeInBackground("switching...", () -> {
-    // try {
-    // currenController.PushDataTableView();
-    // } catch (Exception e) {
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
-    // });
-    // } catch (Exception e) {
-    // throw new RuntimeException(e);
-    // }
-    // }
-    // }
-    // if (event.getButton() == MouseButton.SECONDARY) { // Nếu click chuột phải
-    // if (row.isEmpty()) {
-    // // Click chuột phải vào vùng trống, hiển thị menu cho New File và New Folder
-    // emptyAreaMenu.show(row, event.getScreenX(), event.getScreenY());
-    // } else {
-    // // Click chuột phải vào dòng có dữ liệu, hiển thị menu cho Rename và Delete
-    // rowMenu.show(row, event.getScreenX(), event.getScreenY());
-    // }
-    // }
-
-    // });
-    // return row;
-    // });
-
-    // }
-
-    // void newPath() {
-    // String path = "";
-    // for (String name : pathView) {
-    // path += "\\" + name;
-    // }
-    // String newPath = "C:\\SDriver\\" + ConnectWindowServer.user + path;
-    // currenController.setPath(newPath);
-    // }
-
-    // Text textPathView(String name) {
-    // Text newText = new Text(name);
-    // newText.getStyleClass().add("text-style");
-    // return newText;
-    // }
-
-    // void updatePathView() {
-    // pathViewHbox.getChildren().clear();
-    // Text homeText = textPathView("Home > ");
-    // homeText.setOnMouseClicked(event -> {
-    // pathView.clear();
-    // updatePathView();
-    // newPath();
-    // try {
-    // ExecuteBackground.executeInBackground("Switching...", () -> {
-    // try {
-    // currenController.PushDataTableView();
-    // } catch (Exception e) {
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
-    // });
-    // } catch (Exception e) {
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
-    // });
-    // pathViewHbox.getChildren().add(homeText);
-    // int i = 0;
-    // for (String text : pathView) {
-    // int n = i;
-    // if (n == 9) {
-    // Text newText = textPathView("...");
-    // newText.setOnMouseClicked((MouseEvent event) -> {
-    // clickTextPathView(pathView.size() - 2);
-    // newPath();
-    // });
-    // pathViewHbox.getChildren().add(newText);
-    // break;
-    // } else {
-    // Text newText = textPathView(text + " > ");
-    // newText.setOnMouseClicked((MouseEvent event) -> {
-    // clickTextPathView(n);
-    // newPath();
-    // try {
-    // ExecuteBackground.executeInBackground("Switching...", () -> {
-    // try {
-    // currenController.PushDataTableView();
-    // } catch (Exception e) {
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
-    // });
-
-    // } catch (Exception e) {
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
-    // });
-    // pathViewHbox.getChildren().add(newText);
-    // }
-    // i++;
-
-    // }
-    // }
-
-    // void clickTextPathView(int n) {
-    // List<String> newPath = new ArrayList<>();
-    // for (int i = 0; i <= n; i++) {
-    // newPath.add(pathView.get(i));
-    // }
-    // pathView = newPath;
-    // updatePathView();
-    // }
+    Text textPathView(String name) {
+        Text newText = new Text(name);
+        newText.setStyle("-fx-fill:#333333;-fx-font-size:14;-fx-font-weight:bold;");
+        return newText;
+    }
 
 }

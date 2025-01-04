@@ -9,11 +9,13 @@ import com.example.sgroupdrive.HelloApplication;
 
 import BLL.File_handle;
 import BLL.Folder_handle;
+import BLL.Mail_BLL;
 import BLL.SSHExample;
 import BLL.file_folder;
 import DAL.ConnectWindowServer;
 import DTO.File_Folder;
 import DTO.Host;
+import DTO.Mail;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -29,34 +31,25 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class GeneralPageController extends MainController {
-
     private Thread reloadPage;
+    TableView<Mail> tableView = new TableView<>();
+    ArrayList<Mail> dArrayList;
 
     public void setHomePageController(HomePageController homePageController) {
         this.homePageController = homePageController;
-
+        initButtonEvent();
     }
 
     public void initButtonEvent() {
         homePageController.upLoadFile.setOnMouseClicked(event -> {
             homePageController.popup.hide();
             FileChooser fileChooser = new FileChooser();
-
-            // // Thiết lập kiểu file cho phép chọn
-            // fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Text
-            // Files", "*.txt"));
-            // fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image
-            // Files", "*.png", "*.jpg", "*.gif"));
-
             // Mở hộp thoại chọn file và lấy file người dùng chọn
             File getFile = fileChooser.showOpenDialog(homePageController.addNew.getScene().getWindow());
 
@@ -82,7 +75,7 @@ public class GeneralPageController extends MainController {
 
         this.homePageController.shareButton.setOnMouseClicked(event -> {
             try {
-                File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
+                Mail selectedItem = tableView.getSelectionModel().getSelectedItem();
                 stopReloadThread(); // Dừng luồng reload khi mở ShareScreen
 
                 Stage newStage = new Stage();
@@ -91,9 +84,10 @@ public class GeneralPageController extends MainController {
 
                 // Thiết lập Controller và truyền dữ liệu cần thiết
                 ShareScreenController shareController = fxmlLoader.getController();
-                shareController.setPath(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
+                shareController
+                        .setPath(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name());
                 shareController.setStage(newStage);
-                shareController.setItemSelect(selectedItem);
+                shareController.setItemSelect(selectedItem.parseToFile_Floder());
 
                 // Gắn lắng nghe sự kiện khi cửa sổ ShareScreen đóng
                 newStage.setOnHidden(e -> {
@@ -111,44 +105,21 @@ public class GeneralPageController extends MainController {
                 DirectoryChooser directoryChooser = new DirectoryChooser();
                 File selectedDirectory = directoryChooser
                         .showDialog(this.homePageController.addNew.getScene().getWindow());
-                File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
+                Mail selectedItem = tableView.getSelectionModel().getSelectedItem();
                 if (selectedDirectory != null && selectedItem != null) {
-                    stopReloadThread();
+                    // stopReloadThread();
                     if (file_folder
-                            .isFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName())) {
-                        uploadFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName(),
+                            .isFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name())) {
+                        uploadFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name(),
                                 selectedDirectory.getAbsolutePath());
                     } else {
-                        uploadFolder(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName(),
+                        uploadFolder(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name(),
                                 selectedDirectory.getAbsolutePath());
                     }
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        });
-        this.homePageController.shareButton.setOnMouseClicked(event -> {
-            try {
-                File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
-                stopReloadThread(); // Dừng luồng reload khi mở ShareScreen
-                Stage newStage = new Stage();
-                FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("ShareScreen.fxml"));
-                Scene newScene = new Scene(fxmlLoader.load(), 600, 450);
-                // Thiết lập Controller và truyền dữ liệu cần thiết
-                ShareScreenController shareController = fxmlLoader.getController();
-                shareController.setPath(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
-                shareController.setStage(newStage);
-                shareController.setItemSelect(selectedItem);
-
-                // Gắn lắng nghe sự kiện khi cửa sổ ShareScreen đóng
-                Platform.runLater(this::startReloadThread);
-
-                newStage.setScene(newScene);
-                newStage.show();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
         });
 
     }
@@ -166,7 +137,7 @@ public class GeneralPageController extends MainController {
                     e.printStackTrace();
                     isReloading = false; // Dừng luồng nếu có lỗi
                 }
-                Thread.sleep(6000);
+                Thread.sleep(20000);
             } catch (Exception e) {
                 e.printStackTrace();
                 isReloading = false;
@@ -176,9 +147,9 @@ public class GeneralPageController extends MainController {
 
     public void stopReloadThread() {
         isReloading = false;
-        // if (reloadPage != null && reloadPage.isAlive()) {
-        // reloadPage.interrupt();
-        // }
+        if (reloadPage != null && reloadPage.isAlive()) {
+            reloadPage.interrupt();
+        }
     }
 
     public void startReloadThread() {
@@ -214,7 +185,7 @@ public class GeneralPageController extends MainController {
     }
 
     @FXML
-    static TableView<File_Folder> tableViewMyFile = new TableView<>();
+
     HomePageController homePageController;
 
     List<String> pathView = new ArrayList<>();
@@ -233,6 +204,7 @@ public class GeneralPageController extends MainController {
 
     public GeneralPageController(HomePageController homePageController) {
         this.homePageController = homePageController;
+        dArrayList = Mail_BLL.getGeneralItem();
         try {
             PushDataTableView();
             initButtonEvent();
@@ -240,49 +212,48 @@ public class GeneralPageController extends MainController {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        Platform.runLater(this::startReloadThread);
+        // Platform.runLater(this::startReloadThread);
         addEventRowTableView();
     }
 
-    public TableView<File_Folder> getTableView() {
-        return tableViewMyFile;
-    }
-
-    public synchronized ArrayList<File_Folder> getFile_Folders() {
-        return SSHExample.FindFolder(Path);
+    public TableView<Mail> getTableView() {
+        return tableView;
     }
 
     @Override
     public void PushDataTableView() throws Exception {
-        System.out.println(Path);
-        ArrayList<File_Folder> dArrayList = getFile_Folders();
-        int selectedIndex = tableViewMyFile.getSelectionModel().getSelectedIndex();
+        int selectedIndex = tableView.getSelectionModel().getSelectedIndex();
 
         // Configure columns if not already added
-        if (tableViewMyFile.getColumns().isEmpty()) {
-            TableColumn<File_Folder, String> nameColumn = new TableColumn<>("Name");
-            nameColumn.setCellValueFactory(new PropertyValueFactory<>("Name"));
-            nameColumn.setPrefWidth(472.5);
+        if (tableView.getColumns().isEmpty()) {
+            TableColumn<Mail, String> item_name = new TableColumn<>("Item Name");
+            item_name.setCellValueFactory(new PropertyValueFactory<>("item_name"));
+            item_name.setPrefWidth(315);
 
-            TableColumn<File_Folder, String> lastWriteTimeColumn = new TableColumn<>("Last Write Time");
-            lastWriteTimeColumn.setCellValueFactory(new PropertyValueFactory<>("LastTimeWrite"));
-           
-            lastWriteTimeColumn.setPrefWidth(472.5);
-            tableViewMyFile.setPrefHeight(900);
-            tableViewMyFile.getColumns().addAll(nameColumn, lastWriteTimeColumn);
+            TableColumn<Mail, String> username_receive = new TableColumn<>("Receiver Name");
+            username_receive.setCellValueFactory(new PropertyValueFactory<>("username_receive"));
+            username_receive.setPrefWidth(315);
+
+            TableColumn<Mail, String> date = new TableColumn<>("Date");
+            date.setCellValueFactory(new PropertyValueFactory<>("date"));
+            date.setPrefWidth(315);
+            tableView.setPrefHeight(900);
+            tableView.getColumns().addAll(item_name, date, username_receive);
         }
 
-        // Convert dArrayList to ObservableList and set it as the data for
-        // tableViewShared
-        ObservableList<File_Folder> observableFileList = FXCollections.observableArrayList(dArrayList);
-        tableViewMyFile.setItems(observableFileList);
+        // Convert dArrayList to ObservableList and set it as the data for TableView
+        ObservableList<Mail> observableFileList = FXCollections.observableArrayList(dArrayList);
+        tableView.setItems(observableFileList);
 
         // Restore the previous selection
         if (selectedIndex >= 0 && selectedIndex < observableFileList.size()) {
-            tableViewMyFile.getSelectionModel().select(selectedIndex);
+            tableView.getSelectionModel().select(selectedIndex);
         }
 
         // Add stylesheet (optional, only if not added before)
+        if (tableView.getStylesheets().isEmpty()) {
+            // tableView.getStylesheets().add(getClass().getResource("/Styles/homepage.css").toExternalForm());
+        }
 
     }
 
@@ -302,10 +273,42 @@ public class GeneralPageController extends MainController {
         rowMenu.getItems().addAll(renameItem, deleteItem);
 
         // Thiết lập TableView row factory
-        tableViewMyFile.setRowFactory(tv -> {
-            TableRow<File_Folder> row = new TableRow<>();
+        tableView.setRowFactory(tv -> {
+            TableRow<Mail> row = new TableRow<>();
 
             row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && !row.isEmpty()) {
+
+                    Mail selectedItem = tableView.getSelectionModel().getSelectedItem();
+                    if (selectedItem != null) {
+                        try {
+                            String isAccess = file_folder
+                                    .checkPathAccess("\\\\" + Host.dnsServer + selectedItem.getPath());
+                            if (isAccess.equals("success")) {
+                                if (file_folder.isFile("\\\\" + Host.dnsServer + selectedItem.getPath())) {
+                                    File_handle.openFile("\\\\" + Host.dnsServer + selectedItem.getPath());
+                                } else {
+                                    this.homePageController.nowPage = "MyItem";
+                                    System.out.println("C:" + selectedItem.getPath());
+                                    if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
+                                        MyItemController.reloadPage.interrupt();
+                                    }
+                                    this.homePageController.switchPage("MyItemPage.fxml",
+                                            new MyItemController(this.homePageController,
+                                                    "C:" + selectedItem.getPath()));
+                                }
+
+                            } else {
+                                Dialog.showAlertDialog("Fail", isAccess);
+                            }
+
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+
+                    }
+                }
+
                 if (event.getButton() == MouseButton.SECONDARY) { // Nếu click chuột phải
                     if (row.isEmpty()) {
                         // Click chuột phải vào vùng trống, hiển thị menu cho New File và New Folder
@@ -313,16 +316,6 @@ public class GeneralPageController extends MainController {
                     } else {
                         // Click chuột phải vào dòng có dữ liệu, hiển thị menu cho Rename và Delete
                         rowMenu.show(row, event.getScreenX(), event.getScreenY());
-                    }
-                }
-                // doubleclick
-                if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
-                    File_Folder selectedItem = (File_Folder) tableViewMyFile.getSelectionModel().getSelectedItem();
-                    if (file_folder
-                            .isFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName())) {
-
-                    } else {
-
                     }
                 }
 
@@ -346,21 +339,22 @@ public class GeneralPageController extends MainController {
 
         // Sự kiện cho "Rename"
         renameItem.setOnAction(event -> {
-            File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
+            Mail selectedItem = tableView.getSelectionModel().getSelectedItem();
             if (selectedItem != null) {
                 // Mở dialog đổi tên với tiêu đề là "Rename"
-                showInputDialog("Rename", Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
+                showInputDialog("Rename",
+                        Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name());
             }
         });
 
         // Sự kiện cho "Delete"
         deleteItem.setOnAction(event -> {
-            File_Folder selectedItem = tableViewMyFile.getSelectionModel().getSelectedItem();
+            Mail selectedItem = tableView.getSelectionModel().getSelectedItem();
             if (selectedItem != null) {
                 isReloading = false;
                 // Xử lý việc xóa file hoặc thư mục đã chọn
-                System.out.println("Deleting: " + selectedItem.getName());
-                Delete(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getName());
+                System.out.println("Deleting: " + selectedItem.getItem_name());
+                Delete(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name());
             }
         });
     }
@@ -454,6 +448,6 @@ public class GeneralPageController extends MainController {
     @Override
     public void onClose() {
         System.out.println("General Page Closed");
-        stopReloadThread();
+        // stopReloadThread();
     }
 }

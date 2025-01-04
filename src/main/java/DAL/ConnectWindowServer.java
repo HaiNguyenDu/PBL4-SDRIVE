@@ -3,6 +3,8 @@ package DAL;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.UnknownHostException;
+
 import com.jcraft.jsch.*;
 
 public class ConnectWindowServer {
@@ -39,7 +41,7 @@ public class ConnectWindowServer {
         return result.toString();
     }
 
-    public static boolean setAccount(String Host, String User, String Password) {
+    public static String setAccount(String Host, String User, String Password) {
         host = Host;
         user = User;
         password = Password;
@@ -79,11 +81,17 @@ public class ConnectWindowServer {
             });
             session.connect();
             session.disconnect();
-            return true;
+            return "Success";
         } catch (JSchException e) {
             e.printStackTrace();
-            return false;
+            if (e.getMessage().contains("Auth cancel")) {
+                return "AuthCancel";
+            }
+            if (e.getMessage().contains("pbl4.dut.vn")) {
+                return "UnknownHost";
+            }
         }
+        return "Success";
     }
 
     static public String FindFolder(String FolderName) throws Exception {

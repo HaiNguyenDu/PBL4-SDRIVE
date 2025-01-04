@@ -4,7 +4,21 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import DAL.Mail_DAL;
+import DTO.Host;
+
 public class file_folder {
+    public static String checkPathAccess(String path) {
+        Path inputPath = Paths.get(path);
+        if (Files.exists(inputPath)) {
+            if (Files.isReadable(inputPath)) {
+                return "success";
+            }
+            return "Access denied";
+        } else {
+            return "Path does not exist: " + path;
+        }
+    }
 
     public static void rename(String path, String newName) {
         Path oldPath = Paths.get(path); // Đường dẫn hiện tại
@@ -27,10 +41,16 @@ public class file_folder {
                 } else {
                     System.out.println("The path is neither a file nor a directory.");
                 }
+                String oldName = oldPath.getFileName().toString();
+                System.out.println("Old name: " + oldName);
+                Mail_DAL.updateNameFile(newName, path.trim().replace("\\\\" + Host.dnsServer, ""), newPath.toString().trim().replace("\\\\" + Host.dnsServer, ""));
             } else {
                 System.out.println("The path does not exist: " + oldPath);
             }
         } catch (IOException e) {
+            System.err.println("Error renaming: " + e.getMessage());
+        }
+        catch (Exception e) {
             System.err.println("Error renaming: " + e.getMessage());
         }
     }
