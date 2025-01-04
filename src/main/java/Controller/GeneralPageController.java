@@ -313,9 +313,6 @@ public class GeneralPageController extends MainController {
                     if (row.isEmpty()) {
                         // Click chuột phải vào vùng trống, hiển thị menu cho New File và New Folder
                         emptyAreaMenu.show(row, event.getScreenX(), event.getScreenY());
-                    } else {
-                        // Click chuột phải vào dòng có dữ liệu, hiển thị menu cho Rename và Delete
-                        rowMenu.show(row, event.getScreenX(), event.getScreenY());
                     }
                 }
 
