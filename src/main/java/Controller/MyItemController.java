@@ -17,6 +17,7 @@ import BLL.file_folder;
 import DAL.ConnectWindowServer;
 import DTO.File_Folder;
 import DTO.Host;
+import DTO.UserTracker;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -412,11 +413,45 @@ public class MyItemController extends MainController {
                 textStage.show();
 
                 Thread read = new Thread(() -> {
+                    ArrayList<UserTracker> ListAdmin = new ArrayList<>();
                     while (true) {
                         if (Thread.interrupted()) {
                             break;
                         }
-                        dynamicText.setText(tracker.ListUser);
+                        String ListUser = tracker.ListUser;
+                        String[] users = ListUser.split("\\|");
+                        List<UserTracker> newListAdmin = new ArrayList<>();
+
+                        for (String user : users) {
+                            boolean found = false;
+                            for (UserTracker admin : ListAdmin) {
+                                if (admin.getUsername().equals(user)) {
+                                    admin.setCurentTime(admin.getCurentTime() + 1);
+                                    newListAdmin.add(admin);
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                UserTracker newUser = new UserTracker(user);
+                                newListAdmin.add(newUser);
+                            }
+                        }
+
+                        ListAdmin = (ArrayList<UserTracker>) newListAdmin;
+
+                        StringBuilder resultBuilder = new StringBuilder();
+                        for (UserTracker admin : ListAdmin) {
+                            if (admin.getCurentTime() >= 5) {
+                                resultBuilder.append(admin.getUsername()).append(" ");
+                            }
+                        }
+
+                        String result = resultBuilder.toString().trim();
+                        if (result.isEmpty()) {
+                            result = "không có ai";
+                        }
+                        dynamicText.setText(result);
                         try {
                             Thread.sleep(2000);
                         } catch (InterruptedException e) {
