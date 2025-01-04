@@ -423,7 +423,7 @@ public class HomePageController {
         // MyItemController.Path = "C:\\SDriver\\" + ConnectWindowServer.user;
         MyItemController.pathView.clear();
 
-        Text homeText = textPathView("Home > ");
+        Text homeText = textPathView("Home / ");
         pathViewHbox.getChildren().add(homeText);
         currenController = newController;
         try {

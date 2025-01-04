@@ -46,7 +46,8 @@ public class Mail_DAL {
     public static ResultSet loadGeneralItem() throws Exception {
         Connection conn = connectToDatabase();
         Statement stmt = conn.createStatement();
-        return stmt.executeQuery("SELECT * FROM logfile WHERE username_send = '" + ConnectWindowServer.user + "' or username_receive = '" + ConnectWindowServer.user + "'");
+        return stmt.executeQuery("SELECT * FROM logfile WHERE username_send = '" + ConnectWindowServer.user
+                + "' or username_receive = '" + ConnectWindowServer.user + "'");
     }
 
     public static void updateNameFile(String newFileName, String oldpath, String newpath) throws Exception {
