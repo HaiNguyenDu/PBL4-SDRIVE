@@ -48,78 +48,18 @@ public class GeneralPageController extends MainController {
 
     public void initButtonEvent() {
         homePageController.upLoadFile.setOnMouseClicked(event -> {
-            homePageController.popup.hide();
-            FileChooser fileChooser = new FileChooser();
-            // Mở hộp thoại chọn file và lấy file người dùng chọn
-            File getFile = fileChooser.showOpenDialog(homePageController.addNew.getScene().getWindow());
-
-            if (getFile != null) {
-                isReloading = false;
-                System.out.println("Đã chọn thư mục: " + getFile.getAbsolutePath());
-                uploadFile(getFile.getAbsolutePath(), Path.replace("C:", "\\\\" + Host.dnsServer));
-            }
+           
         });
 
         homePageController.upLoadFolder.setOnMouseClicked(event -> {
-            homePageController.popup.hide();
-            DirectoryChooser directoryChooser = new DirectoryChooser();
-
-            File selectedDirectory = directoryChooser.showDialog(homePageController.addNew.getScene().getWindow());
-
-            if (selectedDirectory != null) {
-                System.out.println("Đã chọn thư mục: " + selectedDirectory.getAbsolutePath());
-                isReloading = false;
-                uploadFolder(selectedDirectory.getAbsolutePath(), Path.replace("C:", "\\\\" + Host.dnsServer));
-            }
+            
         });
 
         this.homePageController.shareButton.setOnMouseClicked(event -> {
-            try {
-                Mail selectedItem = tableView.getSelectionModel().getSelectedItem();
-                stopReloadThread(); // Dừng luồng reload khi mở ShareScreen
-
-                Stage newStage = new Stage();
-                FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("ShareScreen.fxml"));
-                Scene newScene = new Scene(fxmlLoader.load(), 600, 450);
-
-                // Thiết lập Controller và truyền dữ liệu cần thiết
-                ShareScreenController shareController = fxmlLoader.getController();
-                shareController
-                        .setPath(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name());
-                shareController.setStage(newStage);
-                shareController.setItemSelect(selectedItem.parseToFile_Floder());
-
-                // Gắn lắng nghe sự kiện khi cửa sổ ShareScreen đóng
-                newStage.setOnHidden(e -> {
-                    Platform.runLater(this::startReloadThread);
-                });
-
-                newStage.setScene(newScene);
-                newStage.show();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+           
         });
         this.homePageController.downloadButton.setOnMouseClicked(event -> {
-            try {
-                DirectoryChooser directoryChooser = new DirectoryChooser();
-                File selectedDirectory = directoryChooser
-                        .showDialog(this.homePageController.addNew.getScene().getWindow());
-                Mail selectedItem = tableView.getSelectionModel().getSelectedItem();
-                if (selectedDirectory != null && selectedItem != null) {
-                    // stopReloadThread();
-                    if (file_folder
-                            .isFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name())) {
-                        uploadFile(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name(),
-                                selectedDirectory.getAbsolutePath());
-                    } else {
-                        uploadFolder(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name(),
-                                selectedDirectory.getAbsolutePath());
-                    }
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            
         });
 
     }
@@ -228,17 +168,22 @@ public class GeneralPageController extends MainController {
         if (tableView.getColumns().isEmpty()) {
             TableColumn<Mail, String> item_name = new TableColumn<>("Item Name");
             item_name.setCellValueFactory(new PropertyValueFactory<>("item_name"));
-            item_name.setPrefWidth(315);
+            item_name.setPrefWidth(236);
 
             TableColumn<Mail, String> username_receive = new TableColumn<>("Receiver Name");
             username_receive.setCellValueFactory(new PropertyValueFactory<>("username_receive"));
-            username_receive.setPrefWidth(315);
+            username_receive.setPrefWidth(236);
+
+            TableColumn<Mail, String> username_send = new TableColumn<>("Send Name");
+            username_send.setCellValueFactory(new PropertyValueFactory<>("username_send"));
+            username_send.setPrefWidth(236);
 
             TableColumn<Mail, String> date = new TableColumn<>("Date");
             date.setCellValueFactory(new PropertyValueFactory<>("date"));
-            date.setPrefWidth(315);
+            date.setPrefWidth(236);
+
             tableView.setPrefHeight(900);
-            tableView.getColumns().addAll(item_name, date, username_receive);
+            tableView.getColumns().addAll(item_name, date, username_receive, username_send);
         }
 
         // Convert dArrayList to ObservableList and set it as the data for TableView
@@ -258,20 +203,6 @@ public class GeneralPageController extends MainController {
     }
 
     public void addEventRowTableView() {
-        // Tạo ContextMenu với các MenuItem cho vùng trống
-        ContextMenu emptyAreaMenu = new ContextMenu();
-        MenuItem newFile = new MenuItem("New File");
-        MenuItem newFolder = new MenuItem("New Folder");
-
-        emptyAreaMenu.getItems().addAll(newFile, newFolder);
-
-        // Tạo ContextMenu cho vùng có dòng dữ liệu
-        ContextMenu rowMenu = new ContextMenu();
-        MenuItem renameItem = new MenuItem("Rename");
-        MenuItem deleteItem = new MenuItem("Delete");
-
-        rowMenu.getItems().addAll(renameItem, deleteItem);
-
         // Thiết lập TableView row factory
         tableView.setRowFactory(tv -> {
             TableRow<Mail> row = new TableRow<>();
@@ -308,51 +239,9 @@ public class GeneralPageController extends MainController {
 
                     }
                 }
-
-                if (event.getButton() == MouseButton.SECONDARY) { // Nếu click chuột phải
-                    if (row.isEmpty()) {
-                        // Click chuột phải vào vùng trống, hiển thị menu cho New File và New Folder
-                        emptyAreaMenu.show(row, event.getScreenX(), event.getScreenY());
-                    }
-                }
-
             });
 
             return row;
-        });
-        Stage stage = new Stage();
-
-        // Sự kiện cho "New File"
-        newFile.setOnAction(event -> {
-            // Mở dialog nhập liệu với tiêu đề là "New File"
-            showInputDialog("New File");
-        });
-
-        // Sự kiện cho "New Folder"
-        newFolder.setOnAction(event -> {
-            // Mở dialog nhập liệu với tiêu đề là "New Folder"
-            showInputDialog("New Folder");
-        });
-
-        // Sự kiện cho "Rename"
-        renameItem.setOnAction(event -> {
-            Mail selectedItem = tableView.getSelectionModel().getSelectedItem();
-            if (selectedItem != null) {
-                // Mở dialog đổi tên với tiêu đề là "Rename"
-                showInputDialog("Rename",
-                        Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name());
-            }
-        });
-
-        // Sự kiện cho "Delete"
-        deleteItem.setOnAction(event -> {
-            Mail selectedItem = tableView.getSelectionModel().getSelectedItem();
-            if (selectedItem != null) {
-                isReloading = false;
-                // Xử lý việc xóa file hoặc thư mục đã chọn
-                System.out.println("Deleting: " + selectedItem.getItem_name());
-                Delete(Path.replace("C:", "\\\\" + Host.dnsServer) + "\\" + selectedItem.getItem_name());
-            }
         });
     }
 

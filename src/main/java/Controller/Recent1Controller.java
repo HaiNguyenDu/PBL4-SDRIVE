@@ -24,6 +24,8 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -283,11 +285,17 @@ public class Recent1Controller extends MainController {
 
             // Tạo button Copy link
             // Tạo Button
-            Button copyLink = new Button("Open");
+            Button copyLink = new Button("copyLink");
             copyLink.setPrefHeight(45.0);
             copyLink.setPrefWidth(342.0);
             copyLink.setMnemonicParsing(false);
             copyLink.setFont(new javafx.scene.text.Font("System", 14));
+            copyLink.setOnAction(e -> {
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                ClipboardContent clipboardContent = new ClipboardContent();
+                clipboardContent.putString("C:" + path);
+                clipboard.setContent(clipboardContent);
+            });
 
             // Thêm HBox và Label vào bố cục
             vboxInvited.getChildren().clear();

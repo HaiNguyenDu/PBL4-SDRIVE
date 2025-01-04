@@ -424,7 +424,8 @@ public class MyItemController extends MainController {
                             break;
                         }
                     }
-                }); read.start();
+                });
+                read.start();
 
                 textStage.setOnCloseRequest(closeEvent -> {
                     // Handle the window close event
@@ -727,49 +728,68 @@ public class MyItemController extends MainController {
 
     public void createNewFolder(String folderName) {
         ExecuteBackground.executeInBackground("Creating folder...", () -> {
-            Folder_handle.createNewFolder(Path.replace("C:", "\\\\" + Host.dnsServer), folderName);
-            try {
-                PushDataTableView();
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            String result = Folder_handle.createNewFolder(Path.replace("C:", "\\\\" + Host.dnsServer), folderName);
+            if(result.toLowerCase().trim().equals("success")){
+                try {
+                    PushDataTableView();
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            else{
+                Dialog.showAlertDialog("Error", result);
             }
         });
     }
 
     public void createNewFile(String fileName) {
         ExecuteBackground.executeInBackground("Creating file...", () -> {
-            File_handle.createNewFile(Path.replace("C:", "\\\\" + Host.dnsServer), fileName);
-            try {
-                PushDataTableView();
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            String result = File_handle.createNewFile(Path.replace("C:", "\\\\" + Host.dnsServer), fileName);
+            if(result.toLowerCase().trim().equals("success")){
+                try {
+                    PushDataTableView();
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            else{
+                Dialog.showAlertDialog("Error", result);
             }
         });
     }
 
     public void Rename(String Path, String fileName) {
         ExecuteBackground.executeInBackground("rename...", () -> {
-            file_folder.rename(Path, fileName);
-            
-            try {
-                PushDataTableView();
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            String result = file_folder.rename(Path, fileName);
+            if(result.toLowerCase().trim().equals("success")){
+                try {
+                    PushDataTableView();
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            else{
+                Dialog.showAlertDialog("Error", result);
             }
         });
     }
 
     public void Delete(String Path) {
         ExecuteBackground.executeInBackground("delete...", () -> {
-            file_folder.deletePath(Path);
-            try {
-                PushDataTableView();
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            String result = file_folder.deletePath(Path);
+            if(result.toLowerCase().trim().equals("success")){
+                try {
+                    PushDataTableView();
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            else{
+                Dialog.showAlertDialog("Error", result);
             }
         });
     }

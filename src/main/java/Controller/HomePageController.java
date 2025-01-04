@@ -111,7 +111,12 @@ public class HomePageController {
         listenMessageThread.start();
         username.setText(ConnectWindowServer.user);
         nickName.setText(ConnectWindowServer.user.substring(0, 2).toUpperCase());
-
+        Platform.runLater(() -> {
+            Stage stage = (Stage) viewVBox.getScene().getWindow();
+            stage.setOnCloseRequest(event -> {
+                handleCloseWindow();
+            });
+        });
     }
 
     public void listenerMessage() {
@@ -243,6 +248,9 @@ public class HomePageController {
                 try {
                     String isAccess = file_folder.checkPathAccess(search.trim().replace("C:", "\\\\" + Host.dnsServer));
                     if (isAccess.equals("success")) {
+                        if (file_folder.isFile(search.trim().replace("C:", "\\\\" + Host.dnsServer))) {
+                            File_handle.openFile(search.trim().replace("C:", "\\\\" + Host.dnsServer));
+                        } else {
                         nowPage = "MyItem";
                         System.out.println("C:" + search);
                         if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
@@ -250,6 +258,7 @@ public class HomePageController {
                         }
                         switchPage("MyItemPage.fxml",
                                 new MyItemController(this, search.trim()));
+                    }
                     } else {
                         Dialog.showAlertDialog("Fail", isAccess);
                     }
@@ -442,6 +451,7 @@ public class HomePageController {
     }
 
     public void handleSharedPage(HomePageController homePageController) {
+        nowPage = "Shared";
         SharedPageController controller = new SharedPageController(this);
         switchPage("SharedPage.fxml", controller);
 
@@ -449,6 +459,7 @@ public class HomePageController {
 
     @FXML
     public void handleSharePage() {
+        nowPage = "Share";
         switchPage("SharePage.fxml", new SharePageController(this));
     }
 
@@ -473,6 +484,43 @@ public class HomePageController {
         Text newText = new Text(name);
         newText.setStyle("-fx-fill:#333333;-fx-font-size:14;-fx-font-weight:bold;");
         return newText;
+    }
+
+    public static void stopAllThreads() {
+        System.out.println("onclose");
+        // Lấy tất cả các luồng hiện có
+        for (Thread thread : Thread.getAllStackTraces().keySet()) {
+            // Loại bỏ các luồng hệ thống và chính luồng hiện tại
+            if (thread == Thread.currentThread() || thread.isDaemon()) {
+                continue;
+            }
+
+            try {
+                // Gửi tín hiệu dừng luồng
+                System.out.println("Dừng luồng: " + thread.getName());
+                thread.interrupt();
+
+                // Kiểm tra trạng thái luồng và dừng nếu cần
+                if (thread.isAlive()) {
+                    thread.join(500); // Chờ tối đa 500ms để luồng kết thúc
+                }
+
+                // Nếu luồng vẫn chưa dừng, in cảnh báo
+                if (thread.isAlive()) {
+                    System.err.println("Không thể dừng luồng: " + thread.getName());
+                }
+            } catch (InterruptedException e) {
+                System.err.println("Lỗi khi dừng luồng: " + e.getMessage());
+            }
+        }
+    }
+
+    @FXML
+    public void handleCloseWindow() {
+        stopAllThreads();
+        // Close the application
+        Platform.exit();
+        System.exit(0);
     }
 
 }

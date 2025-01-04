@@ -10,7 +10,7 @@ import DTO.Host;
 public class Folder_handle {
 
     // Tạo thư mục mới
-    public static void createNewFolder(String parentDirectory, String folderName) {
+    public static String createNewFolder(String parentDirectory, String folderName) {
         Path folderPath = Paths.get(parentDirectory, folderName);
 
         try {
@@ -18,17 +18,20 @@ public class Folder_handle {
             System.out.println("Creating folder: " + folderPath);
             Path parentPath = folderPath.getParent();
             if (!Files.exists(parentPath)) {
-                System.out.println("Parent directory does not exist: " + parentPath);
-                return;
+                return "Parent directory does not exist: " + parentPath;
             }
 
             // Attempt to create the directory
-            Files.createDirectories(folderPath);
+            try {
+                Files.createDirectories(folderPath);
+            } catch (AccessDeniedException e) {
+                return "Access denied: Unable to create folder at " + folderPath;
+            }
             System.out.println("Folder created: " + folderPath);
         } catch (IOException e) {
-            System.err.println("Error creating folder: " + e.getMessage());
-            e.printStackTrace();
+            return "Error creating folder";
         }
+        return "success";
     }
 
     public static void UploadDirectory(String folderPath, String pos) throws IOException {

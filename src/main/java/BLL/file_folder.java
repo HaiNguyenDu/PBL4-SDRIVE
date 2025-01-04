@@ -20,60 +20,84 @@ public class file_folder {
         }
     }
 
-    public static void rename(String path, String newName) {
+    public static String checkAccess(String path) {
+        Path inputPath = Paths.get(path);
+        if (Files.exists(inputPath)) {
+            if (Files.isWritable(inputPath)) {
+                return "success";
+            }
+            return "Access denied";
+        } else {
+            return "Path does not exist: " + path;
+        }
+    }
+
+    public static String rename(String path, String newName) {
         Path oldPath = Paths.get(path); // Đường dẫn hiện tại
         Path newPath = oldPath.resolveSibling(newName); // Tạo đường dẫn mới với tên mới
         System.out.println(oldPath + " " + newPath);
         if (oldPath.equals(newPath)) {
-            return;
+            return "Error new name equals old name";
         }
         try {
             // Kiểm tra xem đường dẫn cũ có tồn tại hay không
             if (Files.exists(oldPath)) {
-                if (Files.isDirectory(oldPath)) {
-                    // Nếu là thư mục
-                    Files.move(oldPath, newPath, StandardCopyOption.REPLACE_EXISTING);
-                    System.out.println("Folder renamed to: " + newPath);
-                } else if (Files.isRegularFile(oldPath)) {
-                    // Nếu là file
-                    Files.move(oldPath, newPath, StandardCopyOption.REPLACE_EXISTING);
-                    System.out.println("File renamed to: " + newPath);
-                } else {
-                    System.out.println("The path is neither a file nor a directory.");
-                }
                 String oldName = oldPath.getFileName().toString();
                 System.out.println("Old name: " + oldName);
                 Mail_DAL.updateNameFile(newName, path.trim().replace("\\\\" + Host.dnsServer, ""), newPath.toString().trim().replace("\\\\" + Host.dnsServer, ""));
+                if (Files.isDirectory(oldPath)) {
+                    // Nếu là thư mục
+                    try {
+                        Files.move(oldPath, newPath, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (AccessDeniedException e) {
+                        System.err.println("Access denied: " + e.getMessage());
+                        return "Access denied";
+                    }
+                    System.out.println("Folder renamed to: " + newPath);
+                    return "success";
+                } else if (Files.isRegularFile(oldPath)) {
+                    // Nếu là file
+                    try {
+                        Files.move(oldPath, newPath, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (AccessDeniedException e) {
+                        System.err.println("Access denied: " + e.getMessage());
+                        return "Access denied";
+                    }
+                    System.out.println("File renamed to: " + newPath);
+                    return "success";
+                } else {
+                    return "The path is neither a file nor a directory.";
+                }
             } else {
-                System.out.println("The path does not exist: " + oldPath);
+                return "The path does not exist: " + oldPath;
             }
         } catch (IOException e) {
-            System.err.println("Error renaming: " + e.getMessage());
+            return "Error renaming: ";
         }
         catch (Exception e) {
-            System.err.println("Error renaming: " + e.getMessage());
+            return "Error renaming: ";
         }
     }
 
     // Phương thức xóa file
-    public static void deleteFile(String path) {
+    public static String deleteFile(String path) {
         Path filePath = Paths.get(path); // Đường dẫn tới file
 
         try {
             // Kiểm tra nếu file tồn tại và là một file
             if (Files.exists(filePath) && Files.isRegularFile(filePath)) {
                 Files.delete(filePath);
-                System.out.println("File deleted: " + filePath);
+                return "success";
             } else {
-                System.out.println("No file found or not a file: " + filePath);
+               return "No file found or not a file: " + filePath;
             }
         } catch (IOException e) {
-            System.err.println("Error deleting file: " + e.getMessage());
+            return"Error deleting file: " + e.getMessage();
         }
     }
 
     // Phương thức xóa thư mục và tất cả nội dung trong thư mục
-    public static void deleteFolder(String path) {
+    public static String deleteFolder(String path) {
         Path folderPath = Paths.get(path); // Đường dẫn tới thư mục
 
         try {
@@ -83,22 +107,33 @@ public class file_folder {
                 Files.walkFileTree(folderPath, new SimpleFileVisitor<Path>() {
                     @Override
                     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                        Files.delete(file); // Xóa từng file
+                        try {
+                            Files.delete(file); // Xóa từng file
+                        } catch (AccessDeniedException e) {
+                            System.err.println("Access denied: " + e.getMessage());
+                            return FileVisitResult.TERMINATE;
+                        }
                         return FileVisitResult.CONTINUE;
                     }
 
                     @Override
                     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                        Files.delete(dir); // Xóa thư mục sau khi xóa các file trong thư mục
+                        try {
+                            Files.delete(dir); // Xóa thư mục sau khi xóa các file trong thư mục
+                        } catch (AccessDeniedException e) {
+                            System.err.println("Access denied: " + e.getMessage());
+                            return FileVisitResult.TERMINATE;
+                        }
                         return FileVisitResult.CONTINUE;
                     }
                 });
                 System.out.println("Folder and all its contents deleted: " + folderPath);
+                return "success";
             } else {
-                System.out.println("No folder found or not a directory: " + folderPath);
+                return "No folder found or not a directory: " + folderPath;
             }
         } catch (IOException e) {
-            System.err.println("Error deleting folder: " + e.getMessage());
+            return "Error deleting folder";
         }
     }
 
@@ -108,21 +143,21 @@ public class file_folder {
     }
 
     // Phương thức chính để kiểm tra và gọi các phương thức xóa
-    public static void deletePath(String path) {
+    public static String deletePath(String path) {
         Path inputPath = Paths.get(path);
 
         if (Files.exists(inputPath)) {
             if (Files.isDirectory(inputPath)) {
                 // Nếu là thư mục
-                deleteFolder(path);
+                return deleteFolder(path);
             } else if (Files.isRegularFile(inputPath)) {
                 // Nếu là file
-                deleteFile(path);
+                return deleteFile(path);
             } else {
-                System.out.println("The path is neither a file nor a directory.");
+               return "The path is neither a file nor a directory.";
             }
         } else {
-            System.out.println("Path does not exist: " + path);
+            return "Path does not exist: " + path;
         }
     }
 

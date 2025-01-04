@@ -51,25 +51,31 @@ public class File_handle {
         }
     }
 
-    public static void createNewFile(String directoryPath, String fileName) {
+    public static String createNewFile(String directoryPath, String fileName) {
         if (fileName.contains(".xlsx")) {
             createExcelFile(directoryPath, fileName);
-            return;
+            return "success";
         }
         Path path = Paths.get(directoryPath, fileName); // Kết hợp đường dẫn thư mục và tên file
 
         try {
             // Kiểm tra nếu file đã tồn tại
             if (Files.exists(path)) {
-                System.out.println("File already exists: " + path);
+                return "File already exists: " + path;
             } else {
                 // Tạo file mới
-                Files.createFile(path);
+                try {
+                    Files.createFile(path);
+                } catch (AccessDeniedException e) {
+                    return "Access denied: Unable to create file at " + path;
+                }
                 System.out.println("File created: " + path);
             }
         } catch (IOException e) {
-            System.err.println("Error creating file: " + e.getMessage());
+            return "Error creating file: ";
+          //  System.err.println("Error creating file: " + e.getMessage());
         }
+        return "success";
     }
 
     public static void createExcelFile(String directoryPath, String fileName) {
