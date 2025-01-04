@@ -11,11 +11,11 @@ import DTO.Mail;
 public class Mail_DAL {
     public static Connection connectToDatabase() throws Exception {
         // URL, user, và password cần thay đổi theo cơ sở dữ liệu của bạn
-        // String url = "jdbc:mysql://192.168.1.35:3306/PBL4?useSSL=false&allowPublicKeyRetrieval=true&maxPoolSize=50";
+        // String url = "jdbc:mysql://192.168.13.35:3306/PBL4?useSSL=false&allowPublicKeyRetrieval=true&maxPoolSize=50";
         // String user = "pbl4_user";
         // String password = "12345";
 
-        String url =        "jdbc:mysql://localhost:3306/PBL4?useSSL=false&allowPublicKeyRetrieval=true";
+        String url ="jdbc:mysql://localhost:3306/PBL4?useSSL=false&allowPublicKeyRetrieval=true";
         String user = "root";
         String password = "Thanhan@2004";
 
