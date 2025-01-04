@@ -2,7 +2,9 @@ package DTO;
 
 public class LoadFolder {
     private String infor = "";
+    @SuppressWarnings("unused")
     private String exitstatus = "exit-status: \n";
+    @SuppressWarnings("unused")
     private String exception = "";
 
     public void setInfor(String content) {

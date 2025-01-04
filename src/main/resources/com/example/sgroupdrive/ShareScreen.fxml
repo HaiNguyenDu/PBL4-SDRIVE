@@ -7,116 +7,91 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane nodeOrientation="LEFT_TO_RIGHT" prefHeight="500.0" prefWidth="600.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.ShareController">
-    <VBox spacing="10.0" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="20.0">
-       <HBox>
-           <ImageView fx:id="iconFolder" fitHeight="20" preserveRatio="true">
-            <HBox.margin>
-               <Insets right="10.0" />
-            </HBox.margin></ImageView>
-           <Text text="Network access" />
-       </HBox>
-        <Text fill="#209bd0" text="Chọn người dùng muốn chia sẻ">
-         <font>
-            <Font name="System Bold" size="15.0" />
-         </font>
-         <VBox.margin>
-            <Insets top="10.0" />
-         </VBox.margin></Text>
-        <Text text="Chọn vào tên và bấm thêm, hoặc bấm vào mũi tên để tìm ai đó ">
-         <VBox.margin>
-            <Insets bottom="10.0" />
-         </VBox.margin></Text>
+<AnchorPane nodeOrientation="LEFT_TO_RIGHT" prefHeight="500.0" prefWidth="600.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.ShareScreenController">
+    <VBox spacing="10.0" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="20.0" AnchorPane.rightAnchor="30.0" AnchorPane.bottomAnchor="30.0">
+        <!-- Header -->
         <HBox>
-                <HBox style="-fx-border-color: #209bd0;">
-                    <TextField prefHeight="20" prefWidth="350" style="-fx-background-color: transparent;" />
-                    <ComboBox prefWidth="20" style="-fx-background-color: transparent;" />
-                </HBox>
-                <Button prefWidth="80" text="Add">
-            <font>
-               <Font name="System Bold" size="13.0" />
-            </font>
-            <HBox.margin>
-               <Insets left="10.0" />
-            </HBox.margin></Button>
+            <ImageView fx:id="iconFolder" fitHeight="20" preserveRatio="true">
+                <HBox.margin>
+                    <Insets right="10.0" />
+                </HBox.margin>
+            </ImageView>
+            <Text text="Network access" />
         </HBox>
-<!--        user-->
-            <VBox prefHeight="200" prefWidth="450" style="-fx-border-color: grey;">
+
+        <!-- Instructions -->
+        <Text fill="#209bd0" text="Chọn người dùng muốn chia sẻ">
+            <font>
+                <Font name="System Bold" size="15.0" />
+            </font>
+            <VBox.margin>
+                <Insets top="10.0" />
+            </VBox.margin>
+        </Text>
+
+        <Text text="Chọn vào tên và bấm thêm, hoặc bấm vào mũi tên để tìm ai đó ">
+            <VBox.margin>
+                <Insets bottom="10.0" />
+            </VBox.margin>
+        </Text>
+
+        <!-- Search Field and Add Button -->
+        <HBox>
+            <HBox style="-fx-border-color: #209bd0;">
+                <TextField fx:id="userSearchField" prefHeight="20" prefWidth="350" style="-fx-background-color: transparent;" />
+                <ComboBox fx:id="userComboBox" prefWidth="20" style="-fx-background-color: transparent;" />
+            </HBox>
+            <Button fx:id="add" prefWidth="80" text="Add">
+                <font>
+                    <Font name="System Bold" size="13.0" />
+                </font>
+                <HBox.margin>
+                    <Insets left="10.0" />
+                </HBox.margin>
+            </Button>
+        </HBox>
+
+        <!-- Scrollable User List -->
+        <ScrollPane fitToWidth="true" prefHeight="300.0">
+            <VBox fx:id="mainVBoxId" style="-fx-border-color: grey;">
+                <!-- Example header for the list -->
                 <HBox>
                     <HBox prefWidth="380">
                         <Text text="Tên" />
                     </HBox>
-                        <Text text="Phân Quyền" />
-            <VBox.margin>
-               <Insets />
-            </VBox.margin>
-            <padding>
-               <Insets bottom="10.0" />
-            </padding>
+                    <Text text="Phân Quyền" />
                 </HBox>
-                <HBox prefHeight="30" prefWidth="450">
-                    <HBox prefWidth="380">
-                        <ImageView fx:id="iconAdmin" fitHeight="15" preserveRatio="true" />
-                        <Text text="Administrators">
-                  <HBox.margin>
-                     <Insets left="10.0" />
-                  </HBox.margin></Text>
-                    </HBox>
-                    <ComboBox fx:id="comboBox0" prefHeight="20" prefWidth="100" promptText="Owner" style="-fx-background-color: transparent;">
-
-                    </ComboBox>
-                </HBox>
-
-                <HBox prefWidth="450">
-                    <HBox prefWidth="380">
-                        <ImageView fx:id="iconUser" fitHeight="15" preserveRatio="true" />
-                        <Text text="Administrators">
-                            <HBox.margin>
-                                <Insets left="10.0" />
-                            </HBox.margin></Text>
-                    </HBox>
-                    <ComboBox fx:id="comboBox1" prefHeight="20" prefWidth="100" promptText="Owner" style="-fx-background-color: transparent;">
-
-                    </ComboBox>
-                </HBox>
-                <padding>
-                    <Insets left="10.0" top="15.0" />
-                </padding>
             </VBox>
+        </ScrollPane>
+
+        <!-- Action Buttons -->
         <HBox nodeOrientation="RIGHT_TO_LEFT" spacing="11.0">
             <StackPane>
-                <Rectangle arcHeight="25.0" arcWidth="25.0" fill="#cccccc" height="25" width="70.0">
-                </Rectangle>
+                <Rectangle arcHeight="25.0" arcWidth="25.0" fill="#cccccc" height="25" width="70.0" />
                 <HBox alignment="CENTER" spacing="5.0">
-                    <Text text="Cancel">
+                    <Text fx:id="cancel" text="Cancel">
                         <font>
                             <Font name="System Bold" size="12.0" />
-                        </font></Text>
-                    <opaqueInsets>
-                        <Insets />
-                    </opaqueInsets>
+                        </font>
+                    </Text>
                 </HBox>
             </StackPane>
+
             <StackPane>
-                <Rectangle arcHeight="25.0" arcWidth="25.0" fill="#cccccc" height="25" width="70.0">
-                </Rectangle>
+                <Rectangle arcHeight="25.0" arcWidth="25.0" fill="#cccccc" height="25" width="70.0" />
                 <HBox alignment="CENTER" spacing="5.0">
                     <ImageView fx:id="iconShare" fitHeight="15" preserveRatio="true">
                         <HBox.margin>
                             <Insets left="3.0" right="5.0" />
-                        </HBox.margin></ImageView>
-                    <Text text="Share">
+                        </HBox.margin>
+                    </ImageView>
+                    <Text fx:id="share" text="Share">
                         <font>
                             <Font name="System Bold" size="12.0" />
-                        </font></Text>
-                    <opaqueInsets>
-                        <Insets />
-                    </opaqueInsets>
+                        </font>
+                    </Text>
                 </HBox>
             </StackPane>
-            <padding>
-                <Insets bottom="10.0" right="10.0" top="10.0" />
-            </padding>
         </HBox>
     </VBox>
 </AnchorPane>

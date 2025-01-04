@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.ScrollPane?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="950.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.Recent1Controller">
+   <center>
+      <VBox prefHeight="600.0" prefWidth="489.0" styleClass="right-border" stylesheets="@../../../Styles/recentpage.css" BorderPane.alignment="CENTER">
+         <children>
+         <!-- Bat dau tu day -->
+            <!-- <HBox prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <HBox prefHeight="100.0" prefWidth="200.0" />
+                  <TextField alignment="CENTER" prefHeight="46.0" prefWidth="558.0" />
+               </children>
+            </HBox> -->
+            <HBox alignment="CENTER" nodeOrientation="RIGHT_TO_LEFT" prefHeight="28.0" prefWidth="352.0" spacing="5.0">
+               <children>
+                  <!-- <ImageView fitHeight="15.0" fitWidth="15.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../images/caret-down.png" />
+                     </image>
+                  </ImageView> -->
+                  <Label text="All" textFill="#1b1a1a">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <Pane nodeOrientation="RIGHT_TO_LEFT" prefHeight="30.0" prefWidth="205.0" />
+                  <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="19.0" prefWidth="68.0" text="Inbox">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+               </children>
+            </HBox>
+            <ScrollPane fitToHeight="true" fitToWidth="true" vbarPolicy="ALWAYS" hbarPolicy="NEVER">
+            <content>
+            <VBox prefHeight="470.0" prefWidth="351.0" fx:id="vboxContainer" spacing="5"/>
+            <!-- Den day, khong lien quan den Mail Receive -->
+            <!-- Day la phan style lien quan den Mail Receive -->
+            <!-- Day la ket thuc cua HBox -->
+            </content>
+        </ScrollPane>
+         </children>
+      </VBox>
+   </center>
+   <right>
+      <VBox alignment="TOP_RIGHT" prefHeight="600.0" prefWidth="598.0" BorderPane.alignment="CENTER">
+         <children>
+            <VBox prefHeight="134.0" prefWidth="598.0" fx:id="vboxMail_HeaderDetail" spacing="5">
+            <!-- <HBox alignment="CENTER_LEFT" prefHeight="134.0" prefWidth="598.0" stylesheets="@../../../Styles/recentpage.css">
+               <children>
+                  <Pane prefHeight="94.0" prefWidth="111.0">
+                     <children>
+                        <Circle fill="#ec0303" layoutX="55.0" layoutY="67.0" radius="33.0" stroke="BLACK" strokeType="INSIDE" />
+                        <Label layoutX="41.0" layoutY="51.0" text="TA" textFill="WHITE">
+                           <font>
+                              <Font name="System Bold" size="22.0" />
+                           </font>
+                        </Label>
+                     </children>
+                     <cursor>
+                        <Cursor fx:constant="DEFAULT" />
+                     </cursor>
+                  </Pane>
+                  <VBox alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" prefHeight="122.0" prefWidth="489.0">
+                     <children>
+                        <Label prefHeight="27.0" prefWidth="492.0" text="Thanhan &lt;Thanhan@pbl4.dut.vn&gt;">
+                           <font>
+                              <Font name="System Bold" size="18.0" />
+                           </font>
+                        </Label>
+                        <Label prefHeight="18.0" prefWidth="506.0" text="to: &lt;XPhuc@pbl4.dut.vn&gt;">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font>
+                        </Label>
+                        <Label prefHeight="18.0" prefWidth="495.0" text="date: 30/11/2024">
+                           <font>
+                              <Font name="System Bold" size="12.0" />
+                           </font></Label>
+                     </children>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </VBox>
+               </children>
+            </HBox> -->
+            </VBox>
+            <HBox fx:id="hboxInvited" alignment="CENTER" prefHeight="65.0" prefWidth="598.0">
+               <children>
+                  <!-- <Label alignment="CENTER" prefHeight="35.0" prefWidth="610.0" text="Thanh An invited you to edit a folder" textAlignment="JUSTIFY" wrapText="true">
+                     <font>
+                        <Font name="System Bold" size="24.0" />
+                     </font>
+                  </Label> -->
+               </children>
+            </HBox>
+            <VBox fx:id="vboxInvited" alignment="CENTER" prefHeight="200.0" prefWidth="100.0">
+               <children>
+                  <!-- <Label alignment="CENTER" prefHeight="35.0" prefWidth="610.0" text="Here's the folder that Thanh An shared with you." textAlignment="JUSTIFY" wrapText="true">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin>
+                  </Label> -->
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="490.0">
+                     <children>
+                        <!-- <ImageView fitHeight="65.0" fitWidth="51.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../../../images/folder.png" />
+                           </image>
+                        </ImageView>
+                        <Button mnemonicParsing="false" prefHeight="66.0" prefWidth="134.0" text="TestFolder">
+                           <HBox.margin>
+                              <Insets left="15.0" />
+                           </HBox.margin>
+                           <font>
+                              <Font name="System Bold" size="14.0" />
+                           </font>
+                        </Button> -->
+                     </children>
+                  </HBox>
+                  <!-- <Label alignment="CENTER" prefHeight="35.0" prefWidth="610.0" text="This invite will only work for you and people with existing access." textAlignment="JUSTIFY" wrapText="true" /> -->
+               </children>
+            </VBox>
+            <HBox alignment="CENTER" prefHeight="79.0" prefWidth="598.0">
+               <children>
+                  <!-- <Button mnemonicParsing="false" prefHeight="45.0" prefWidth="342.0" text="Open">
+                     <font>
+                        <Font name="System Bold" size="24.0" />
+                     </font>
+                  </Button> -->
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </right>
+</BorderPane>

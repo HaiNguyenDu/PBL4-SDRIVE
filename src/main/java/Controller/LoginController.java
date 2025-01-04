@@ -1,10 +1,18 @@
 package Controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
+import com.example.sgroupdrive.HelloApplication;
+
+import BLL.MailActivate;
 import BLL.SSHExample;
 import DTO.File_Folder;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Scene;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -12,6 +20,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
 
 public class LoginController {
     @FXML
@@ -28,7 +38,6 @@ public class LoginController {
     public Text errorPassword;
 
     public void initialize() {
-
         initImage();
         eventButton();
         eventField();
@@ -49,9 +58,7 @@ public class LoginController {
             String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
             if (!newValue) {
                 if (email.isEmpty())
-                    errorEmail.setText("Email Khong dc de trong");
-                else if (!email.matches(emailRegex))
-                    errorEmail.setText(" Sai ding dang email");
+                    errorEmail.setText("Username Khong dc de trong");
                 else
                     errorEmail.setText("");
             }
@@ -74,31 +81,96 @@ public class LoginController {
         loginText.setOnMouseEntered(event -> loginButton.setFill(Color.web("#4486b3")));
         loginText.setOnMouseExited(event -> loginButton.setFill(Color.WHITE));
         loginText.setOnMouseClicked(event -> {
+            @SuppressWarnings("unused")
             String[] error = validate();
+            @SuppressWarnings("unused")
             ArrayList<File_Folder> inFolder = new ArrayList<>();
             String email = emailField.getText().trim();
             String password = passwordField.getText().trim();
-            if (SSHExample.setAccount("pbl4.dut.vn", email, password)) {
+            String response = SSHExample.setAccount("pbl4.dut.vn", email, password);
+            if (response.toLowerCase().equals("success")) {
                 System.err.println("success");
-            } else
-                System.err.println("fail");
+                String result = MailActivate.init(email);
+                if (result.toLowerCase().equals("success")) {
+                    System.err.println("success");
+
+                    Stage newStage = new Stage();
+                    FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("HomePage.fxml"));
+                    try {
+                        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                        Scene newScene = new Scene(fxmlLoader.load(), 1260, 720);
+                        Stage loginscreen = new Stage();
+                        loginscreen = (Stage) loginText.getScene().getWindow();
+                        loginscreen.close();
+                        newStage.setScene(newScene);
+                        newStage.getIcons().add(new javafx.scene.image.Image(
+                                Objects.requireNonNull(getClass().getResourceAsStream("/images/n.png"))));
+                        newStage.setTitle("Home Page");
+                        newStage.show();
+                        return;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Dialog.showAlertDialog("Login Failed", result);
+                }
+            } else {
+                Dialog.showAlertDialog("Login Failed", response);
+            }
 
         });
         // register
         registerText.setOnMouseEntered(event -> registerButton.setFill(Color.web("#4486b3")));
         registerText.setOnMouseExited(event -> registerButton.setFill(Color.WHITE));
+        // enterlogin
+        passwordField.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode().toString().equals("ENTER")) {
+                @SuppressWarnings("unused")
+                String[] error = validate();
+                @SuppressWarnings("unused")
+                ArrayList<File_Folder> inFolder = new ArrayList<>();
+                String email = emailField.getText().trim();
+                String password = passwordField.getText().trim();
+                String response = SSHExample.setAccount("pbl4.dut.vn", email, password);
+                if (response.toLowerCase().equals("success")) {
+                    System.err.println("success");
+                    String result = MailActivate.init(email);
+                    if (result.toLowerCase().equals("success")) {
+                        System.err.println("success");
+
+                        Stage newStage = new Stage();
+                        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("HomePage.fxml"));
+                        try {
+                            Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+                            Scene newScene = new Scene(fxmlLoader.load(), 1260, 720);
+                            Stage loginscreen = new Stage();
+                            loginscreen = (Stage) loginText.getScene().getWindow();
+                            loginscreen.close();
+                            newStage.setScene(newScene);
+                            newStage.setTitle("Home Page");
+
+                            newStage.show();
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        Dialog.showAlertDialog("Login Failed", result);
+                    }
+                } else {
+                    Dialog.showAlertDialog("Login Failed", response);
+                }
+            }
+        });
     }
 
     String[] validate() {
         String email = emailField.getText().trim();
         String password = passwordField.getText().trim();
-        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
         String[] error = { "", "" };
         // Kiểm tra username
         if (email.isEmpty())
-            error[0] = "Email Khong dc de trong";
-        else if (!email.matches(emailRegex))
-            error[0] = "Sai ding dang email";
+            error[0] = "Username Khong dc de trong";
         if (password.isEmpty())
             error[1] = "Password khong dc de trong";
         else if (password.length() < 6)
