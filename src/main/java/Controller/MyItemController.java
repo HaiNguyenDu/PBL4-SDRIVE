@@ -310,7 +310,7 @@ public class MyItemController extends MainController {
         ContextMenu emptyAreaMenu = new ContextMenu();
         MenuItem newFile = new MenuItem("New File");
         MenuItem newFolder = new MenuItem("New Folder");
-        MenuItem parseItem2 = new MenuItem("Parse");
+        MenuItem parseItem2 = new MenuItem("Paste");
 
         emptyAreaMenu.getItems().addAll(newFile, newFolder, parseItem2);
 
@@ -318,9 +318,9 @@ public class MyItemController extends MainController {
         ContextMenu rowMenu = new ContextMenu();
         MenuItem renameItem = new MenuItem("Rename");
         MenuItem deleteItem = new MenuItem("Delete");
-        MenuItem linkItem = new MenuItem("Link");
+        MenuItem linkItem = new MenuItem("Get path");
         MenuItem copyItem = new MenuItem("Copy");
-        MenuItem parseItem = new MenuItem("Parse");
+        MenuItem parseItem = new MenuItem("Paste");
         MenuItem trackerItem = new MenuItem("Tracker");
 
         if (MyItemController.Path.trim().contains("C:\\SDriver\\" + ConnectWindowServer.user)) {
@@ -815,7 +815,7 @@ public class MyItemController extends MainController {
 
     void updatePathView(String newPath) {
         homePageController.pathViewHbox.getChildren().clear();
-        Text homeText = textPathView("Home > ");
+        Text homeText = textPathView("Home / ");
         homeText.setOnMouseClicked(event -> {
             pathView.clear();
             updatePathView(newPath);
@@ -847,7 +847,7 @@ public class MyItemController extends MainController {
                 homePageController.pathViewHbox.getChildren().add(newText);
                 break;
             } else {
-                Text newText = textPathView(text + " > ");
+                Text newText = textPathView(text + " / ");
                 newText.setOnMouseClicked((MouseEvent event) -> {
                     clickTextPathView(n, newPath);
                     newPath(newPath);
