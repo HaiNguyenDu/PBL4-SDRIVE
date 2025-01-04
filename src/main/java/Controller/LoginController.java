@@ -2,6 +2,7 @@ package Controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import com.example.sgroupdrive.HelloApplication;
 
@@ -37,7 +38,6 @@ public class LoginController {
     public Text errorPassword;
 
     public void initialize() {
-
         initImage();
         eventButton();
         eventField();
@@ -103,10 +103,11 @@ public class LoginController {
                         loginscreen = (Stage) loginText.getScene().getWindow();
                         loginscreen.close();
                         newStage.setScene(newScene);
+                        newStage.getIcons().add(new javafx.scene.image.Image(
+                                Objects.requireNonNull(getClass().getResourceAsStream("/images/n.png"))));
                         newStage.setTitle("Home Page");
-
                         newStage.show();
-
+                        return;
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -136,7 +137,7 @@ public class LoginController {
                     String result = MailActivate.init(email);
                     if (result.toLowerCase().equals("success")) {
                         System.err.println("success");
-    
+
                         Stage newStage = new Stage();
                         FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("HomePage.fxml"));
                         try {
@@ -147,9 +148,9 @@ public class LoginController {
                             loginscreen.close();
                             newStage.setScene(newScene);
                             newStage.setTitle("Home Page");
-    
+
                             newStage.show();
-    
+
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

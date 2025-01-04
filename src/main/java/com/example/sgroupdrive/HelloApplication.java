@@ -18,6 +18,7 @@ public class HelloApplication extends Application {
         stage.setTitle("SDrive");
         stage.setScene(scene);
         stage.show();
+        stage.getIcons().add(new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/n.png"))));
     }
 
     public static void main(String[] args) {  
