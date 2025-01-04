@@ -246,10 +246,9 @@ public class Recent1Controller extends MainController {
                 try {
                     String isAccess = file_folder.checkPathAccess("\\\\" + Host.dnsServer + path);
                     if (isAccess.equals("success")) {
-                        if(file_folder.isFile("\\\\" + Host.dnsServer + path)){
+                        if (file_folder.isFile("\\\\" + Host.dnsServer + path)) {
                             File_handle.openFile("\\\\" + Host.dnsServer + path);
-                        }
-                        else{
+                        } else {
                             homePageController.nowPage = "MyItem";
                             System.out.println("C:" + path);
                             if (MyItemController.reloadPage != null && MyItemController.reloadPage.isAlive()) {
@@ -258,11 +257,11 @@ public class Recent1Controller extends MainController {
                             homePageController.switchPage("MyItemPage.fxml",
                                     new MyItemController(homePageController, "C:" + path));
                         }
-                       
+
                     } else {
                         Dialog.showAlertDialog("Fail", isAccess);
                     }
-                   
+
                 } catch (Exception e1) {
                     e1.printStackTrace();
                 }
@@ -282,9 +281,17 @@ public class Recent1Controller extends MainController {
             label_This.setWrapText(true);
             label_This.setFont(new javafx.scene.text.Font("System", 12));
 
+            // Tạo button Copy link
+            // Tạo Button
+            Button copyLink = new Button("Open");
+            copyLink.setPrefHeight(45.0);
+            copyLink.setPrefWidth(342.0);
+            copyLink.setMnemonicParsing(false);
+            copyLink.setFont(new javafx.scene.text.Font("System", 14));
+
             // Thêm HBox và Label vào bố cục
             vboxInvited.getChildren().clear();
-            vboxInvited.getChildren().addAll(label_Here, hbox_Folder, label_This);
+            vboxInvited.getChildren().addAll(label_Here, hbox_Folder, label_This, copyLink);
         });
 
         return hbox;
