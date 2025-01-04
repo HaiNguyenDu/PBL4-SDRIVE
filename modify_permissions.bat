@@ -1,18 +1,10 @@
 @echo off
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah" /grant "PBL4\Administrator:(OI)(CI)F"
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah" /grant "PBL4\XPhuc:(OI)(CI)F"
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah\*" /grant "PBL4\Administrator:(OI)(CI)F" /T
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah\*" /grant "PBL4\XPhuc:(OI)(CI)F" /T
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah" /inheritance:r
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah" /grant "PBL4\Administrator:(OI)(CI)F"
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah" /grant "PBL4\XPhuc:(OI)(CI)F"
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah\*" /grant "PBL4\Administrator:(OI)(CI)F" /T
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah\*" /grant "PBL4\XPhuc:(OI)(CI)F" /T
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah" /remove "PBL4\Phuc"
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah" /remove "PBL4\Phuc" /T
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah" /grant "PBL4\Phuc":(OI)(CI)R
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah\*" /grant "PBL4\Phuc":(OI)(CI)R /T
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah" /grant "PBL4\Administrator:(OI)(CI)F"
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah" /grant "PBL4\XPhuc:(OI)(CI)F"
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah\*" /grant "PBL4\Administrator:(OI)(CI)F" /T
-icacls "\\10.10.37.25\SDriver\XPhuc\An_soai_ca\hah\*" /grant "PBL4\XPhuc:(OI)(CI)F" /T
+icacls "\\192.168.10.25\SDriver\Thanhan\folder" /grant "PBL4\Administrator:(OI)(CI)F"
+icacls "\\192.168.10.25\SDriver\Thanhan\folder" /grant "PBL4\Thanhan:(OI)(CI)F"
+icacls "\\192.168.10.25\SDriver\Thanhan\folder\*" /grant "PBL4\Administrator:(OI)(CI)F" /T
+icacls "\\192.168.10.25\SDriver\Thanhan\folder\*" /grant "PBL4\Thanhan:(OI)(CI)F" /T
+icacls "\\192.168.10.25\SDriver\Thanhan\folder" /inheritance:r
+icacls "\\192.168.10.25\SDriver\Thanhan\folder" /remove "Everyone"
+icacls "\\192.168.10.25\SDriver\Thanhan\folder" /remove "Everyone" /T
+icacls "\\192.168.10.25\SDriver\Thanhan\folder" /grant "Everyone":(OI)(CI)R
+icacls "\\192.168.10.25\SDriver\Thanhan\folder\*" /grant "Everyone":(OI)(CI)R /T

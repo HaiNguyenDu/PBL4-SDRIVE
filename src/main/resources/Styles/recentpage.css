@@ -1,0 +1,37 @@
+
+.right-border {
+    -fx-border-color: #D2D2D2;
+    -fx-border-width: 0 1 0 0;
+}
+
+/* styles.css */
+.selected-mail {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dcdcdc;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+}
+
+.selected-mail:hover {
+    -fx-background-color: #f0f8ff; /* Màu khi hover */
+    -fx-border-color: #a9a9a9;
+}
+
+.label-name {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+.label-email {
+    -fx-font-size: 12px;
+    -fx-text-fill: #555555;
+}
+
+.label-content {
+    -fx-font-size: 12px;
+    -fx-text-fill: #777777;
+    -fx-wrap-text: false; /* Không xuống dòng */
+    -fx-text-overrun: ellipsis; /* Thêm dấu "..." nếu tràn */
+}

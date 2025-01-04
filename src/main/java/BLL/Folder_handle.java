@@ -11,14 +11,23 @@ public class Folder_handle {
 
     // Tạo thư mục mới
     public static void createNewFolder(String parentDirectory, String folderName) {
-        Path folderPath = Paths.get(parentDirectory, folderName); // Kết hợp đường dẫn thư mục và tên thư mục
+        Path folderPath = Paths.get(parentDirectory, folderName);
 
         try {
-            // Tạo thư mục (bao gồm tất cả thư mục con nếu cần)
+            // Check if the parent directory exists
+            System.out.println("Creating folder: " + folderPath);
+            Path parentPath = folderPath.getParent();
+            if (!Files.exists(parentPath)) {
+                System.out.println("Parent directory does not exist: " + parentPath);
+                return;
+            }
+
+            // Attempt to create the directory
             Files.createDirectories(folderPath);
             System.out.println("Folder created: " + folderPath);
         } catch (IOException e) {
             System.err.println("Error creating folder: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -200,36 +209,17 @@ public class Folder_handle {
             PrintWriter printWriter = new PrintWriter(fileWriter);
             printWriter.println("@echo off");
             String domainUser = "PBL4\\" + username;
-            // Grant XPhuc full control over the folder to maintain access to all contents
+            if (username.equals("Everyone")) {
+                domainUser = username;
+            }
             printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full
-            // control
-            // for
-            // Administrators
             printWriter.println(
                     "icacls \"" + folderPath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\""); // Full
-            // control
-            // for
-            // specific
-            // user
             printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\Administrator:(OI)(CI)F\" /T");
             printWriter.println(
                     "icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\" /T");
             // Disable inheritance on the parent folder, if necessary
             printWriter.println("icacls \"" + folderPath + "\" /inheritance:r");
-            // Grant XPhuc full control over the folder to maintain access to all contents
-            printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full
-            // control
-            // for
-            // Administrators
-            printWriter.println(
-                    "icacls \"" + folderPath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\""); // Full
-            // control
-            // for
-            // specific
-            // user
-            printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\Administrator:(OI)(CI)F\" /T");
-            printWriter.println(
-                    "icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\" /T");
             // Remove specific permissions for Thanhan to reset
             printWriter.println("icacls \"" + folderPath + "\" /remove \"" + domainUser + "\"");
             printWriter.println("icacls \"" + folderPath + "\" /remove \"" + domainUser + "\" /T");
@@ -274,24 +264,14 @@ public class Folder_handle {
                     System.out.println("Unrecognized access type. Defaulting to read-only.");
                     break;
             }
-            // Grant XPhuc full control over the folder to maintain access to all contents
-            printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full
-                                                                                                           // control
-                                                                                                           // for
-                                                                                                           // Administrators
-            printWriter.println(
-                    "icacls \"" + folderPath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\""); // Full
-                                                                                                                  // control
-                                                                                                                  // for
-                                                                                                                  // specific
-                                                                                                                  // user
-            printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\Administrator:(OI)(CI)F\" /T");
-            printWriter.println(
-                    "icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\" /T");
             // Enable inheritance again to ensure new folders inherit permissions
             // printWriter.println("icacls \"" + folderPath + "\" /inheritance:e");
             // Close the PrintWriter
             printWriter.close();
+            // ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c",
+            // batchFilePath);
+            // processBuilder.inheritIO();
+            // processBuilder.start();
             Process process = Runtime.getRuntime().exec(batchFilePath);
             int exitCode = process.waitFor();
             if (exitCode == 0) {
@@ -299,7 +279,8 @@ public class Folder_handle {
             } else {
                 System.err.println("Failed to modify permissions. Exit code: " + exitCode);
             }
-        } catch (IOException | InterruptedException e) {
+            Thread.sleep(2000);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

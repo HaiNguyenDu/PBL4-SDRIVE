@@ -1,17 +1,61 @@
 package BLL;
 
+import java.awt.Desktop;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.*;
-import java.nio.file.attribute.FileAttribute;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.mysql.cj.result.Row;
 
 import DAL.ConnectWindowServer;
 
 public class File_handle {
 
+    public static void openFile(String filePath) {
+        // Tạo đối tượng File từ đường dẫn
+        File file = new File(filePath);
+
+        if (file.exists()) {
+            if (Desktop.isDesktopSupported()) {
+                try {
+                    Desktop desktop = Desktop.getDesktop();
+                    desktop.open(file);
+                    System.out.println("Đang mở file: " + filePath);
+                } catch (IOException e) {
+                    System.out.println("Không thể mở file: " + e.getMessage());
+                }
+            } else {
+                System.out.println("Hệ thống không hỗ trợ ứng dụng Desktop.");
+            }
+        } else {
+            System.out.println("File không tồn tại: " + filePath);
+        }
+    }
+
+    public static void closeFile(String filePath) {
+        try {
+            String processName = "winword.exe";
+            ProcessBuilder processBuilder = new ProcessBuilder("taskkill", "/F", "/IM", processName);
+            processBuilder.start();
+            System.out.println("Closing the file (and the application)...");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void createNewFile(String directoryPath, String fileName) {
+        if (fileName.contains(".xlsx")) {
+            createExcelFile(directoryPath, fileName);
+            return;
+        }
         Path path = Paths.get(directoryPath, fileName); // Kết hợp đường dẫn thư mục và tên file
 
         try {
@@ -25,6 +69,36 @@ public class File_handle {
             }
         } catch (IOException e) {
             System.err.println("Error creating file: " + e.getMessage());
+        }
+    }
+
+    public static void createExcelFile(String directoryPath, String fileName) {
+        try {
+            // Tạo workbook mới
+            XSSFWorkbook workbook = new XSSFWorkbook();
+
+            // Tạo sheet trong workbook
+            XSSFSheet sheet = workbook.createSheet("Sheet1");
+
+            // Tạo row và cell trong sheet
+            XSSFRow row = sheet.createRow(0); // Tạo dòng đầu tiên
+            XSSFCell cell = row.createCell(0); // Tạo cell tại vị trí (0, 0)
+            cell.setCellValue("Hello, Excel!"); // Ghi giá trị vào cell
+
+            // Đặt đường dẫn đầy đủ cho file
+            String filePath = directoryPath + "/" + fileName;
+
+            // Ghi workbook vào file
+            try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+                workbook.write(fileOut);
+            }
+
+            // Đóng workbook
+            workbook.close();
+
+            System.out.println("Excel file created successfully: " + filePath);
+        } catch (IOException e) {
+            System.err.println("Error creating Excel file: " + e.getMessage());
         }
     }
 
@@ -50,7 +124,9 @@ public class File_handle {
         try {
             String batchFilePath = "modify_file_permissions.bat";
             String domainUser = "PBL4\\" + username;
-
+            if (username.equals("Everyone")) {
+                domainUser = username;
+            }
             // Create the batch file to modify permissions for a single file
             try (FileWriter fileWriter = new FileWriter(batchFilePath);
                     PrintWriter printWriter = new PrintWriter(fileWriter)) {
@@ -66,7 +142,6 @@ public class File_handle {
                 printWriter.println("icacls \"" + filePath + "\" /grant \"PBL4\\Administrator:F\"");
                 printWriter.println("icacls \"" + filePath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":F\"");
                 printWriter.println("icacls \"" + filePath + "\" /remove \"" + domainUser + "\"");
-
                 // Set permissions based on the access type
                 switch (access) {
                     case "M": // Modify access
@@ -86,7 +161,7 @@ public class File_handle {
                         printWriter.println("icacls \"" + filePath + "\" /grant \"" + domainUser + "\":R");
                         break;
                 }
-
+                printWriter.println("icacls \"" + filePath + "\" /inheritance:d");
                 // Grant full control to admin users to maintain access
                 printWriter.println("icacls \"" + filePath + "\" /grant \"PBL4\\Administrator:F\"");
                 printWriter.println("icacls \"" + filePath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":F\"");
