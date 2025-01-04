@@ -212,50 +212,14 @@ public class Folder_handle {
             if (username.equals("Everyone")) {
                 domainUser = username;
             }
-            // Grant XPhuc full control over the folder to maintain access to all contents
             printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full
-            // control
-            // for
-            // Administrators
             printWriter.println(
                     "icacls \"" + folderPath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\""); // Full
-            // control
-            // for
-            // specific
-            // user
             printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\Administrator:(OI)(CI)F\" /T");
             printWriter.println(
                     "icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\" /T");
             // Disable inheritance on the parent folder, if necessary
             printWriter.println("icacls \"" + folderPath + "\" /inheritance:r");
-            // Grant XPhuc full control over the folder to maintain access to all contents
-            printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full
-            // control
-            // for
-            // Administrators
-            printWriter.println(
-                    "icacls \"" + folderPath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\""); // Full
-            // control
-            // for
-            // specific
-            // user
-            printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\Administrator:(OI)(CI)F\" /T");
-            printWriter.println(
-                    "icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\" /T");
-            // Grant XPhuc full control over the folder to maintain access to all contents
-            printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full
-            // control
-            // for
-            // Administrators
-            printWriter.println(
-                    "icacls \"" + folderPath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\""); // Full
-            // control
-            // for
-            // specific
-            // user
-            printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\Administrator:(OI)(CI)F\" /T");
-            printWriter.println(
-                    "icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\" /T");
             // Remove specific permissions for Thanhan to reset
             printWriter.println("icacls \"" + folderPath + "\" /remove \"" + domainUser + "\"");
             printWriter.println("icacls \"" + folderPath + "\" /remove \"" + domainUser + "\" /T");
@@ -300,36 +264,23 @@ public class Folder_handle {
                     System.out.println("Unrecognized access type. Defaulting to read-only.");
                     break;
             }
-            // Grant XPhuc full control over the folder to maintain access to all contents
-            printWriter.println("icacls \"" + folderPath + "\" /grant \"PBL4\\Administrator:(OI)(CI)F\""); // Full
-                                                                                                           // control
-                                                                                                           // for
-                                                                                                           // Administrators
-            printWriter.println(
-                    "icacls \"" + folderPath + "\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\""); // Full
-                                                                                                                  // control
-                                                                                                                  // for
-                                                                                                                  // specific
-                                                                                                                  // user
-            printWriter.println("icacls \"" + folderPath + "\\*\" /grant \"PBL4\\Administrator:(OI)(CI)F\" /T");
-            printWriter.println(
-                    "icacls \"" + folderPath + "\\*\" /grant \"PBL4\\" + ConnectWindowServer.user + ":(OI)(CI)F\" /T");
             // Enable inheritance again to ensure new folders inherit permissions
             // printWriter.println("icacls \"" + folderPath + "\" /inheritance:e");
             // Close the PrintWriter
             printWriter.close();
-            ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", batchFilePath);
-            processBuilder.inheritIO();
-            processBuilder.start();
-            // Process process = Runtime.getRuntime().exec(batchFilePath);
-            // int exitCode = process.waitFor();
-            // if (exitCode == 0) {
-            // System.out.println("Permissions successfully modified for " + username + " on
-            // folder " + folderPath);
-            // } else {
-            // System.err.println("Failed to modify permissions. Exit code: " + exitCode);
-            // }
-        } catch (IOException e) {
+            // ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c",
+            // batchFilePath);
+            // processBuilder.inheritIO();
+            // processBuilder.start();
+            Process process = Runtime.getRuntime().exec(batchFilePath);
+            int exitCode = process.waitFor();
+            if (exitCode == 0) {
+                System.out.println("Permissions successfully modified for " + username + " on folder " + folderPath);
+            } else {
+                System.err.println("Failed to modify permissions. Exit code: " + exitCode);
+            }
+            Thread.sleep(2000);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
